@@ -16,6 +16,7 @@ export class AppComponent implements OnInit {
   @ViewChild('pixiContainer') pixiContainer; // this allows us to reference and load stuff into the div container
   public app: Application; // this will be our pixi application
   public state;
+  private bunny: Sprite;
 
   ngOnInit() {
 
@@ -30,6 +31,7 @@ export class AppComponent implements OnInit {
     loader.add(['assets/images/canon.png']).
       on("progress", this.loadProgressHandler).
       load(this.setup.bind(this));
+    this.app.ticker.add(this.update.bind(this));
   }
 
   loadProgressHandler(loader, resource) {
@@ -37,17 +39,22 @@ export class AppComponent implements OnInit {
   }
 
   setup() {
-    const bunny: Sprite = new PIXI.Sprite(
+    this.bunny = new PIXI.Sprite(
       PIXI.loader.resources['assets/images/canon.png'].texture
     );
 
-    bunny.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
+    this.bunny.on("pointerdown", function (e) {
+      console.log("click!!");
+      this.bunny.position.set(this.app.renderer.view.width / 2 + 20, this.app.screen.height / 2);
+    });
 
-    this.app.stage.addChild(bunny);
+    this.bunny.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
+
+    this.app.stage.addChild(this.bunny);
   }
 
-  gameLoop(delta) {
-    this.state(delta); // run the function of the current game state
+  update(delta) {
+    this.bunny.rotation += 0.1 * delta;
   }
 
 
