@@ -28,6 +28,7 @@ export class AppComponent implements OnInit {
   public state;
   private enemySprite: Sprite;
   private cursorSprite: Sprite;
+  private enemyCommentText: Text;
 
   ngOnInit() {
 
@@ -67,6 +68,14 @@ export class AppComponent implements OnInit {
     console.log(`loaded ${resource.url}. Loading is ${loader.progress}% complete.`);
   }
 
+  setupText() {
+    this.enemyCommentText = new PIXI.Text('AUA! Friss Staub!');
+    this.enemyCommentText.x = this.enemySprite.x - this.enemyCommentText.width / 2;
+    this.enemyCommentText.y = this.enemySprite.y - this.enemySprite.height / 2 - this. enemyCommentText.height;
+
+    this.app.stage.addChild(this.enemyCommentText);
+  }
+
   setupCursor() {
     this.app.renderer.plugins.interaction.cursorStyles.default = 'none';
 
@@ -98,7 +107,7 @@ export class AppComponent implements OnInit {
     this.enemySprite.anchor.set(0.5);
     this.enemySprite.scale.x *= 0.75;
     this.enemySprite.scale.y *= 0.75;
-    
+
     this.enemySprite.interactive = true;
     this.enemySprite.on("pointerdown", this.onPointerDown.bind(this));
     this.enemySprite.on("pointerup", this.onPointerUp.bind(this));
@@ -111,6 +120,7 @@ export class AppComponent implements OnInit {
   setup() {
     this.setupEnemy();
     this.setupCursor();
+    this.setupText();
   }
 
   onPointerDown() {
@@ -118,13 +128,14 @@ export class AppComponent implements OnInit {
     clapSound.play();
 
     this.cursorSprite.texture = PIXI.loader.resources['handSmackingImage'].texture;
-
+    this.enemyCommentText.visible = true;
     this.enemySprite.scale.x -= 0.1;
     this.enemySprite.scale.y -= 0.1;
   }
 
   onPointerUp() {
     this.cursorSprite.texture = PIXI.loader.resources['handImage'].texture;
+    this.enemyCommentText.visible = false;
     this.enemySprite.scale.x += 0.1;
     this.enemySprite.scale.y += 0.1;
   }
