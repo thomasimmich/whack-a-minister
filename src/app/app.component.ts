@@ -11,51 +11,62 @@ declare var PIXI: any; // instead of importing pixi like some tutorials say to d
 
 
 export class AppComponent implements OnInit {
-  title = 'first-app';
+  title = 'Scheuer-Den-Scheuer';
 
   @ViewChild('pixiContainer') pixiContainer; // this allows us to reference and load stuff into the div container
   public app: Application; // this will be our pixi application
   public state;
-  private bunny: Sprite;
+  private enemy: Sprite;
 
   ngOnInit() {
 
     this.app = new PIXI.Application({ width: 800, height: 600, backgroundColor: 0x1099bb }); // this creates our pixi application
 
     this.pixiContainer.nativeElement.appendChild(this.app.view); // this places our pixi application onto the viewable document
+    
     let type = "WebGL"
     if (!PIXI.utils.isWebGLSupported()) {
       type = "canvas"
     }
-    console.log(type);
-    loader.add(['assets/images/canon.png']).
-      on("progress", this.loadProgressHandler).
+
+    loader.add(['assets/images/scheuer.png']).
+      on("progress", this.onLoad).
       load(this.setup.bind(this));
+
     this.app.ticker.add(this.update.bind(this));
   }
 
-  loadProgressHandler(loader, resource) {
+  onLoad(loader, resource) {
     console.log(`loaded ${resource.url}. Loading is ${loader.progress}% complete.`);
   }
 
   setup() {
-    this.bunny = new PIXI.Sprite(
-      PIXI.loader.resources['assets/images/canon.png'].texture
+    this.enemy = new PIXI.Sprite(
+      PIXI.loader.resources['assets/images/scheuer.png'].texture
     );
 
-    this.bunny.on("pointerdown", function (e) {
-      console.log("click!!");
-      this.bunny.position.set(this.app.renderer.view.width / 2 + 20, this.app.screen.height / 2);
-    });
+    this.enemy.anchor.set(0.5);
+    this.enemy.interactive = true;
+    this.enemy.buttonMode = true;
+    this.enemy.on("pointerdown", this.onPointerDown.bind(this));
+    this.enemy.on("pointerup", this.onPointerUp.bind(this));
 
-    this.bunny.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
+    this.enemy.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
 
-    this.app.stage.addChild(this.bunny);
+    this.app.stage.addChild(this.enemy);
   }
 
-  update(delta) {
-    this.bunny.rotation += 0.1 * delta;
+  onPointerDown() {
+    this.enemy.scale.x -= 0.1;
+    this.enemy.scale.y -= 0.1;
   }
 
+  onPointerUp() {
+    this.enemy.scale.x += 0.1;
+    this.enemy.scale.y += 0.1;
+  }  
 
+  update(delta: number) {
+    //this.enemy.rotation += 0.1 * delta;
+  }
 }
