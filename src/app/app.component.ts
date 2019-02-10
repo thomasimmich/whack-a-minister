@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Sprite, Application, Rectangle, Texture, Container, DisplayObject, Text, loader } from 'pixi.js';
+import { Sprite, Application, Sound, Rectangle, Texture, Container, DisplayObject, Text, loader } from 'pixi.js';
 //import * as PIXI from "pixi.js/dist/pixi.js"
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
 
@@ -10,26 +10,53 @@ declare var PIXI: any; // instead of importing pixi like some tutorials say to d
 })
 
 
+
+
 export class AppComponent implements OnInit {
+  // List of files to load
+  private manifest = {
+    enemyImage: 'assets/images/scheuer.png',
+    handImage: 'assets/images/hand.png',
+    handSmackingImage: 'assets/images/hand-smacking.png',
+    clapSound: 'assets/sounds/clap.mp3'
+  };
+
   title = 'Scheuer-Den-Scheuer';
 
   @ViewChild('pixiContainer') pixiContainer; // this allows us to reference and load stuff into the div container
   public app: Application; // this will be our pixi application
   public state;
-  private enemy: Sprite;
+  private enemySprite: Sprite;
+  private cursorSprite: Sprite;
 
   ngOnInit() {
 
     this.app = new PIXI.Application({ width: 800, height: 600, backgroundColor: 0x1099bb }); // this creates our pixi application
 
     this.pixiContainer.nativeElement.appendChild(this.app.view); // this places our pixi application onto the viewable document
-    
+
     let type = "WebGL"
     if (!PIXI.utils.isWebGLSupported()) {
       type = "canvas"
     }
 
-    loader.add(['assets/images/scheuer.png']).
+    //PIXI.sound.add('clap', 'assets/sounds/clap.mp3');
+    //PIXI.sound.play('bird');
+
+    // set mouse cursor
+    //var defaultIcon = "url('assets/images/hand.png'),auto";
+    //var hoverIcon = "url('required/assets/hand-smacking.png'),auto";
+
+
+
+    //this.pixiContainer.cursor = "url('required/assets/hand.png'),auto";
+    //this.app.renderer.plugins.interaction.cursorStyles.hover = hoverIcon;
+    // Add to the PIXI loader
+    for (let name in this.manifest) {
+      PIXI.loader.add(name, this.manifest[name]);
+    }
+
+    PIXI.loader.
       on("progress", this.onLoad).
       load(this.setup.bind(this));
 
@@ -40,31 +67,67 @@ export class AppComponent implements OnInit {
     console.log(`loaded ${resource.url}. Loading is ${loader.progress}% complete.`);
   }
 
-  setup() {
-    this.enemy = new PIXI.Sprite(
-      PIXI.loader.resources['assets/images/scheuer.png'].texture
+  setupCursor() {
+    this.app.renderer.plugins.interaction.cursorStyles.default = 'none';
+
+    let interaction = this.app.renderer.plugins.interaction;
+
+    this.cursorSprite = new PIXI.Sprite(
+      PIXI.loader.resources['handImage'].texture
     );
 
-    this.enemy.anchor.set(0.5);
-    this.enemy.interactive = true;
-    this.enemy.buttonMode = true;
-    this.enemy.on("pointerdown", this.onPointerDown.bind(this));
-    this.enemy.on("pointerup", this.onPointerUp.bind(this));
+    this.cursorSprite.anchor.set(0.35, 0.25); // position specific to where the actual cursor point is
+    this.app.stage.addChild(this.cursorSprite);
 
-    this.enemy.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
+    interaction.on("pointerover", () => {
+      this.cursorSprite.visible = true;
+    });
+    interaction.on("pointerout", () => {
+      this.cursorSprite.visible = false;
+    });
+    interaction.on("pointermove", (event) => {
+      this.cursorSprite.position = event.data.global;
+    });
+  }
 
-    this.app.stage.addChild(this.enemy);
+  setupEnemy() {
+    this.enemySprite = new PIXI.Sprite(
+      PIXI.loader.resources['enemyImage'].texture
+    );
+
+    this.enemySprite.anchor.set(0.5);
+    this.enemySprite.scale.x *= 0.75;
+    this.enemySprite.scale.y *= 0.75;
+    
+    this.enemySprite.interactive = true;
+    this.enemySprite.on("pointerdown", this.onPointerDown.bind(this));
+    this.enemySprite.on("pointerup", this.onPointerUp.bind(this));
+
+    this.enemySprite.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
+
+    this.app.stage.addChild(this.enemySprite);
+  }
+
+  setup() {
+    this.setupEnemy();
+    this.setupCursor();
   }
 
   onPointerDown() {
-    this.enemy.scale.x -= 0.1;
-    this.enemy.scale.y -= 0.1;
+    let clapSound: Sound = PIXI.loader.resources['clapSound'].data;
+    clapSound.play();
+
+    this.cursorSprite.texture = PIXI.loader.resources['handSmackingImage'].texture;
+
+    this.enemySprite.scale.x -= 0.1;
+    this.enemySprite.scale.y -= 0.1;
   }
 
   onPointerUp() {
-    this.enemy.scale.x += 0.1;
-    this.enemy.scale.y += 0.1;
-  }  
+    this.cursorSprite.texture = PIXI.loader.resources['handImage'].texture;
+    this.enemySprite.scale.x += 0.1;
+    this.enemySprite.scale.y += 0.1;
+  }
 
   update(delta: number) {
     //this.enemy.rotation += 0.1 * delta;
