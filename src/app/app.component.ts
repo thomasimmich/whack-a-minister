@@ -39,9 +39,9 @@ export class AppComponent implements OnInit {
   private stateTime: number;
   private enemyCommentText: Text;
   private holePositions: Point[] = [
-    new Point(40, 60),
-    new Point(120, 40),
-    new Point(200, 40)
+    new Point(0.2, 0.4),
+    new Point(0.7, 0.2),
+    new Point(0.5, 0.3)
   ];
 
   ngOnInit() {
@@ -134,7 +134,7 @@ export class AppComponent implements OnInit {
     this.setupText();
   }
 
-  onPointerDown() {
+  onPointerDown(event: any) {
     if (this.gameState != GameStates.IdleState) {
       return;
     }
@@ -145,6 +145,9 @@ export class AppComponent implements OnInit {
     this.enemyCommentText.visible = true;
     this.enemySprite.scale.x -= 0.1;
     this.enemySprite.scale.y -= 0.1;
+
+    this.cursorSprite.x = event.data.global.x;
+    this.cursorSprite.y = event.data.global.y;
 
     this.goToState(GameStates.EnemyHittingState);
 
