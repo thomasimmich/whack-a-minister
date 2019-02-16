@@ -3,16 +3,23 @@ import { Sprite, Application, Sound, Rectangle, Texture, Container, DisplayObjec
 //import * as PIXI from "pixi.js/dist/pixi.js"
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
 
+enum GameStates {
+  IdleState = 'Idle',
+  EnemyHittingState = 'Hitting',
+  EnemyHitState = 'Hit'
+};
+
+
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 
-
-
-
 export class AppComponent implements OnInit {
+
+
   // List of files to load
   private manifest = {
     enemyImage: 'assets/images/scheuer.png',
@@ -25,12 +32,15 @@ export class AppComponent implements OnInit {
 
   @ViewChild('pixiContainer') pixiContainer; // this allows us to reference and load stuff into the div container
   public app: Application; // this will be our pixi application
-  public state;
+  public gameState: GameStates;
   private enemySprite: Sprite;
   private cursorSprite: Sprite;
+  private stateText: Text;
+  private stateTime: number;
   private enemyCommentText: Text;
 
   ngOnInit() {
+    this.gameState = GameStates.IdleState;
 
     this.app = new PIXI.Application({ width: 800, height: 600, backgroundColor: 0x1099bb }); // this creates our pixi application
 
@@ -74,6 +84,9 @@ export class AppComponent implements OnInit {
     this.enemyCommentText.y = this.enemySprite.y - this.enemySprite.height / 2 - this. enemyCommentText.height;
 
     this.app.stage.addChild(this.enemyCommentText);
+
+    this.stateText = new PIXI.Text(this.gameState);
+    this.app.stage.addChild(this.stateText);
   }
 
   setupCursor() {
@@ -110,7 +123,6 @@ export class AppComponent implements OnInit {
 
     this.enemySprite.interactive = true;
     this.enemySprite.on("pointerdown", this.onPointerDown.bind(this));
-    this.enemySprite.on("pointerup", this.onPointerUp.bind(this));
 
     this.enemySprite.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
 
@@ -124,23 +136,42 @@ export class AppComponent implements OnInit {
   }
 
   onPointerDown() {
+    if (this.gameState != GameStates.IdleState) {
+      return;
+    }
     let clapSound: Sound = PIXI.loader.resources['clapSound'].data;
     clapSound.play();
 
     this.cursorSprite.texture = PIXI.loader.resources['handSmackingImage'].texture;
     this.enemyCommentText.visible = true;
     this.enemySprite.scale.x -= 0.1;
-    this.enemySprite.scale.y -= 0.1;
-  }
-
-  onPointerUp() {
-    this.cursorSprite.texture = PIXI.loader.resources['handImage'].texture;
-    this.enemyCommentText.visible = false;
-    this.enemySprite.scale.x += 0.1;
-    this.enemySprite.scale.y += 0.1;
+    this.enemySprite.scale.y -= 0.1;   
+    
+    this.goToState(GameStates.EnemyHittingState);    
+    
   }
 
   update(delta: number) {
+    this.stateTime += delta;
+   //this.stateText.text = 'dfd';
+
+    switch (this.gameState) {
+      case GameStates.EnemyHittingState: {
+          if (this.stateTime > 10) {
+            this.cursorSprite.texture = PIXI.loader.resources['handImage'].texture;
+            this.enemyCommentText.visible = false;
+            this.enemySprite.scale.x += 0.1;
+            this.enemySprite.scale.y += 0.1;
+            this.goToState(GameStates.IdleState);
+          }
+      } break;
+    } 
     //this.enemy.rotation += 0.1 * delta;
+  }
+
+  goToState(nextState: GameStates) {
+    this.gameState = nextState;
+    this.stateText.text = nextState;
+    this.stateTime = 0;
   }
 }
