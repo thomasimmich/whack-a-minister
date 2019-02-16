@@ -38,7 +38,7 @@ export class AppComponent implements OnInit {
   private stateText: Text;
   private stateTime: number;
   private enemyCommentText: Text;
-  private holePositions: Point[] = [
+  private holeRelPositions: Point[] = [
     new Point(0.2, 0.4),
     new Point(0.7, 0.2),
     new Point(0.5, 0.3)
@@ -178,7 +178,11 @@ export class AppComponent implements OnInit {
   }
 
   changeEnemyPosition() {
-    let position = this.holePositions[Math.floor(this.holePositions.length * Math.random())];
+    let relPosition = this.holeRelPositions[Math.floor(this.holeRelPositions.length * Math.random())];
+    let position = new Point(
+      relPosition.x * this.app.screen.width,
+      relPosition.y * this.app.screen.height,
+    );
     this.enemySprite.x = position.x;
     this.enemySprite.y = position.y;
   }
