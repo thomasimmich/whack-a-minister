@@ -12,8 +12,6 @@ enum GameStates {
   EnemyRepositioningState = 'Repositioning'
 };
 
-
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -29,7 +27,8 @@ export class AppComponent implements OnInit {
     enemyWhackedImage: 'assets/images/scheuer-whacked.png',
     handImage: 'assets/images/hand.png',
     handSmackingImage: 'assets/images/hand-smacking.png',
-    clapSound: 'assets/sounds/clap.mp3'
+    clapSound: 'assets/sounds/clap.mp3',
+    punchSound: 'assets/sounds/punch.mp3'
   };
 
   title = 'Scheuer-Den-Scheuer';
@@ -154,8 +153,10 @@ export class AppComponent implements OnInit {
     if (this.gameState != GameStates.EnemyVisibleState) {
       return;
     }
-    let clapSound: Sound = PIXI.loader.resources['clapSound'].data;
-    clapSound.play();
+
+
+    let punchSound: Sound = PIXI.loader.resources['punchSound'].data;
+    punchSound.play();    
 
     this.cursorSprite.texture = PIXI.loader.resources['handSmackingImage'].texture;
     this.enemyCommentText.visible = true;
@@ -188,6 +189,11 @@ export class AppComponent implements OnInit {
         }
       } break; 
       case GameStates.EnemyHittingState: {
+        if (this.stateTime > 5) {
+
+          let clapSound: Sound = PIXI.loader.resources['clapSound'].data;
+          clapSound.play();
+        }
         if (this.stateTime > 30) {
           this.cursorSprite.texture = PIXI.loader.resources['handImage'].texture;
           this.enemyCommentText.visible = false;
@@ -195,6 +201,7 @@ export class AppComponent implements OnInit {
           this.enemySprite.scale.y += 0.1;
           this.enemySprite.visible = false;
           this.enemySprite.texture = PIXI.loader.resources['enemyImage'].texture;
+
 
           this.changeEnemyPosition();
           this.goToState(GameStates.EnemyHiddenState);
