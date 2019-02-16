@@ -42,12 +42,13 @@ export class AppComponent implements OnInit {
   private stateTime: number;
   private enemyCommentText: Text;
   private holeRelPositions: Point[] = [
-    new Point(0.2, 0.4),
-    new Point(0.7, 0.2),
-    new Point(0.5, 0.3),
-    new Point(0.2, 0.4),
-    new Point(0.7, 0.2),
-    new Point(0.5, 0.3)    
+    new Point(0.07, 0.43),//1-Kofferraum
+    new Point(0.18, 0.48),//2-ganzhinten
+    new Point(0.31, 0.48),//3-fasthinten
+    new Point(0.46, 0.48),//4-zweitevonvorne
+    new Point(0.54, 0.32),//5-dachluke
+    new Point(0.61, 0.48),//6-vorne
+    new Point(0.85, 0.50),//7-motorhaube 
   ];
 
   private enemyHiddenTime: number;
@@ -156,7 +157,7 @@ export class AppComponent implements OnInit {
 
 
     let punchSound: Sound = PIXI.loader.resources['punchSound'].data;
-    punchSound.play();    
+    punchSound.play();
 
     this.cursorSprite.texture = PIXI.loader.resources['handSmackingImage'].texture;
     this.enemyCommentText.visible = true;
@@ -187,10 +188,9 @@ export class AppComponent implements OnInit {
           this.enemySprite.visible = false;
           this.goToState(GameStates.EnemyHiddenState);
         }
-      } break; 
+      } break;
       case GameStates.EnemyHittingState: {
         if (this.stateTime > 5) {
-
           let clapSound: Sound = PIXI.loader.resources['clapSound'].data;
           clapSound.play();
         }
@@ -201,7 +201,6 @@ export class AppComponent implements OnInit {
           this.enemySprite.scale.y += 0.1;
           this.enemySprite.visible = false;
           this.enemySprite.texture = PIXI.loader.resources['enemyImage'].texture;
-
 
           this.changeEnemyPosition();
           this.goToState(GameStates.EnemyHiddenState);
