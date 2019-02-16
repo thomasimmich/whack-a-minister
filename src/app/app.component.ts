@@ -47,7 +47,12 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.gameState = GameStates.IdleState;
 
-    this.app = new PIXI.Application({ width: 800, height: 600, backgroundColor: 0x1099bb }); // this creates our pixi application
+    const parent = this.pixiContainer.nativeElement;
+    this.app = new PIXI.Application({
+      width: parent.clientWidth,
+      height: parent.clientHeight,
+      backgroundColor: 0x1099bb
+    }); // this creates our pixi application
 
     this.pixiContainer.nativeElement.appendChild(this.app.view); // this places our pixi application onto the viewable document
 
@@ -75,7 +80,7 @@ export class AppComponent implements OnInit {
   setupText() {
     this.enemyCommentText = new PIXI.Text('AUA! Friss Staub!');
     this.enemyCommentText.x = this.enemySprite.x - this.enemyCommentText.width / 2;
-    this.enemyCommentText.y = this.enemySprite.y - this.enemySprite.height / 2 - this. enemyCommentText.height;
+    this.enemyCommentText.y = this.enemySprite.y - this.enemySprite.height / 2 - this.enemyCommentText.height;
 
     this.app.stage.addChild(this.enemyCommentText);
 
@@ -139,15 +144,15 @@ export class AppComponent implements OnInit {
     this.cursorSprite.texture = PIXI.loader.resources['handSmackingImage'].texture;
     this.enemyCommentText.visible = true;
     this.enemySprite.scale.x -= 0.1;
-    this.enemySprite.scale.y -= 0.1;   
-    
-    this.goToState(GameStates.EnemyHittingState);    
-    
+    this.enemySprite.scale.y -= 0.1;
+
+    this.goToState(GameStates.EnemyHittingState);
+
   }
 
   update(delta: number) {
     this.stateTime += delta;
-   //this.stateText.text = 'dfd';
+    //this.stateText.text = 'dfd';
 
     switch (this.gameState) {
       case GameStates.EnemyHittingState: {
@@ -165,7 +170,7 @@ export class AppComponent implements OnInit {
           this.goToState(GameStates.IdleState)
         }
       }
-    } 
+    }
     //this.enemy.rotation += 0.1 * delta;
   }
 
