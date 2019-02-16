@@ -156,7 +156,7 @@ export class AppComponent implements OnInit {
     this.carSprite.scale.x *= scaleFactor;
     this.carSprite.scale.y *= scaleFactor;
 
-    this.carSprite.position.set(this.app.renderer.view.width * 0.5065, this.app.renderer.view.height * 0.598);
+    this.carSprite.position.set(this.app.renderer.view.width * 0.5065, this.app.renderer.view.height - this.carSprite.height);
     this.app.stage.addChild(this.carSprite);
 
     // this.app.ticker.add(function (delta) {
@@ -181,7 +181,7 @@ export class AppComponent implements OnInit {
     this.frontWheelSprite.scale.x *= scaleFactor;
     this.frontWheelSprite.scale.y *= scaleFactor;
 
-    this.frontWheelSprite.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
+    this.frontWheelSprite.position.set(this.app.renderer.view.width * 0.82, this.app.screen.height - this.frontWheelSprite.height);
     this.app.stage.addChild(this.frontWheelSprite);
 
     this.rearWheelSprite = new PIXI.Sprite(
@@ -191,7 +191,7 @@ export class AppComponent implements OnInit {
     this.rearWheelSprite.scale.x *= scaleFactor;
     this.rearWheelSprite.scale.y *= scaleFactor;
 
-    this.rearWheelSprite.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
+    this.rearWheelSprite.position.set(this.app.renderer.view.width * 0.249, this.app.screen.height - this.rearWheelSprite.height);
     this.app.stage.addChild(this.rearWheelSprite);    
   }
 
@@ -251,7 +251,6 @@ export class AppComponent implements OnInit {
     this.globalTime += delta;
     this.stateTime += delta;
 
-
     //this.stateText.text = 'dfd';
 
     switch (this.gameState) {
@@ -296,8 +295,6 @@ export class AppComponent implements OnInit {
     this.frontWheelSprite.rotation += 0.1 * delta;
     this.rearWheelSprite.rotation += 0.1 * delta;
   }
-
-
 
   updateGameVariables() {
     this.enemyHiddenTime = Math.random() * 50 + 50;
