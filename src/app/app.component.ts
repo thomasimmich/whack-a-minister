@@ -24,6 +24,7 @@ export class AppComponent implements OnInit {
   // List of files to load
   private manifest = {
     carImage: 'assets/images/car.png',
+    wheelImage: 'assets/images/wheel.png',
     enemyImage: 'assets/images/scheuer.png',
     enemyWhackedImage: 'assets/images/scheuer-whacked.png',
     handImage: 'assets/images/hand.png',
@@ -39,9 +40,12 @@ export class AppComponent implements OnInit {
   public gameState: GameStates;
 
   private referenceWidth: number;
-  private referenceHeight: number;
+
+  private globalTime: number;
 
   private carSprite: Sprite;
+  private frontWheelSprite: Sprite;
+  private rearWheelSprite: Sprite;
   private enemySprite: Sprite;
   private cursorSprite: Sprite;
   private stateText: Text;
@@ -62,9 +66,8 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
 
-    // reference resolution is taken from iPad Pro Retina
+    // reference width is taken from iPad Pro Retina
     this.referenceWidth = 2732;
-    this.referenceHeight = 2048;
 
     const parent = this.pixiContainer.nativeElement;
     this.app = new PIXI.Application({
@@ -89,7 +92,7 @@ export class AppComponent implements OnInit {
       on("progress", this.onLoad).
       load(this.setup.bind(this));
 
-    this.app.ticker.add(this.update.bind(this));
+    
   }
 
   onLoad(loader, resource) {
@@ -121,7 +124,14 @@ export class AppComponent implements OnInit {
       PIXI.loader.resources['handImage'].texture
     );
 
+
+
     this.cursorSprite.anchor.set(0.35, 0.25); // position specific to where the actual cursor point is
+    
+    let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
+    this.cursorSprite.scale.x *= scaleFactor;
+    this.cursorSprite.scale.y *= scaleFactor;
+    
     this.app.stage.addChild(this.cursorSprite);
 
     interaction.on("pointerover", () => {
@@ -139,14 +149,50 @@ export class AppComponent implements OnInit {
     this.carSprite = new PIXI.Sprite(
       PIXI.loader.resources['carImage'].texture
     );
-    this.carSprite.anchor.set(0.5);
+    this.carSprite.anchor.x = 0.5;
+    this.carSprite.anchor.y = 0.5;
 
     let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
     this.carSprite.scale.x *= scaleFactor;
     this.carSprite.scale.y *= scaleFactor;
 
-    this.carSprite.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
+    this.carSprite.position.set(this.app.renderer.view.width * 0.5065, this.app.renderer.view.height * 0.598);
     this.app.stage.addChild(this.carSprite);
+
+    // this.app.ticker.add(function (delta) {
+    //   // just for fun, let's rotate mr rabbit a little
+    //   // delta is 1 if running at 100% performance
+    //   // creates frame-independent transformation
+    //   this.carSprite.rotation += 0.1 * delta;
+    // });
+
+    this.setupWheels();
+  }
+
+  setupWheels() {
+
+    let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
+
+    this.frontWheelSprite = new PIXI.Sprite(
+      PIXI.loader.resources['wheelImage'].texture
+    );
+    this.frontWheelSprite.anchor.set(0.5);
+
+    this.frontWheelSprite.scale.x *= scaleFactor;
+    this.frontWheelSprite.scale.y *= scaleFactor;
+
+    this.frontWheelSprite.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
+    this.app.stage.addChild(this.frontWheelSprite);
+
+    this.rearWheelSprite = new PIXI.Sprite(
+      PIXI.loader.resources['wheelImage'].texture
+    );
+    this.rearWheelSprite.anchor.set(0.5);
+    this.rearWheelSprite.scale.x *= scaleFactor;
+    this.rearWheelSprite.scale.y *= scaleFactor;
+
+    this.rearWheelSprite.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
+    this.app.stage.addChild(this.rearWheelSprite);    
   }
 
   setupEnemy() {
@@ -166,6 +212,7 @@ export class AppComponent implements OnInit {
     this.enemySprite.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
 
     this.app.stage.addChild(this.enemySprite);
+    this.changeEnemyPosition();
   }
 
   setup() {
@@ -174,6 +221,8 @@ export class AppComponent implements OnInit {
     this.setupCursor();
     this.setupText();
     this.setupGameVariables();
+
+    this.app.ticker.add(this.update.bind(this));
   }
 
   onPointerDown(event: any) {
@@ -199,7 +248,10 @@ export class AppComponent implements OnInit {
   }
 
   update(delta: number) {
+    this.globalTime += delta;
     this.stateTime += delta;
+
+
     //this.stateText.text = 'dfd';
 
     switch (this.gameState) {
@@ -240,7 +292,12 @@ export class AppComponent implements OnInit {
       } break;
     }
     //this.enemy.rotation += 0.1 * delta;
+    this.carSprite.rotation = Math.sin(this.stateTime / 2) / 320;
+    this.frontWheelSprite.rotation += 0.1 * delta;
+    this.rearWheelSprite.rotation += 0.1 * delta;
   }
+
+
 
   updateGameVariables() {
     this.enemyHiddenTime = Math.random() * 50 + 50;
