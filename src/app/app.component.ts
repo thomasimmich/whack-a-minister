@@ -26,6 +26,7 @@ export class AppComponent implements OnInit {
   // List of files to load
   private manifest = {
     enemyImage: 'assets/images/scheuer.png',
+    enemyWhackedImage: 'assets/images/scheuer-whacked.png',
     handImage: 'assets/images/hand.png',
     handSmackingImage: 'assets/images/hand-smacking.png',
     clapSound: 'assets/sounds/clap.mp3'
@@ -158,6 +159,8 @@ export class AppComponent implements OnInit {
 
     this.cursorSprite.texture = PIXI.loader.resources['handSmackingImage'].texture;
     this.enemyCommentText.visible = true;
+
+    this.enemySprite.texture = PIXI.loader.resources['enemyWhackedImage'].texture;
     this.enemySprite.scale.x -= 0.1;
     this.enemySprite.scale.y -= 0.1;
 
@@ -165,7 +168,6 @@ export class AppComponent implements OnInit {
     this.cursorSprite.y = event.data.global.y;
 
     this.goToState(GameStates.EnemyHittingState);
-
   }
 
   update(delta: number) {
@@ -186,12 +188,15 @@ export class AppComponent implements OnInit {
         }
       } break; 
       case GameStates.EnemyHittingState: {
-        if (this.stateTime > 10) {
+        if (this.stateTime > 30) {
           this.cursorSprite.texture = PIXI.loader.resources['handImage'].texture;
           this.enemyCommentText.visible = false;
           this.enemySprite.scale.x += 0.1;
           this.enemySprite.scale.y += 0.1;
           this.enemySprite.visible = false;
+          this.enemySprite.texture = PIXI.loader.resources['enemyImage'].texture;
+
+          this.changeEnemyPosition();
           this.goToState(GameStates.EnemyHiddenState);
         }
       } break;
@@ -208,7 +213,6 @@ export class AppComponent implements OnInit {
   updateGameVariables() {
     this.enemyHiddenTime = Math.random() * 50 + 50;
     this.enemyVisibleTime = Math.random() * 200 + 50;
-    this.changeEnemyPosition();
   }
 
   changeEnemyPosition() {
