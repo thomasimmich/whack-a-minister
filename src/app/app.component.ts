@@ -1,10 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sprite, Application, Sound, Rectangle, Texture, Container, DisplayObject, Text, loader, Point } from 'pixi.js';
+import { updateClassProp } from '@angular/core/src/render3/styling';
 //import * as PIXI from "pixi.js/dist/pixi.js"
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
 
 enum GameStates {
   IdleState = 'Idle',
+  EnemyVisibleState = 'Visible',
+  EnemyHiddenState = 'Hidden',
   EnemyHittingState = 'Hitting',
   EnemyRepositioningState = 'Repositioning'
 };
@@ -41,8 +44,14 @@ export class AppComponent implements OnInit {
   private holeRelPositions: Point[] = [
     new Point(0.2, 0.4),
     new Point(0.7, 0.2),
-    new Point(0.5, 0.3)
+    new Point(0.5, 0.3),
+    new Point(0.2, 0.4),
+    new Point(0.7, 0.2),
+    new Point(0.5, 0.3)    
   ];
+
+  private enemyHiddenTime: number;
+  private enemyVisibleTime: number;
 
   ngOnInit() {
     this.gameState = GameStates.IdleState;
@@ -75,6 +84,11 @@ export class AppComponent implements OnInit {
 
   onLoad(loader, resource) {
     console.log(`loaded ${resource.url}. Loading is ${loader.progress}% complete.`);
+  }
+
+  setupGameVariables() {
+    this.updateGameVariables();
+    this.goToState(GameStates.EnemyHiddenState);
   }
 
   setupText() {
@@ -132,10 +146,11 @@ export class AppComponent implements OnInit {
     this.setupEnemy();
     this.setupCursor();
     this.setupText();
+    this.setupGameVariables();
   }
 
   onPointerDown(event: any) {
-    if (this.gameState != GameStates.IdleState) {
+    if (this.gameState != GameStates.EnemyVisibleState) {
       return;
     }
     let clapSound: Sound = PIXI.loader.resources['clapSound'].data;
@@ -158,13 +173,26 @@ export class AppComponent implements OnInit {
     //this.stateText.text = 'dfd';
 
     switch (this.gameState) {
+      case GameStates.EnemyHiddenState: {
+        if (this.stateTime > this.enemyHiddenTime) {
+          this.enemySprite.visible = true;
+          this.goToState(GameStates.EnemyVisibleState);
+        }
+      } break;
+      case GameStates.EnemyVisibleState: {
+        if (this.stateTime > this.enemyVisibleTime) {
+          this.enemySprite.visible = false;
+          this.goToState(GameStates.EnemyHiddenState);
+        }
+      } break; 
       case GameStates.EnemyHittingState: {
         if (this.stateTime > 10) {
           this.cursorSprite.texture = PIXI.loader.resources['handImage'].texture;
           this.enemyCommentText.visible = false;
           this.enemySprite.scale.x += 0.1;
           this.enemySprite.scale.y += 0.1;
-          this.goToState(GameStates.EnemyRepositioningState);
+          this.enemySprite.visible = false;
+          this.goToState(GameStates.EnemyHiddenState);
         }
       } break;
       case GameStates.EnemyRepositioningState: {
@@ -172,9 +200,15 @@ export class AppComponent implements OnInit {
           this.changeEnemyPosition();
           this.goToState(GameStates.IdleState)
         }
-      }
+      } break;
     }
     //this.enemy.rotation += 0.1 * delta;
+  }
+
+  updateGameVariables() {
+    this.enemyHiddenTime = Math.random() * 50 + 50;
+    this.enemyVisibleTime = Math.random() * 200 + 50;
+    this.changeEnemyPosition();
   }
 
   changeEnemyPosition() {
@@ -191,5 +225,6 @@ export class AppComponent implements OnInit {
     this.gameState = nextState;
     this.stateText.text = nextState;
     this.stateTime = 0;
+    this.updateGameVariables();
   }
 }
