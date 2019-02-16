@@ -23,6 +23,7 @@ export class AppComponent implements OnInit {
 
   // List of files to load
   private manifest = {
+    carImage: 'assets/images/car.png',
     enemyImage: 'assets/images/scheuer.png',
     enemyWhackedImage: 'assets/images/scheuer-whacked.png',
     handImage: 'assets/images/hand.png',
@@ -36,6 +37,11 @@ export class AppComponent implements OnInit {
   @ViewChild('pixiContainer') pixiContainer; // this allows us to reference and load stuff into the div container
   public app: Application; // this will be our pixi application
   public gameState: GameStates;
+
+  private referenceWidth: number;
+  private referenceHeight: number;
+
+  private carSprite: Sprite;
   private enemySprite: Sprite;
   private cursorSprite: Sprite;
   private stateText: Text;
@@ -55,7 +61,10 @@ export class AppComponent implements OnInit {
   private enemyVisibleTime: number;
 
   ngOnInit() {
-    this.gameState = GameStates.IdleState;
+
+    // reference resolution is taken from iPad Pro Retina
+    this.referenceWidth = 2732;
+    this.referenceHeight = 2048;
 
     const parent = this.pixiContainer.nativeElement;
     this.app = new PIXI.Application({
@@ -126,14 +135,30 @@ export class AppComponent implements OnInit {
     });
   }
 
+  setupCar() {
+    this.carSprite = new PIXI.Sprite(
+      PIXI.loader.resources['carImage'].texture
+    );
+    this.carSprite.anchor.set(0.5);
+
+    let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
+    this.carSprite.scale.x *= scaleFactor;
+    this.carSprite.scale.y *= scaleFactor;
+
+    this.carSprite.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
+    this.app.stage.addChild(this.carSprite);
+  }
+
   setupEnemy() {
     this.enemySprite = new PIXI.Sprite(
       PIXI.loader.resources['enemyImage'].texture
     );
 
     this.enemySprite.anchor.set(0.5);
-    this.enemySprite.scale.x *= 0.75;
-    this.enemySprite.scale.y *= 0.75;
+
+    let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
+    this.enemySprite.scale.x *= scaleFactor;
+    this.enemySprite.scale.y *= scaleFactor;
 
     this.enemySprite.interactive = true;
     this.enemySprite.on("pointerdown", this.onPointerDown.bind(this));
@@ -144,6 +169,7 @@ export class AppComponent implements OnInit {
   }
 
   setup() {
+    this.setupCar();
     this.setupEnemy();
     this.setupCursor();
     this.setupText();
