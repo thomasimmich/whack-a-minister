@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Sprite, Application, Sound, Rectangle, Texture, Container, DisplayObject, Text, loader } from 'pixi.js';
+import { Sprite, Application, Sound, Rectangle, Texture, Container, DisplayObject, Text, loader, Point } from 'pixi.js';
 //import * as PIXI from "pixi.js/dist/pixi.js"
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
 
 enum GameStates {
   IdleState = 'Idle',
   EnemyHittingState = 'Hitting',
-  EnemyHitState = 'Hit'
+  EnemyRepositioningState = 'Repositioning'
 };
 
 
@@ -38,6 +38,11 @@ export class AppComponent implements OnInit {
   private stateText: Text;
   private stateTime: number;
   private enemyCommentText: Text;
+  private holePositions: Point[] = [
+    new Point(40, 60),
+    new Point(120, 40),
+    new Point(200, 40)
+  ];
 
   ngOnInit() {
     this.gameState = GameStates.IdleState;
@@ -51,17 +56,6 @@ export class AppComponent implements OnInit {
       type = "canvas"
     }
 
-    //PIXI.sound.add('clap', 'assets/sounds/clap.mp3');
-    //PIXI.sound.play('bird');
-
-    // set mouse cursor
-    //var defaultIcon = "url('assets/images/hand.png'),auto";
-    //var hoverIcon = "url('required/assets/hand-smacking.png'),auto";
-
-
-
-    //this.pixiContainer.cursor = "url('required/assets/hand.png'),auto";
-    //this.app.renderer.plugins.interaction.cursorStyles.hover = hoverIcon;
     // Add to the PIXI loader
     for (let name in this.manifest) {
       PIXI.loader.add(name, this.manifest[name]);
@@ -157,16 +151,28 @@ export class AppComponent implements OnInit {
 
     switch (this.gameState) {
       case GameStates.EnemyHittingState: {
-          if (this.stateTime > 10) {
-            this.cursorSprite.texture = PIXI.loader.resources['handImage'].texture;
-            this.enemyCommentText.visible = false;
-            this.enemySprite.scale.x += 0.1;
-            this.enemySprite.scale.y += 0.1;
-            this.goToState(GameStates.IdleState);
-          }
+        if (this.stateTime > 10) {
+          this.cursorSprite.texture = PIXI.loader.resources['handImage'].texture;
+          this.enemyCommentText.visible = false;
+          this.enemySprite.scale.x += 0.1;
+          this.enemySprite.scale.y += 0.1;
+          this.goToState(GameStates.EnemyRepositioningState);
+        }
       } break;
+      case GameStates.EnemyRepositioningState: {
+        if (this.stateTime > 10) {
+          this.changeEnemyPosition();
+          this.goToState(GameStates.IdleState)
+        }
+      }
     } 
     //this.enemy.rotation += 0.1 * delta;
+  }
+
+  changeEnemyPosition() {
+    let position = this.holePositions[Math.floor(this.holePositions.length * Math.random())];
+    this.enemySprite.x = position.x;
+    this.enemySprite.y = position.y;
   }
 
   goToState(nextState: GameStates) {
