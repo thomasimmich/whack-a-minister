@@ -156,7 +156,14 @@ export class AppComponent implements OnInit {
     this.carSprite.scale.x *= scaleFactor;
     this.carSprite.scale.y *= scaleFactor;
 
-    this.carSprite.position.set(this.app.renderer.view.width * 0.5065, this.app.renderer.view.height - this.carSprite.height);
+    this.carSprite.position.set(
+      this.app.renderer.view.width * 0.5065,
+      this.app.renderer.view.height - this.carSprite.height / 2 -
+      Math.min(
+        this.app.renderer.view.height * 0.15, // relative to screen height the car will become higher
+        this.carSprite.height * 0.4 // but not higher than one forth of the car's height
+      )
+    );
     this.app.stage.addChild(this.carSprite);
 
     // this.app.ticker.add(function (delta) {
@@ -181,7 +188,7 @@ export class AppComponent implements OnInit {
     this.frontWheelSprite.scale.x *= scaleFactor;
     this.frontWheelSprite.scale.y *= scaleFactor;
 
-    this.frontWheelSprite.position.set(this.app.renderer.view.width * 0.82, this.app.screen.height - this.frontWheelSprite.height);
+    this.frontWheelSprite.position.set(this.app.renderer.view.width * 0.82, this.app.screen.height - this.frontWheelSprite.height / 2);
     this.app.stage.addChild(this.frontWheelSprite);
 
     this.rearWheelSprite = new PIXI.Sprite(
@@ -191,7 +198,7 @@ export class AppComponent implements OnInit {
     this.rearWheelSprite.scale.x *= scaleFactor;
     this.rearWheelSprite.scale.y *= scaleFactor;
 
-    this.rearWheelSprite.position.set(this.app.renderer.view.width * 0.249, this.app.screen.height - this.rearWheelSprite.height);
+    this.rearWheelSprite.position.set(this.app.renderer.view.width * 0.249, this.app.screen.height - this.rearWheelSprite.height / 2);
     this.app.stage.addChild(this.rearWheelSprite);    
   }
 
