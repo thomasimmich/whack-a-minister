@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Sprite, Application, Sound, Rectangle, Texture, Container, DisplayObject, Text, loader, Point } from 'pixi.js';
-import { updateClassProp } from '@angular/core/src/render3/styling';
+import { Sprite, Application, Sound, Text, Point, Container } from 'pixi.js';
 //import * as PIXI from "pixi.js/dist/pixi.js"
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
 
@@ -41,8 +40,9 @@ export class AppComponent implements OnInit {
 
   private referenceWidth: number;
 
-  private globalTime: number;
 
+  private landscape: Container;
+  private landscapeZoom: number;
   private carSprite: Sprite;
   private frontWheelSprite: Sprite;
   private rearWheelSprite: Sprite;
@@ -68,6 +68,7 @@ export class AppComponent implements OnInit {
 
     // reference width is taken from iPad Pro Retina
     this.referenceWidth = 2732;
+    this.landscapeZoom = 1.0;
 
     const parent = this.pixiContainer.nativeElement;
     this.app = new PIXI.Application({
@@ -78,9 +79,7 @@ export class AppComponent implements OnInit {
 
     this.pixiContainer.nativeElement.appendChild(this.app.view); // this places our pixi application onto the viewable document
 
-    let type = "WebGL"
     if (!PIXI.utils.isWebGLSupported()) {
-      type = "canvas"
     }
 
     // Add to the PIXI loader
@@ -145,6 +144,15 @@ export class AppComponent implements OnInit {
     });
   }
 
+  setupLandscape() {
+    this.landscape = new PIXI.DisplayObjectContainer(); 
+    this.landscape.pivot.x = 0.5;
+    this.landscape.pivot.y = 0.5;
+    //(PIXI.DisplayObjectContainer)(this.landscape).anchor.x = 0.5;
+    //(PIXI.DisplayObjectContainer)(this.landscape).anchor.y = 0.5;
+    this.app.stage.addChild(this.landscape);
+  }
+
   setupCar() {
     this.carSprite = new PIXI.Sprite(
       PIXI.loader.resources['carImage'].texture
@@ -164,7 +172,8 @@ export class AppComponent implements OnInit {
         this.carSprite.height * 0.4 // but not higher than one forth of the car's height
       )
     );
-    this.app.stage.addChild(this.carSprite);
+    this.landscape.addChild(this.carSprite);
+    
 
     // this.app.ticker.add(function (delta) {
     //   // just for fun, let's rotate mr rabbit a little
@@ -189,7 +198,7 @@ export class AppComponent implements OnInit {
     this.frontWheelSprite.scale.y *= scaleFactor;
 
     this.frontWheelSprite.position.set(this.app.renderer.view.width * 0.82, this.app.screen.height - this.frontWheelSprite.height / 2);
-    this.app.stage.addChild(this.frontWheelSprite);
+    this.landscape.addChild(this.frontWheelSprite);
 
     this.rearWheelSprite = new PIXI.Sprite(
       PIXI.loader.resources['wheelImage'].texture
@@ -199,7 +208,8 @@ export class AppComponent implements OnInit {
     this.rearWheelSprite.scale.y *= scaleFactor;
 
     this.rearWheelSprite.position.set(this.app.renderer.view.width * 0.249, this.app.screen.height - this.rearWheelSprite.height / 2);
-    this.app.stage.addChild(this.rearWheelSprite);    
+
+    this.landscape.addChild(this.rearWheelSprite);  
   }
 
   setupEnemy() {
@@ -218,11 +228,12 @@ export class AppComponent implements OnInit {
 
     this.enemySprite.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
 
-    this.app.stage.addChild(this.enemySprite);
+    this.landscape.addChild(this.enemySprite);
     this.changeEnemyPosition();
   }
 
   setup() {
+    this.setupLandscape();
     this.setupCar();
     this.setupEnemy();
     this.setupCursor();
@@ -232,7 +243,7 @@ export class AppComponent implements OnInit {
     this.app.ticker.add(this.update.bind(this));
   }
 
-  onPointerDown(event: any) {
+  onPointerDown() {
     if (this.gameState != GameStates.EnemyVisibleState) {
       return;
     }
@@ -248,28 +259,33 @@ export class AppComponent implements OnInit {
     this.enemySprite.scale.x -= 0.1;
     this.enemySprite.scale.y -= 0.1;
 
-    this.cursorSprite.x = event.data.global.x;
-    this.cursorSprite.y = event.data.global.y;
-
     this.goToState(GameStates.EnemyHittingState);
   }
 
   update(delta: number) {
-    this.globalTime += delta;
     this.stateTime += delta;
-
-    //this.stateText.text = 'dfd';
 
     switch (this.gameState) {
       case GameStates.EnemyHiddenState: {
+        if (this.landscape.scale.x > 1.0) {
+          this.landscape.scale.x -= 0.05;
+          this.landscape.scale.y -= 0.05;
+        }
+
         if (this.stateTime > this.enemyHiddenTime) {
           this.enemySprite.visible = true;
           this.goToState(GameStates.EnemyVisibleState);
         }
       } break;
       case GameStates.EnemyVisibleState: {
+        if (this.landscape.scale.x < this.landscapeZoom) {
+          this.landscape.scale.x += 0.05;
+          this.landscape.scale.y += 0.05;
+        }
+        
         if (this.stateTime > this.enemyVisibleTime) {
           this.enemySprite.visible = false;
+          this.changeEnemyPosition();
           this.goToState(GameStates.EnemyHiddenState);
         }
       } break;
@@ -286,6 +302,7 @@ export class AppComponent implements OnInit {
           this.enemySprite.visible = false;
           this.enemySprite.texture = PIXI.loader.resources['enemyImage'].texture;
 
+          this.enemySprite.visible = false;
           this.changeEnemyPosition();
           this.goToState(GameStates.EnemyHiddenState);
         }
