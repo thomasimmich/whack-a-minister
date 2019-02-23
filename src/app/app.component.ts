@@ -5,11 +5,16 @@ declare var PIXI: any; // instead of importing pixi like some tutorials say to d
 
 enum GameStates {
   IdleState = 'Idle',
-  EnemyVisibleState = 'Visible',
-  EnemyHiddenState = 'Hidden',
-  EnemyHittingState = 'Hitting',
-  EnemyRepositioningState = 'Repositioning'
+  CounterpartVisibleState = 'Visible',
+  CounterpartHiddenState = 'Hidden',
+  CounterpartHittingState = 'Hitting',
+  CounterpartRepositioningState = 'Repositioning'
 };
+
+enum CounterpartTypes {
+  EnemyCounterpart = 'Enemy',
+  FriendCounterpart = 'Friend'
+}
 
 @Component({
   selector: 'app-root',
@@ -25,7 +30,9 @@ export class AppComponent implements OnInit {
     carImage: 'assets/images/car.png',
     wheelImage: 'assets/images/wheel.png',
     enemyImage: 'assets/images/scheuer.png',
-    enemyWhackedImage: 'assets/images/scheuer-whacked.png',
+    enemyImageWhacked: 'assets/images/scheuer-whacked.png',
+    friendImage: 'assets/images/peterlustig.png',
+    friendImageWhacked: 'assets/images/peterlustig-whacked.png', 
     handImage: 'assets/images/hand.png',
     handSmackingImage: 'assets/images/hand-smacking.png',
     clapSound: 'assets/sounds/clap.mp3',
@@ -41,12 +48,15 @@ export class AppComponent implements OnInit {
   private referenceWidth: number;
   private relStreetHeight: number;
 
+  private chanceForEnemy: number;
+  private counterpartType: CounterpartTypes;
+
   private landscape: Container;
   private landscapeZoom: number;
   private carSprite: Sprite;
   private frontWheelSprite: Sprite;
   private rearWheelSprite: Sprite;
-  private enemySprite: Sprite;
+  private counterpartSprite: Sprite;
   private cursorSprite: Sprite;
   private stateText: Text;
   private stateTime: number;
@@ -61,8 +71,8 @@ export class AppComponent implements OnInit {
     //new Point(0.85, 0.50),//7-motorhaube 
   ];
 
-  private enemyHiddenTime: number;
-  private enemyVisibleTime: number;
+  private counterpartHiddenTime: number;
+  private counterpartVisibleTime: number;
 
   ngOnInit() {
 
@@ -70,6 +80,8 @@ export class AppComponent implements OnInit {
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
+    this.chanceForEnemy = 0.8;
+    this.counterpartType = this.calculateOpponentTypeRandomly();
 
     const parent = this.pixiContainer.nativeElement;
     this.app = new PIXI.Application({
@@ -99,13 +111,13 @@ export class AppComponent implements OnInit {
 
   setupGameVariables() {
     this.updateGameVariables();
-    this.goToState(GameStates.EnemyHiddenState);
+    this.goToState(GameStates.CounterpartHiddenState);
   }
 
   setupText() {
     this.enemyCommentText = new PIXI.Text('AUA! Friss Staub!');
-    this.enemyCommentText.x = this.enemySprite.x - this.enemyCommentText.width / 2;
-    this.enemyCommentText.y = this.enemySprite.y - this.enemySprite.height / 2 - this.enemyCommentText.height;
+    this.enemyCommentText.x = this.counterpartSprite.x - this.enemyCommentText.width / 2;
+    this.enemyCommentText.y = this.counterpartSprite.y - this.counterpartSprite.height / 2 - this.enemyCommentText.height;
 
     this.app.stage.addChild(this.enemyCommentText);
 
@@ -219,28 +231,28 @@ export class AppComponent implements OnInit {
     this.landscape.addChild(this.rearWheelSprite);  
   }
 
-  setupEnemy() {
-    this.enemySprite = new PIXI.Sprite(
-      PIXI.loader.resources['enemyImage'].texture
+  setupCounterpart() {
+    this.counterpartSprite = new PIXI.Sprite(
+      this.getTextureFromCounterpartType(false)
     );
 
-    this.enemySprite.anchor.set(0.5);
+    this.counterpartSprite.anchor.set(0.5);
 
     let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
-    this.enemySprite.scale.x *= scaleFactor;
-    this.enemySprite.scale.y *= scaleFactor;
+    this.counterpartSprite.scale.x *= scaleFactor;
+    this.counterpartSprite.scale.y *= scaleFactor;
 
-    this.enemySprite.interactive = true;
-    this.enemySprite.on("pointerdown", this.onPointerDown.bind(this));
+    this.counterpartSprite.interactive = true;
+    this.counterpartSprite.on("pointerdown", this.onPointerDown.bind(this));
 
-    this.landscape.addChild(this.enemySprite);
-    this.changeEnemyPosition();
+    this.landscape.addChild(this.counterpartSprite);
+    this.changeEnemy();
   }
 
   setup() {
     this.setupLandscape();
     this.setupCar();
-    this.setupEnemy();
+    this.setupCounterpart();
     this.setupCursor();
     this.setupText();
     this.setupGameVariables();
@@ -249,7 +261,7 @@ export class AppComponent implements OnInit {
   }
 
   onPointerDown() {
-    if (this.gameState != GameStates.EnemyVisibleState) {
+    if (this.gameState != GameStates.CounterpartVisibleState) {
       return;
     }
 
@@ -259,41 +271,41 @@ export class AppComponent implements OnInit {
     this.cursorSprite.texture = PIXI.loader.resources['handSmackingImage'].texture;
     this.enemyCommentText.visible = true;
 
-    this.enemySprite.texture = PIXI.loader.resources['enemyWhackedImage'].texture;
-    this.enemySprite.scale.x -= 0.1;
-    this.enemySprite.scale.y -= 0.1;
+    this.counterpartSprite.texture = this.getTextureFromCounterpartType(true);
+    this.counterpartSprite.scale.x -= 0.1;
+    this.counterpartSprite.scale.y -= 0.1;
 
-    this.goToState(GameStates.EnemyHittingState);
+    this.goToState(GameStates.CounterpartHittingState);
   }
 
   update(delta: number) {
     this.stateTime += delta;
 
     switch (this.gameState) {
-      case GameStates.EnemyHiddenState: {
+      case GameStates.CounterpartHiddenState: {
         if (this.landscape.scale.x > 1.0) {
           this.landscape.scale.x -= 0.05;
           this.landscape.scale.y -= 0.05;
         }
 
-        if (this.stateTime > this.enemyHiddenTime) {
-          this.enemySprite.visible = true;
-          this.goToState(GameStates.EnemyVisibleState);
+        if (this.stateTime > this.counterpartHiddenTime) {
+          this.counterpartSprite.visible = true;
+          this.goToState(GameStates.CounterpartVisibleState);
         }
       } break;
-      case GameStates.EnemyVisibleState: {
+      case GameStates.CounterpartVisibleState: {
         if (this.landscape.scale.x < this.landscapeZoom) {
           this.landscape.scale.x += 0.05;
           this.landscape.scale.y += 0.05;
         }
         
-        if (this.stateTime > this.enemyVisibleTime) {
-          this.enemySprite.visible = false;
-          this.changeEnemyPosition();
-          this.goToState(GameStates.EnemyHiddenState);
+        if (this.stateTime > this.counterpartVisibleTime) {
+          this.counterpartSprite.visible = false;
+          this.changeEnemy();
+          this.goToState(GameStates.CounterpartHiddenState);
         }
       } break;
-      case GameStates.EnemyHittingState: {
+      case GameStates.CounterpartHittingState: {
         if (this.stateTime > 5) {
           let clapSound: Sound = PIXI.loader.resources['clapSound'].data;
           clapSound.play();
@@ -301,19 +313,19 @@ export class AppComponent implements OnInit {
         if (this.stateTime > 30) {
           this.cursorSprite.texture = PIXI.loader.resources['handImage'].texture;
           this.enemyCommentText.visible = false;
-          this.enemySprite.scale.x += 0.1;
-          this.enemySprite.scale.y += 0.1;
-          this.enemySprite.visible = false;
-          this.enemySprite.texture = PIXI.loader.resources['enemyImage'].texture;
+          this.counterpartSprite.scale.x += 0.1;
+          this.counterpartSprite.scale.y += 0.1;
+          this.counterpartSprite.visible = false;
+          this.counterpartSprite.texture = this.getTextureFromCounterpartType(false);
 
-          this.enemySprite.visible = false;
-          this.changeEnemyPosition();
-          this.goToState(GameStates.EnemyHiddenState);
+          this.counterpartSprite.visible = false;
+          this.changeEnemy();
+          this.goToState(GameStates.CounterpartHiddenState);
         }
       } break;
-      case GameStates.EnemyRepositioningState: {
+      case GameStates.CounterpartRepositioningState: {
         if (this.stateTime > 10) {
-          this.changeEnemyPosition();
+          this.changeEnemy();
           this.goToState(GameStates.IdleState)
         }
       } break;
@@ -325,18 +337,40 @@ export class AppComponent implements OnInit {
   }
 
   updateGameVariables() {
-    this.enemyHiddenTime = Math.random() * 50 + 50;
-    this.enemyVisibleTime = Math.random() * 200 + 50;
+    this.counterpartHiddenTime = Math.random() * 50 + 50;
+    this.counterpartVisibleTime = Math.random() * 200 + 50;
   }
 
-  changeEnemyPosition() {
+  getTextureFromCounterpartType(isWhacked: boolean): any {
+    let addon = '';
+    if (isWhacked) {
+      addon = 'Whacked';
+    }
+    if (this.counterpartType == CounterpartTypes.EnemyCounterpart) {
+      return PIXI.loader.resources['enemyImage' + addon].texture
+    } else if (this.counterpartType == CounterpartTypes.FriendCounterpart) {
+      return PIXI.loader.resources['friendImage' + addon].texture
+    }
+  }
+
+  calculateOpponentTypeRandomly(): CounterpartTypes {
+    if (Math.random() >= this.chanceForEnemy) {
+      return CounterpartTypes.FriendCounterpart;
+    } else {
+      return CounterpartTypes.EnemyCounterpart;
+    }
+  }
+
+  changeEnemy() {
     let relPosition = this.holeRelPositions[Math.floor(this.holeRelPositions.length * Math.random())];
     let position = new Point(
       relPosition.x * this.app.screen.width,
       this.app.screen.height - relPosition.y * this.app.screen.height
     );
-    this.enemySprite.x = position.x;
-    this.enemySprite.y = position.y;
+    this.counterpartSprite.x = position.x;
+    this.counterpartSprite.y = position.y;
+    this.counterpartType = this.calculateOpponentTypeRandomly();
+    this.counterpartSprite.texture = this.getTextureFromCounterpartType(false);
   }
 
   goToState(nextState: GameStates) {
