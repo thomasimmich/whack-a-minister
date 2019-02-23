@@ -59,6 +59,7 @@ export class AppComponent implements OnInit {
   private allowedFailureSlotSprites: Sprite[];
 
   private score: number;
+  private speed: number;
 
   private landscape: Container;
   private landscapeZoom: number;
@@ -99,7 +100,7 @@ export class AppComponent implements OnInit {
     this.app = new PIXI.Application({
       width: parent.clientWidth,
       height: parent.clientHeight,
-      backgroundColor: 0x1099bb
+      backgroundColor: 0x7fd9e7
     }); // this creates our pixi application
 
     this.pixiContainer.nativeElement.appendChild(this.app.view); // this places our pixi application onto the viewable document
@@ -153,10 +154,12 @@ export class AppComponent implements OnInit {
       1024
     );
     let scaleFactor = (this.app.renderer.view.width / 1024);
+    this.backgroundSprite.position.y = (this.app.renderer.height - this.backgroundSprite.height * scaleFactor);
+
     this.backgroundSprite.scale.x *= scaleFactor;
     this.backgroundSprite.scale.y *= scaleFactor;
 
-    this.backgroundSprite.position.y = (this.app.renderer.height - this.backgroundSprite.height);
+    
     this.landscape.addChild(this.backgroundSprite);
   }
 
@@ -359,6 +362,7 @@ export class AppComponent implements OnInit {
         }
 
         if (this.stateTime > this.counterpartHiddenTime) {
+          this.speed += 0.2;
           this.counterpartSprite.visible = true;
           this.goToState(GameStates.CounterpartVisibleState);
         }
@@ -370,10 +374,14 @@ export class AppComponent implements OnInit {
         }
 
         if (this.stateTime > this.counterpartVisibleTime) {
-          // the player missed 
+          // the player missed an enemy
           this.counterpartSprite.visible = false;
-          this.increaseScore(-500);
-          //PIXI.loader.resources['failureSound'].data.play();
+          
+          if (this.counterpartType == CounterpartTypes.EnemyCounterpart) {
+            this.increaseScore(-500);
+            PIXI.loader.resources['failureSound'].data.play();
+          }
+          
           this.changeCounterpart();
           this.goToState(GameStates.CounterpartHiddenState);
         }
@@ -409,7 +417,7 @@ export class AppComponent implements OnInit {
     this.carSprite.rotation = Math.sin(this.stateTime / 2) / 320;
     this.frontWheelSprite.rotation += 0.1 * delta;
     this.rearWheelSprite.rotation += 0.1 * delta;
-    this.backgroundSprite.tilePosition.x -= 2;
+    this.backgroundSprite.tilePosition.x -= 2 * this.speed;
     
     if (this.score <= 0) {
       this.landscape.alpha = 0.5;
@@ -418,13 +426,14 @@ export class AppComponent implements OnInit {
   }
 
   updateTurnVariables() {
-    this.counterpartHiddenTime = Math.random() * 50 + 50;
-    this.counterpartVisibleTime = Math.random() * 200 + 50;
+    this.counterpartHiddenTime = (Math.random() * 50 + 50) / this.speed;
+    this.counterpartVisibleTime = (Math.random() * 200 + 50) / this.speed;
     this.counterpartSprite.texture = this.getTextureFromCounterpartType(false);
   }
 
   initGameVariables() {
     this.score = 2000;
+    this.speed = 1.0;
     this.chanceForEnemy = 0.8;
     this.counterpartType = this.calculateOpponentTypeRandomly();
 
