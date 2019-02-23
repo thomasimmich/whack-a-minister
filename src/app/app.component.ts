@@ -53,11 +53,11 @@ export class AppComponent implements OnInit {
   private enemyCommentText: Text;
   private holeRelPositions: Point[] = [
     //new Point(0.16, 0.43),//1-Kofferraum
-    new Point(0.16, 1-0.54),//2-ganzhinten
-    new Point(0.31, 0.48),//3-fasthinten
-    new Point(0.45, 0.48),//4-zweitevonvorne
+    new Point(0.16, 0.52),//2-ganzhinten
+    new Point(0.31, 0.52),//3-fasthinten
+    new Point(0.45, 0.52),//4-zweitevonvorne
     //new Point(0.54, 0.32),//5-dachluke
-    new Point(0.61, 0.48),//6-vorne
+    new Point(0.61, 0.52),//6-vorne
     //new Point(0.85, 0.50),//7-motorhaube 
   ];
 
@@ -333,7 +333,7 @@ export class AppComponent implements OnInit {
     let relPosition = this.holeRelPositions[Math.floor(this.holeRelPositions.length * Math.random())];
     let position = new Point(
       relPosition.x * this.app.screen.width,
-      this.app.screen.height - relPosition.y * this.app.screen.height,
+      this.app.screen.height - relPosition.y * this.app.screen.height
     );
     this.enemySprite.x = position.x;
     this.enemySprite.y = position.y;
