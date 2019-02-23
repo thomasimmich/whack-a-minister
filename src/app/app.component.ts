@@ -8,7 +8,8 @@ enum GameStates {
   CounterpartVisibleState = 'Visible',
   CounterpartHiddenState = 'Hidden',
   CounterpartHittingState = 'Hitting',
-  CounterpartRepositioningState = 'Repositioning'
+  CounterpartRepositioningState = 'Repositioning',
+  GameOverState = 'Game Over'
 };
 
 enum CounterpartTypes {
@@ -32,11 +33,12 @@ export class AppComponent implements OnInit {
     enemyImage: 'assets/images/scheuer.png',
     enemyImageWhacked: 'assets/images/scheuer-whacked.png',
     friendImage: 'assets/images/peterlustig.png',
-    friendImageWhacked: 'assets/images/peterlustig-whacked.png', 
+    friendImageWhacked: 'assets/images/peterlustig-whacked.png',
     handImage: 'assets/images/hand.png',
     handSmackingImage: 'assets/images/hand-smacking.png',
     clapSound: 'assets/sounds/clap.mp3',
-    punchSound: 'assets/sounds/punch.mp3'
+    punchSound: 'assets/sounds/punch.mp3',
+    failureSound: 'assets/sounds/failure.mp3'
   };
 
   title = 'Scheuer-Den-Scheuer';
@@ -50,6 +52,10 @@ export class AppComponent implements OnInit {
 
   private chanceForEnemy: number;
   private counterpartType: CounterpartTypes;
+
+  private stillAllowedFailuresCount: number;
+  private maxAllowedFailuresCount: number;
+  private allowedFailureSlotSprites: Sprite[];
 
   private landscape: Container;
   private landscapeZoom: number;
@@ -80,8 +86,9 @@ export class AppComponent implements OnInit {
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
-    this.chanceForEnemy = 0.8;
-    this.counterpartType = this.calculateOpponentTypeRandomly();
+
+    this.maxAllowedFailuresCount = 3;
+    this.allowedFailureSlotSprites = [];
 
     const parent = this.pixiContainer.nativeElement;
     this.app = new PIXI.Application({
@@ -110,7 +117,8 @@ export class AppComponent implements OnInit {
   }
 
   setupGameVariables() {
-    this.updateGameVariables();
+    this.initGameVariables();
+    this.updateTurnVariables();
     this.goToState(GameStates.CounterpartHiddenState);
   }
 
@@ -125,6 +133,20 @@ export class AppComponent implements OnInit {
     this.app.stage.addChild(this.stateText);
   }
 
+  setupFailuresDisplay() {
+    for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
+      let slotSprite = new PIXI.Sprite(
+        PIXI.loader.resources['friendImage'].texture
+      );
+      this.allowedFailureSlotSprites.push(slotSprite);
+      slotSprite.scale.x *= 0.2;
+      slotSprite.scale.y *= 0.2;
+      slotSprite.position.x = 10 + i * slotSprite.width;
+      slotSprite.position.y = 10;
+      this.app.stage.addChild(slotSprite);
+    }
+  }
+
   setupCursor() {
     this.app.renderer.plugins.interaction.cursorStyles.default = 'none';
 
@@ -137,11 +159,11 @@ export class AppComponent implements OnInit {
 
 
     this.cursorSprite.anchor.set(0.35, 0.25); // position specific to where the actual cursor point is
-    
+
     let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
     this.cursorSprite.scale.x *= scaleFactor;
     this.cursorSprite.scale.y *= scaleFactor;
-    
+
     this.app.stage.addChild(this.cursorSprite);
 
     interaction.on("pointerover", () => {
@@ -156,7 +178,7 @@ export class AppComponent implements OnInit {
   }
 
   setupLandscape() {
-    this.landscape = new PIXI.DisplayObjectContainer(); 
+    this.landscape = new PIXI.DisplayObjectContainer();
     this.landscape.pivot.x = 0.5;
     this.landscape.pivot.y = 0.5;
     //(PIXI.DisplayObjectContainer)(this.landscape).anchor.x = 0.5;
@@ -185,7 +207,7 @@ export class AppComponent implements OnInit {
       // )
     );
     this.landscape.addChild(this.carSprite);
-    
+
     // this.app.ticker.add(function (delta) {
     //   // just for fun, let's rotate mr rabbit a little
     //   // delta is 1 if running at 100% performance
@@ -228,7 +250,7 @@ export class AppComponent implements OnInit {
       - this.relStreetHeight * this.app.screen.height // street offset
     );
 
-    this.landscape.addChild(this.rearWheelSprite);  
+    this.landscape.addChild(this.rearWheelSprite);
   }
 
   setupCounterpart() {
@@ -246,15 +268,17 @@ export class AppComponent implements OnInit {
     this.counterpartSprite.on("pointerdown", this.onPointerDown.bind(this));
 
     this.landscape.addChild(this.counterpartSprite);
-    this.changeEnemy();
+    this.changeCounterpart();
   }
 
   setup() {
+
     this.setupLandscape();
     this.setupCar();
     this.setupCounterpart();
     this.setupCursor();
     this.setupText();
+    this.setupFailuresDisplay();
     this.setupGameVariables();
 
     this.app.ticker.add(this.update.bind(this));
@@ -265,17 +289,31 @@ export class AppComponent implements OnInit {
       return;
     }
 
-    let punchSound: Sound = PIXI.loader.resources['punchSound'].data;
-    punchSound.play();
+    let hitSound: Sound;
+    if (this.counterpartType == CounterpartTypes.EnemyCounterpart) {
+      hitSound = PIXI.loader.resources['punchSound'].data;
+    } else {
+      hitSound = PIXI.loader.resources['failureSound'].data;
 
-    this.cursorSprite.texture = PIXI.loader.resources['handSmackingImage'].texture;
-    this.enemyCommentText.visible = true;
+      this.stillAllowedFailuresCount--;
+      this.allowedFailureSlotSprites[this.stillAllowedFailuresCount].alpha = 0.5;
+    }
 
-    this.counterpartSprite.texture = this.getTextureFromCounterpartType(true);
-    this.counterpartSprite.scale.x -= 0.1;
-    this.counterpartSprite.scale.y -= 0.1;
+    hitSound.play();
 
-    this.goToState(GameStates.CounterpartHittingState);
+    if (this.stillAllowedFailuresCount > 0) {
+
+      this.cursorSprite.texture = PIXI.loader.resources['handSmackingImage'].texture;
+      this.enemyCommentText.visible = true;
+
+      this.counterpartSprite.texture = this.getTextureFromCounterpartType(true);
+      this.counterpartSprite.scale.x -= 0.1;
+      this.counterpartSprite.scale.y -= 0.1;
+      this.goToState(GameStates.CounterpartHittingState);
+    } else {
+      this.landscape.alpha = 0.5;
+      this.goToState(GameStates.GameOverState);
+    }
   }
 
   update(delta: number) {
@@ -298,10 +336,10 @@ export class AppComponent implements OnInit {
           this.landscape.scale.x += 0.05;
           this.landscape.scale.y += 0.05;
         }
-        
+
         if (this.stateTime > this.counterpartVisibleTime) {
           this.counterpartSprite.visible = false;
-          this.changeEnemy();
+          this.changeCounterpart();
           this.goToState(GameStates.CounterpartHiddenState);
         }
       } break;
@@ -319,14 +357,16 @@ export class AppComponent implements OnInit {
           this.counterpartSprite.texture = this.getTextureFromCounterpartType(false);
 
           this.counterpartSprite.visible = false;
-          this.changeEnemy();
+          this.changeCounterpart();
           this.goToState(GameStates.CounterpartHiddenState);
         }
       } break;
-      case GameStates.CounterpartRepositioningState: {
-        if (this.stateTime > 10) {
-          this.changeEnemy();
-          this.goToState(GameStates.IdleState)
+      case GameStates.GameOverState: {
+        if (this.stateTime > 100) {
+          this.landscape.alpha = 1.0
+          this.changeCounterpart();
+          this.initGameVariables();
+          this.goToState(GameStates.CounterpartHiddenState)
         }
       } break;
     }
@@ -336,9 +376,20 @@ export class AppComponent implements OnInit {
     this.rearWheelSprite.rotation += 0.1 * delta;
   }
 
-  updateGameVariables() {
+  updateTurnVariables() {
     this.counterpartHiddenTime = Math.random() * 50 + 50;
     this.counterpartVisibleTime = Math.random() * 200 + 50;
+    this.counterpartSprite.texture = this.getTextureFromCounterpartType(false);
+  }
+
+  initGameVariables() {
+    this.chanceForEnemy = 0.8;
+    this.counterpartType = this.calculateOpponentTypeRandomly();
+
+    this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
+    for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
+      this.allowedFailureSlotSprites[i].alpha = 1.0;
+    }
   }
 
   getTextureFromCounterpartType(isWhacked: boolean): any {
@@ -361,14 +412,14 @@ export class AppComponent implements OnInit {
     }
   }
 
-  changeEnemy() {
+  changeCounterpart() {
     let relPosition = this.holeRelPositions[Math.floor(this.holeRelPositions.length * Math.random())];
     let position = new Point(
       relPosition.x * this.app.screen.width,
       this.app.screen.height - relPosition.y * this.carSprite.height
       - this.relStreetHeight * this.app.screen.height // street offset
     );
-    this.counterpartSprite.x = position.x;  
+    this.counterpartSprite.x = position.x;
     this.counterpartSprite.y = position.y;
     this.counterpartType = this.calculateOpponentTypeRandomly();
     this.counterpartSprite.texture = this.getTextureFromCounterpartType(false);
@@ -378,6 +429,6 @@ export class AppComponent implements OnInit {
     this.gameState = nextState;
     this.stateText.text = nextState;
     this.stateTime = 0;
-    this.updateGameVariables();
+    this.updateTurnVariables();
   }
 }
