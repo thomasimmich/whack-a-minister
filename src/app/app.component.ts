@@ -39,7 +39,7 @@ export class AppComponent implements OnInit {
   public gameState: GameStates;
 
   private referenceWidth: number;
-
+  private relStreetHeight: number;
 
   private landscape: Container;
   private landscapeZoom: number;
@@ -52,13 +52,13 @@ export class AppComponent implements OnInit {
   private stateTime: number;
   private enemyCommentText: Text;
   private holeRelPositions: Point[] = [
-    new Point(0.07, 0.43),//1-Kofferraum
-    new Point(0.18, 0.48),//2-ganzhinten
-    new Point(0.31, 0.48),//3-fasthinten
-    new Point(0.46, 0.48),//4-zweitevonvorne
-    new Point(0.54, 0.32),//5-dachluke
-    new Point(0.61, 0.48),//6-vorne
-    new Point(0.85, 0.50),//7-motorhaube 
+    //new Point(0.16, 0.43),//1-Kofferraum
+    new Point(0.16, 1-0.54),//2-ganzhinten
+  //new Point(0.31, 0.48),//3-fasthinten
+  //new Point(0.45, 0.48),//4-zweitevonvorne
+    //new Point(0.54, 0.32),//5-dachluke
+  //new Point(0.61, 0.48),//6-vorne
+    //new Point(0.85, 0.50),//7-motorhaube 
   ];
 
   private enemyHiddenTime: number;
@@ -69,6 +69,7 @@ export class AppComponent implements OnInit {
     // reference width is taken from iPad Pro Retina
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
+    this.relStreetHeight = 0.05;
 
     const parent = this.pixiContainer.nativeElement;
     this.app = new PIXI.Application({
@@ -90,8 +91,6 @@ export class AppComponent implements OnInit {
     PIXI.loader.
       on("progress", this.onLoad).
       load(this.setup.bind(this));
-
-    
   }
 
   onLoad(loader, resource) {
@@ -166,15 +165,15 @@ export class AppComponent implements OnInit {
 
     this.carSprite.position.set(
       this.app.renderer.view.width * 0.5065,
-      this.app.renderer.view.height - this.carSprite.height / 2 -
-      Math.min(
-        this.app.renderer.view.height * 0.15, // relative to screen height the car will become higher
-        this.carSprite.height * 0.4 // but not higher than one forth of the car's height
-      )
+      this.app.renderer.view.height - this.carSprite.height * 0.8
+      - this.relStreetHeight * this.app.screen.height // street offset
+      // - Math.min(
+      //   this.app.renderer.view.height * 0.15, // relative to screen height the car will become higher
+      //   this.carSprite.height * 0.4 // but not higher than one forth of the car's height
+      // )
     );
     this.landscape.addChild(this.carSprite);
     
-
     // this.app.ticker.add(function (delta) {
     //   // just for fun, let's rotate mr rabbit a little
     //   // delta is 1 if running at 100% performance
@@ -197,7 +196,11 @@ export class AppComponent implements OnInit {
     this.frontWheelSprite.scale.x *= scaleFactor;
     this.frontWheelSprite.scale.y *= scaleFactor;
 
-    this.frontWheelSprite.position.set(this.app.renderer.view.width * 0.82, this.app.screen.height - this.frontWheelSprite.height / 2);
+    this.frontWheelSprite.position.set(
+      this.app.renderer.view.width * 0.82,
+      this.app.screen.height - this.frontWheelSprite.height / 2
+      - this.relStreetHeight * this.app.screen.height // street offset
+    );
     this.landscape.addChild(this.frontWheelSprite);
 
     this.rearWheelSprite = new PIXI.Sprite(
@@ -207,7 +210,11 @@ export class AppComponent implements OnInit {
     this.rearWheelSprite.scale.x *= scaleFactor;
     this.rearWheelSprite.scale.y *= scaleFactor;
 
-    this.rearWheelSprite.position.set(this.app.renderer.view.width * 0.249, this.app.screen.height - this.rearWheelSprite.height / 2);
+    this.rearWheelSprite.position.set(
+      this.app.renderer.view.width * 0.249,
+      this.app.screen.height - this.rearWheelSprite.height / 2
+      - this.relStreetHeight * this.app.screen.height // street offset
+    );
 
     this.landscape.addChild(this.rearWheelSprite);  
   }
@@ -225,8 +232,6 @@ export class AppComponent implements OnInit {
 
     this.enemySprite.interactive = true;
     this.enemySprite.on("pointerdown", this.onPointerDown.bind(this));
-
-    this.enemySprite.position.set(this.app.renderer.view.width / 2, this.app.screen.height / 2);
 
     this.landscape.addChild(this.enemySprite);
     this.changeEnemyPosition();
@@ -247,7 +252,6 @@ export class AppComponent implements OnInit {
     if (this.gameState != GameStates.EnemyVisibleState) {
       return;
     }
-
 
     let punchSound: Sound = PIXI.loader.resources['punchSound'].data;
     punchSound.play();
@@ -329,7 +333,7 @@ export class AppComponent implements OnInit {
     let relPosition = this.holeRelPositions[Math.floor(this.holeRelPositions.length * Math.random())];
     let position = new Point(
       relPosition.x * this.app.screen.width,
-      relPosition.y * this.app.screen.height,
+      this.app.screen.height - relPosition.y * this.app.screen.height,
     );
     this.enemySprite.x = position.x;
     this.enemySprite.y = position.y;
