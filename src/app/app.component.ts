@@ -57,6 +57,8 @@ export class AppComponent implements OnInit {
   private maxAllowedFailuresCount: number;
   private allowedFailureSlotSprites: Sprite[];
 
+  private score: number;
+
   private landscape: Container;
   private landscapeZoom: number;
   private carSprite: Sprite;
@@ -67,6 +69,7 @@ export class AppComponent implements OnInit {
   private stateText: Text;
   private stateTime: number;
   private enemyCommentText: Text;
+  private scoreText: Text;
   private holeRelPositions: Point[] = [
     //new Point(0.16, 0.43),//1-Kofferraum
     new Point(0.16, 1),//2-ganzhinten
@@ -131,6 +134,12 @@ export class AppComponent implements OnInit {
 
     this.stateText = new PIXI.Text(this.gameState);
     this.app.stage.addChild(this.stateText);
+  }
+
+  setupScore() {
+    this.scoreText = new PIXI.Text('         ');
+    this.scoreText.position.x = this.app.screen.width - this.scoreText.width;
+    this.app.stage.addChild(this.scoreText);
   }
 
   setupFailuresDisplay() {
@@ -278,6 +287,7 @@ export class AppComponent implements OnInit {
     this.setupCounterpart();
     this.setupCursor();
     this.setupText();
+    this.setupScore();
     this.setupFailuresDisplay();
     this.setupGameVariables();
 
@@ -292,14 +302,17 @@ export class AppComponent implements OnInit {
     let hitSound: Sound;
     if (this.counterpartType == CounterpartTypes.EnemyCounterpart) {
       hitSound = PIXI.loader.resources['punchSound'].data;
+      this.increaseScore(1000);
     } else {
       hitSound = PIXI.loader.resources['failureSound'].data;
-
+      this.increaseScore(-2000);
+      
       this.stillAllowedFailuresCount--;
       this.allowedFailureSlotSprites[this.stillAllowedFailuresCount].alpha = 0.5;
     }
 
     hitSound.play();
+
 
     if (this.stillAllowedFailuresCount > 0) {
 
@@ -338,7 +351,10 @@ export class AppComponent implements OnInit {
         }
 
         if (this.stateTime > this.counterpartVisibleTime) {
+          // the player missed 
           this.counterpartSprite.visible = false;
+          this.increaseScore(-500);
+          //PIXI.loader.resources['failureSound'].data.play();
           this.changeCounterpart();
           this.goToState(GameStates.CounterpartHiddenState);
         }
@@ -374,6 +390,11 @@ export class AppComponent implements OnInit {
     this.carSprite.rotation = Math.sin(this.stateTime / 2) / 320;
     this.frontWheelSprite.rotation += 0.1 * delta;
     this.rearWheelSprite.rotation += 0.1 * delta;
+    
+    if (this.score <= 0) {
+      this.landscape.alpha = 0.5;
+      this.goToState(GameStates.GameOverState);
+    }
   }
 
   updateTurnVariables() {
@@ -383,6 +404,7 @@ export class AppComponent implements OnInit {
   }
 
   initGameVariables() {
+    this.score = 2000;
     this.chanceForEnemy = 0.8;
     this.counterpartType = this.calculateOpponentTypeRandomly();
 
@@ -390,6 +412,12 @@ export class AppComponent implements OnInit {
     for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
       this.allowedFailureSlotSprites[i].alpha = 1.0;
     }
+  }
+
+  increaseScore(inc: number) {
+    this.score += inc;
+    this.scoreText.text = this.score.toString();
+
   }
 
   getTextureFromCounterpartType(isWhacked: boolean): any {
