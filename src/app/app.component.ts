@@ -34,6 +34,7 @@ export class AppComponent implements OnInit {
     enemyImageWhacked: 'assets/images/scheuer-whacked.png',
     friendImage: 'assets/images/peterlustig.png',
     friendImageWhacked: 'assets/images/peterlustig-whacked.png',
+    backgroundImage: 'assets/images/background.png',
     handImage: 'assets/images/hand.png',
     handSmackingImage: 'assets/images/hand-smacking.png',
     clapSound: 'assets/sounds/clap.mp3',
@@ -66,6 +67,7 @@ export class AppComponent implements OnInit {
   private rearWheelSprite: Sprite;
   private counterpartSprite: Sprite;
   private cursorSprite: Sprite;
+  private backgroundSprite: PIXI.extras.TilingSprite;
   private stateText: Text;
   private stateTime: number;
   private enemyCommentText: Text;
@@ -140,6 +142,22 @@ export class AppComponent implements OnInit {
     this.scoreText = new PIXI.Text('         ');
     this.scoreText.position.x = this.app.screen.width - this.scoreText.width;
     this.app.stage.addChild(this.scoreText);
+  }
+
+  setupBackground() {
+
+
+    this.backgroundSprite = new PIXI.extras.TilingSprite(
+      PIXI.loader.resources['backgroundImage'].texture,
+      1024,
+      1024
+    );
+    let scaleFactor = (this.app.renderer.view.width / 1024);
+    this.backgroundSprite.scale.x *= scaleFactor;
+    this.backgroundSprite.scale.y *= scaleFactor;
+
+    this.backgroundSprite.position.y = (this.app.renderer.height - this.backgroundSprite.height);
+    this.landscape.addChild(this.backgroundSprite);
   }
 
   setupFailuresDisplay() {
@@ -283,6 +301,7 @@ export class AppComponent implements OnInit {
   setup() {
 
     this.setupLandscape();
+    this.setupBackground();
     this.setupCar();
     this.setupCounterpart();
     this.setupCursor();
@@ -390,6 +409,7 @@ export class AppComponent implements OnInit {
     this.carSprite.rotation = Math.sin(this.stateTime / 2) / 320;
     this.frontWheelSprite.rotation += 0.1 * delta;
     this.rearWheelSprite.rotation += 0.1 * delta;
+    this.backgroundSprite.tilePosition.x -= 2;
     
     if (this.score <= 0) {
       this.landscape.alpha = 0.5;
