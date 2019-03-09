@@ -1,5 +1,5 @@
 import { EventEmitter, Output } from '@angular/core';
-import { Sprite, Container, Sound, Point, Graphics } from "pixi.js";
+import { Sprite, Container, Sound, Point, Graphics, Text } from "pixi.js";
 import { Ease } from './ease.class';
 
 export enum CounterpartTypes {
@@ -15,6 +15,10 @@ export enum CounterpartStates {
     HitState = 'Hit'
 }
 
+export class HitEvent {
+    public constructor(public sender: Counterpart, public success: boolean) {}
+}
+
 export class Counterpart {
     public readonly container: Container;
 
@@ -27,11 +31,12 @@ export class Counterpart {
     private waitingTime: number;
 
     private sprite: Sprite;
+    private scoreText: Text;
     private origin: Point;
     private mask: Graphics;
     private visbilityFactor: number;
 
-    @Output() wasHit = new EventEmitter(); 
+    @Output() wasHit = new EventEmitter();
 
     public constructor(ticker: PIXI.ticker.Ticker, x: number, y: number, scaleFactor: number) {
         ticker.add(this.update.bind(this));
@@ -53,19 +58,22 @@ export class Counterpart {
         this.sprite.interactive = true;
         this.sprite.on("pointerdown", this.onPointerDown.bind(this));
 
+        this.scoreText = new PIXI.Text('');
+        this.setScore(0);
 
         this.mask = new PIXI.Graphics();
-        this.mask.beginFill(0xFFFFFF, 1);   
+        this.mask.beginFill(0xFFFFFF, 1);
         this.mask.drawRect(
             this.sprite.x - this.sprite.width / 2,
-            this.sprite.y - this.sprite.height / 2,
+            this.sprite.y - this.sprite.height / 2 - 200,
             this.sprite.width,
-            this.sprite.height
+            this.sprite.height + 200
         );
 
         this.container.interactive = true;
         this.container.mask = this.mask;
         this.container.addChild(this.sprite);
+        this.container.addChild(this.scoreText);
 
         this.visbilityFactor = 0;
         this.waitingTime = 200;
@@ -98,7 +106,7 @@ export class Counterpart {
         }
         if (this.state == CounterpartStates.HidingState) {
             this.visbilityFactor = Math.max(0.0, Ease.outSine(this.stateTime / this.stateDuration));
-            
+
             if (this.isStateFinished()) {
                 this.goToState(CounterpartStates.HiddenState);
             }
@@ -135,26 +143,36 @@ export class Counterpart {
         }
     }
 
+    setScore(score: number) {
+        this.scoreText.text = score.toString();
+        this.scoreText.x = this.sprite.x - this.scoreText.width / 2;
+        this.scoreText.y = this.sprite.y - this.sprite.height / 2;
+    }
+
     onPointerDown() {
+        if (this.state == CounterpartStates.HitState) {
+            return;
+        }
+
         let hitSound: Sound;
 
         if (this.type == CounterpartTypes.EnemyCounterpart) {
             hitSound = PIXI.loader.resources['punchSound'].data;
-            this.wasHit.emit(true);
+            this.wasHit.emit(new HitEvent(this, true));
         } else {
-            hitSound = PIXI.loader.resources['failureSound'].data;    
-            this.wasHit.emit(false);
+            hitSound = PIXI.loader.resources['failureSound'].data;
+            this.wasHit.emit(new HitEvent(this, false));
             // this.increaseScore(-2000);
 
             // this.stillAllowedFailuresCount--;
             // this.allowedFailureSlotSprites[this.stillAllowedFailuresCount].alpha = 0.5;
         }
-    
-        this.sprite.texture = this.getTextureFromCounterpartType(true);
-        this.goToState(CounterpartStates.HitState);
 
 
         hitSound.play();
+
+        this.sprite.texture = this.getTextureFromCounterpartType(true);
+        this.goToState(CounterpartStates.HitState);
     }
 
     getTextureFromCounterpartType(isWhacked: boolean): any {
@@ -169,5 +187,5 @@ export class Counterpart {
         }
     }
 
-   
+
 }
