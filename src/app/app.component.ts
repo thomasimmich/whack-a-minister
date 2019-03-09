@@ -1,6 +1,6 @@
 import { Counterpart, CounterpartTypes, HitEvent } from './counterpart.class';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Sprite, Application, Sound, Text, Point, Container } from 'pixi.js';
+import { Sprite, Application, Sound, Text, Point, Container, Graphics } from 'pixi.js';
 
 //import * as PIXI from "pixi.js/dist/pixi.js"
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
@@ -61,10 +61,12 @@ export class AppComponent implements OnInit {
   private stillAllowedFailuresCount: number;
   private maxAllowedFailuresCount: number;
   private allowedFailureSlotSprites: Sprite[];
+  private timerProgress: Graphics;
 
   private score: number;
   private scoreRoll: number;
   private speed: number;
+  private timeLeft: number;
 
   private landscape: Container;
   private landscapeZoom: number;
@@ -203,6 +205,36 @@ export class AppComponent implements OnInit {
       this.backgroundSprites[i].scale.y *= scaleFactor;
       this.landscape.addChild(this.backgroundSprites[i]);
     }
+  }
+
+
+  setupTimerDisplay() {
+    let barX = 100;
+    let barY = 10;
+    let barHeight = 20;
+    let barWidth = 100;
+
+    let bar = new PIXI.DisplayObjectContainer();
+
+    let border = new PIXI.Graphics();
+    border.beginFill(0x222222);
+    border.drawRoundedRect(barX, barY, barWidth, barHeight, barHeight / 2);
+    border.endFill();
+    bar.addChild(border);
+
+    let background = new PIXI.Graphics();
+    background.beginFill(0xFFFFFF);
+    background.drawRoundedRect(barX + 2, barY + 2, barWidth - 4, barHeight - 4, barHeight / 2);
+    background.endFill();
+    bar.addChild(background);
+
+    this.timerProgress = new PIXI.Graphics();
+    this.timerProgress.beginFill(0xFF0000);
+    this.timerProgress.drawRoundedRect(barX + 2, barY + 2, barWidth - 4, barHeight - 4, barHeight / 2);
+    this.timerProgress.endFill();
+    bar.addChild(this.timerProgress);
+
+    this.app.stage.addChild(bar);
   }
 
   setupFailuresDisplay() {
@@ -372,7 +404,8 @@ export class AppComponent implements OnInit {
     this.setupCursor();
     this.setupText();
     this.setupScore();
-    this.setupFailuresDisplay();
+    //this.setupFailuresDisplay();
+    this.setupTimerDisplay();
     this.setupGameVariables();
 
     this.app.ticker.add(this.update.bind(this));
@@ -489,15 +522,34 @@ export class AppComponent implements OnInit {
     this.rearWheelSprite.rotation += 0.1 * delta;
 
     for (let i = 0; i < 5; i++) {
-      this.backgroundSprites[i].tilePosition.x -= 2 * this.speed * ( i + 1);
+      this.backgroundSprites[i].tilePosition.x -= 2 * this.speed * (i + 1);
     }
 
+    this.updateTimerProgress(delta);
 
 
     // if (this.score <= 0) {
     //   this.landscape.alpha = 0.5;
     //   this.goToState(GameStates.GameOverState);
     // }
+  }
+
+  updateTimerProgress(delta: number) {
+    this.timeLeft -= delta / 100;
+    if (this.timeLeft <= 0) {
+      this.landscape.alpha = 0.5;
+      this.goToState(GameStates.GameOverState);
+    }
+    //console.log(this.timeLeft);
+    // let width = this.timerProgress.parent.width * 0.5;
+    // this.timerProgress.beginFill(0xFF0000);
+    // this.timerProgress.drawRoundedRect(
+    //   0,
+    //   0,
+    //   width,
+    //   this.timerProgress.height,
+    //   this.timerProgress.height / 2);
+    // this.timerProgress.endFill();
   }
 
   updateTurnVariables() {
@@ -511,13 +563,14 @@ export class AppComponent implements OnInit {
     this.score = 0;
     this.scoreRoll = 0;
     this.speed = 1.0;
+    this.timeLeft = 4;
     this.chanceForEnemy = 0.8;
     this.counterpartType = this.calculateCounterpartTypeRandomly();
 
     this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
-    for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
-      this.allowedFailureSlotSprites[i].alpha = 1.0;
-    }
+    // for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
+    //   this.allowedFailureSlotSprites[i].alpha = 1.0;
+    // }
   }
 
   increaseScore(inc: number) {
