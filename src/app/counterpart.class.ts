@@ -1,3 +1,4 @@
+import { EventEmitter, Output } from '@angular/core';
 import { Sprite, Container, Sound, Point, Graphics } from "pixi.js";
 import { Ease } from './ease.class';
 
@@ -29,6 +30,8 @@ export class Counterpart {
     private origin: Point;
     private mask: Graphics;
     private visbilityFactor: number;
+
+    @Output() wasHit = new EventEmitter(); 
 
     public constructor(ticker: PIXI.ticker.Ticker, x: number, y: number, scaleFactor: number) {
         ticker.add(this.update.bind(this));
@@ -137,8 +140,10 @@ export class Counterpart {
 
         if (this.type == CounterpartTypes.EnemyCounterpart) {
             hitSound = PIXI.loader.resources['punchSound'].data;
+            this.wasHit.emit(true);
         } else {
             hitSound = PIXI.loader.resources['failureSound'].data;    
+            this.wasHit.emit(false);
             // this.increaseScore(-2000);
 
             // this.stillAllowedFailuresCount--;

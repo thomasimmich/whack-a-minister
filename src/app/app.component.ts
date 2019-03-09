@@ -162,9 +162,18 @@ export class AppComponent implements OnInit {
         position.y,
         scaleFactor
       );
-      
+      c.wasHit.subscribe((success: boolean) => this.onWasHit(success))
       this.counterparts.push(c);
       this.landscape.addChild(c.container);
+    }
+  }
+
+  onWasHit(success: boolean) {
+    if (success) {
+      
+      this.increaseScore(10);
+    } else {
+      this.increaseScore(-10);
     }
   }
 
