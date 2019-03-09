@@ -32,7 +32,11 @@ export class AppComponent implements OnInit {
     enemyImageWhacked: 'assets/images/scheuer-whacked.png',
     friendImage: 'assets/images/greta.png',
     friendImageWhacked: 'assets/images/greta-whacked.png',
-    backgroundImage: 'assets/images/background.png',
+    backgroundImage0: 'assets/images/back0.png',
+    backgroundImage1: 'assets/images/back1.png',
+    backgroundImage2: 'assets/images/back2.png',
+    backgroundImage3: 'assets/images/back3.png',
+    backgroundImage4: 'assets/images/back4.png',
     handImage: 'assets/images/hand.png',
     handSmackingImage: 'assets/images/hand-smacking.png',
     clapSound: 'assets/sounds/clap.mp3',
@@ -69,7 +73,7 @@ export class AppComponent implements OnInit {
   private rearWheelSprite: Sprite;
   private counterpartSprite: Sprite;
   private cursorSprite: Sprite;
-  private backgroundSprite: PIXI.extras.TilingSprite;
+  private backgroundSprites: PIXI.extras.TilingSprite[];
   private stateText: Text;
   private stateTime: number;
   private enemyCommentText: Text;
@@ -96,13 +100,14 @@ export class AppComponent implements OnInit {
 
     this.maxAllowedFailuresCount = 3;
     this.allowedFailureSlotSprites = [];
+    this.backgroundSprites = [];
     this.counterparts = [];
 
     const parent = this.pixiContainer.nativeElement;
     this.app = new PIXI.Application({
       width: parent.clientWidth,
       height: parent.clientHeight,
-      backgroundColor: 0x7fd9e7
+      backgroundColor: 0xbcd6f8
     }); // this creates our pixi application
 
     this.pixiContainer.nativeElement.appendChild(this.app.view); // this places our pixi application onto the viewable document
@@ -185,19 +190,19 @@ export class AppComponent implements OnInit {
   }
 
   setupBackground() {
-    this.backgroundSprite = new PIXI.extras.TilingSprite(
-      PIXI.loader.resources['backgroundImage'].texture,
-      1024,
-      1024
-    );
-    let scaleFactor = (this.app.renderer.view.width / 1024);
-    this.backgroundSprite.position.y = (this.app.renderer.height - this.backgroundSprite.height * scaleFactor);
-
-    this.backgroundSprite.scale.x *= scaleFactor;
-    this.backgroundSprite.scale.y *= scaleFactor;
-
-    
-    this.landscape.addChild(this.backgroundSprite);
+    let tileSize = 2048;
+    for (let i = 0; i < 5; i++) {
+      let scaleFactor = (this.app.renderer.view.width / tileSize);
+      this.backgroundSprites.push(new PIXI.extras.TilingSprite(
+        PIXI.loader.resources['backgroundImage' + i.toString()].texture,
+        tileSize,
+        tileSize
+      ));
+      this.backgroundSprites[i].position.y = (this.app.renderer.height - tileSize * scaleFactor);
+      this.backgroundSprites[i].scale.x *= scaleFactor;
+      this.backgroundSprites[i].scale.y *= scaleFactor;
+      this.landscape.addChild(this.backgroundSprites[i]);
+    }
   }
 
   setupFailuresDisplay() {
@@ -385,7 +390,7 @@ export class AppComponent implements OnInit {
     } else {
       hitSound = PIXI.loader.resources['failureSound'].data;
       this.increaseScore(-2000);
-      
+
       this.stillAllowedFailuresCount--;
       this.allowedFailureSlotSprites[this.stillAllowedFailuresCount].alpha = 0.5;
     }
@@ -440,12 +445,12 @@ export class AppComponent implements OnInit {
       //   if (this.stateTime > this.counterpartVisibleDuration) {
       //     // the player missed an enemy
       //     this.counterpartSprite.visible = false;
-          
+
       //     if (this.counterpartType == CounterpartTypes.EnemyCounterpart) {
       //       this.increaseScore(-500);
       //       PIXI.loader.resources['failureSound'].data.play();
       //     }
-          
+
       //     this.changeCounterpart();
       //     this.goToState(GameStates.CounterpartHiddenState);
       //   }
@@ -478,11 +483,14 @@ export class AppComponent implements OnInit {
       } break;
     }
     //this.enemy.rotation += 0.1 * delta;
-    
+
     this.carSprite.rotation = Math.sin(this.stateTime / 2) / 320;
     this.frontWheelSprite.rotation += 0.1 * delta;
     this.rearWheelSprite.rotation += 0.1 * delta;
-    this.backgroundSprite.tilePosition.x -= 2 * this.speed;
+
+    for (let i = 0; i < 5; i++) {
+      this.backgroundSprites[i].tilePosition.x -= 2 * this.speed * ( i + 1);
+    }
 
 
 
@@ -496,7 +504,7 @@ export class AppComponent implements OnInit {
     this.counterpartHiddenDuration = (Math.random() * 50 + 50) / this.speed;
     this.counterpartVisibleDuration = (Math.random() * 200 + 50) / this.speed;
     // this.counterpartSprite.texture = this.getTextureFromCounterpartType(false);
-    this.counterpartHiddenTime = 0;    
+    this.counterpartHiddenTime = 0;
   }
 
   initGameVariables() {
