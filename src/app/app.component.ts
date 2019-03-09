@@ -1,5 +1,7 @@
+import { Counterpart, CounterpartTypes } from './counterpart.class';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sprite, Application, Sound, Text, Point, Container } from 'pixi.js';
+
 //import * as PIXI from "pixi.js/dist/pixi.js"
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
 
@@ -12,10 +14,6 @@ enum GameStates {
   GameOverState = 'Game Over'
 };
 
-enum CounterpartTypes {
-  EnemyCounterpart = 'Enemy',
-  FriendCounterpart = 'Friend'
-}
 
 @Component({
   selector: 'app-root',
@@ -53,6 +51,8 @@ export class AppComponent implements OnInit {
 
   private chanceForEnemy: number;
   private counterpartType: CounterpartTypes;
+  public counterparts: Counterpart[];
+  private counterpartHiddenTime: number;
 
   private stillAllowedFailuresCount: number;
   private maxAllowedFailuresCount: number;
@@ -83,8 +83,8 @@ export class AppComponent implements OnInit {
     //new Point(0.85, 0.50),//7-motorhaube 
   ];
 
-  private counterpartHiddenTime: number;
-  private counterpartVisibleTime: number;
+  private counterpartHiddenDuration: number;
+  private counterpartVisibleDuration: number;
 
   ngOnInit() {
 
@@ -95,6 +95,7 @@ export class AppComponent implements OnInit {
 
     this.maxAllowedFailuresCount = 3;
     this.allowedFailureSlotSprites = [];
+    this.counterparts = [];
 
     const parent = this.pixiContainer.nativeElement;
     this.app = new PIXI.Application({
@@ -145,9 +146,29 @@ export class AppComponent implements OnInit {
     this.app.stage.addChild(this.scoreText);
   }
 
+  setupCounterparts() {
+    for (let i = 0; i < this.holeRelPositions.length; i++) {
+      let relPosition = this.holeRelPositions[i];
+      let position = new Point(
+        relPosition.x * this.app.screen.width,
+        this.app.screen.height - relPosition.y * this.carSprite.height
+        - this.relStreetHeight * this.app.screen.height // street offset
+      );
+      let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
+
+      let c = new Counterpart(
+        this.app.ticker,
+        position.x,
+        position.y,
+        scaleFactor
+      );
+      
+      this.counterparts.push(c);
+      this.landscape.addChild(c.container);
+    }
+  }
+
   setupBackground() {
-
-
     this.backgroundSprite = new PIXI.extras.TilingSprite(
       PIXI.loader.resources['backgroundImage'].texture,
       1024,
@@ -283,6 +304,25 @@ export class AppComponent implements OnInit {
     this.landscape.addChild(this.rearWheelSprite);
   }
 
+  createCounterpartSprite(): Sprite {
+    let sprite = new PIXI.Sprite(
+      this.getTextureFromCounterpartType(false)
+    );
+
+    sprite.anchor.set(0.5);
+
+    let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
+    sprite.scale.x *= scaleFactor;
+    sprite.scale.y *= scaleFactor;
+
+    sprite.interactive = true;
+    sprite.on("pointerdown", this.onPointerDown.bind(this));
+
+    this.landscape.addChild(sprite);
+
+    return sprite;
+  }
+
   setupCounterpart() {
     this.counterpartSprite = new PIXI.Sprite(
       this.getTextureFromCounterpartType(false)
@@ -296,7 +336,7 @@ export class AppComponent implements OnInit {
 
     this.counterpartSprite.interactive = true;
     this.counterpartSprite.on("pointerdown", this.onPointerDown.bind(this));
-
+    this.counterpartSprite.visible = false;
     this.landscape.addChild(this.counterpartSprite);
     this.changeCounterpart();
   }
@@ -306,6 +346,7 @@ export class AppComponent implements OnInit {
     this.setupLandscape();
     this.setupBackground();
     this.setupCar();
+    this.setupCounterparts();
     this.setupCounterpart();
     this.setupCursor();
     this.setupText();
@@ -337,7 +378,6 @@ export class AppComponent implements OnInit {
 
 
     if (this.stillAllowedFailuresCount > 0) {
-
       this.cursorSprite.texture = PIXI.loader.resources['handSmackingImage'].texture;
       this.enemyCommentText.visible = true;
 
@@ -352,40 +392,48 @@ export class AppComponent implements OnInit {
   }
 
   update(delta: number) {
+
     this.stateTime += delta;
+    this.counterpartHiddenTime += delta;
+
+    if (this.counterpartHiddenTime > this.counterpartHiddenDuration) {
+      let counterpart = this.counterparts[Math.floor(this.counterparts.length * Math.random())];
+      counterpart.show(this.calculateCounterpartTypeRandomly(), this.counterpartVisibleDuration);
+      this.updateTurnVariables();
+    }
 
     switch (this.gameState) {
-      case GameStates.CounterpartHiddenState: {
-        if (this.landscape.scale.x > 1.0) {
-          this.landscape.scale.x -= 0.05;
-          this.landscape.scale.y -= 0.05;
-        }
+      // case GameStates.CounterpartHiddenState: {
+      //   if (this.landscape.scale.x > 1.0) {
+      //     this.landscape.scale.x -= 0.05;
+      //     this.landscape.scale.y -= 0.05;
+      //   }
 
-        if (this.stateTime > this.counterpartHiddenTime) {
-          this.speed += 0.2;
-          this.counterpartSprite.visible = true;
-          this.goToState(GameStates.CounterpartVisibleState);
-        }
-      } break;
-      case GameStates.CounterpartVisibleState: {
-        if (this.landscape.scale.x < this.landscapeZoom) {
-          this.landscape.scale.x += 0.05;
-          this.landscape.scale.y += 0.05;
-        }
+      //   if (this.stateTime > this.counterpartHiddenDuration) {
+      //     this.speed += 0.2;
+      //     this.counterpartSprite.visible = true;
+      //     this.goToState(GameStates.CounterpartVisibleState);
+      //   }
+      // } break;
+      // case GameStates.CounterpartVisibleState: {
+      //   if (this.landscape.scale.x < this.landscapeZoom) {
+      //     this.landscape.scale.x += 0.05;
+      //     this.landscape.scale.y += 0.05;
+      //   }
 
-        if (this.stateTime > this.counterpartVisibleTime) {
-          // the player missed an enemy
-          this.counterpartSprite.visible = false;
+      //   if (this.stateTime > this.counterpartVisibleDuration) {
+      //     // the player missed an enemy
+      //     this.counterpartSprite.visible = false;
           
-          if (this.counterpartType == CounterpartTypes.EnemyCounterpart) {
-            this.increaseScore(-500);
-            PIXI.loader.resources['failureSound'].data.play();
-          }
+      //     if (this.counterpartType == CounterpartTypes.EnemyCounterpart) {
+      //       this.increaseScore(-500);
+      //       PIXI.loader.resources['failureSound'].data.play();
+      //     }
           
-          this.changeCounterpart();
-          this.goToState(GameStates.CounterpartHiddenState);
-        }
-      } break;
+      //     this.changeCounterpart();
+      //     this.goToState(GameStates.CounterpartHiddenState);
+      //   }
+      // } break;
       case GameStates.CounterpartHittingState: {
         if (this.stateTime > 5) {
           let clapSound: Sound = PIXI.loader.resources['clapSound'].data;
@@ -414,11 +462,14 @@ export class AppComponent implements OnInit {
       } break;
     }
     //this.enemy.rotation += 0.1 * delta;
+    
     this.carSprite.rotation = Math.sin(this.stateTime / 2) / 320;
     this.frontWheelSprite.rotation += 0.1 * delta;
     this.rearWheelSprite.rotation += 0.1 * delta;
     this.backgroundSprite.tilePosition.x -= 2 * this.speed;
-    
+
+
+
     if (this.score <= 0) {
       this.landscape.alpha = 0.5;
       this.goToState(GameStates.GameOverState);
@@ -426,16 +477,17 @@ export class AppComponent implements OnInit {
   }
 
   updateTurnVariables() {
-    this.counterpartHiddenTime = (Math.random() * 50 + 50) / this.speed;
-    this.counterpartVisibleTime = (Math.random() * 200 + 50) / this.speed;
-    this.counterpartSprite.texture = this.getTextureFromCounterpartType(false);
+    this.counterpartHiddenDuration = (Math.random() * 50 + 50) / this.speed;
+    this.counterpartVisibleDuration = (Math.random() * 200 + 50) / this.speed;
+    // this.counterpartSprite.texture = this.getTextureFromCounterpartType(false);
+    this.counterpartHiddenTime = 0;    
   }
 
   initGameVariables() {
     this.score = 2000;
     this.speed = 1.0;
     this.chanceForEnemy = 0.8;
-    this.counterpartType = this.calculateOpponentTypeRandomly();
+    this.counterpartType = this.calculateCounterpartTypeRandomly();
 
     this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
     for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
@@ -461,7 +513,7 @@ export class AppComponent implements OnInit {
     }
   }
 
-  calculateOpponentTypeRandomly(): CounterpartTypes {
+  calculateCounterpartTypeRandomly(): CounterpartTypes {
     if (Math.random() >= this.chanceForEnemy) {
       return CounterpartTypes.FriendCounterpart;
     } else {
@@ -478,7 +530,7 @@ export class AppComponent implements OnInit {
     );
     this.counterpartSprite.x = position.x;
     this.counterpartSprite.y = position.y;
-    this.counterpartType = this.calculateOpponentTypeRandomly();
+    this.counterpartType = this.calculateCounterpartTypeRandomly();
     this.counterpartSprite.texture = this.getTextureFromCounterpartType(false);
   }
 
