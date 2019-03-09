@@ -1,3 +1,4 @@
+import { EventEmitter, Output } from '@angular/core';
 import { Sprite, Container, Sound, Point, Graphics } from "pixi.js";
 import { Ease } from './ease.class';
 
@@ -10,7 +11,8 @@ export enum CounterpartStates {
     HiddenState = 'Hidden',
     HidingState = 'Hiding',
     ShowingState = 'Showing',
-    WaitingState = 'Waiting'
+    WaitingState = 'Waiting',
+    HitState = 'Hit'
 }
 
 export class Counterpart {
@@ -27,8 +29,9 @@ export class Counterpart {
     private sprite: Sprite;
     private origin: Point;
     private mask: Graphics;
-    private maskPosition;
     private visbilityFactor: number;
+
+    @Output() wasHit = new EventEmitter(); 
 
     public constructor(ticker: PIXI.ticker.Ticker, x: number, y: number, scaleFactor: number) {
         ticker.add(this.update.bind(this));
@@ -50,7 +53,9 @@ export class Counterpart {
         this.sprite.interactive = true;
         this.sprite.on("pointerdown", this.onPointerDown.bind(this));
 
+
         this.mask = new PIXI.Graphics();
+        this.mask.beginFill(0xFFFFFF, 1);   
         this.mask.drawRect(
             this.sprite.x - this.sprite.width / 2,
             this.sprite.y - this.sprite.height / 2,
@@ -58,6 +63,7 @@ export class Counterpart {
             this.sprite.height
         );
 
+        this.container.interactive = true;
         this.container.mask = this.mask;
         this.container.addChild(this.sprite);
 
@@ -102,6 +108,11 @@ export class Counterpart {
                 this.goToState(CounterpartStates.HidingState);
             }
         }
+        if (this.state == CounterpartStates.HitState) {
+            if (this.isStateFinished()) {
+                this.goToState(CounterpartStates.HidingState);
+            }
+        }
         this.sprite.y = this.origin.y + this.sprite.height * (1 - this.visbilityFactor);
 
         this.container.rotation = Math.sin(this.stateTime / 2) / 320;
@@ -119,21 +130,29 @@ export class Counterpart {
             this.stateDuration = 15;
         } else if (this.state == CounterpartStates.WaitingState) {
             this.stateDuration = this.waitingTime;
+        } else if (this.state == CounterpartStates.HitState) {
+            this.stateDuration = 20;
         }
     }
 
     onPointerDown() {
         let hitSound: Sound;
+
         if (this.type == CounterpartTypes.EnemyCounterpart) {
             hitSound = PIXI.loader.resources['punchSound'].data;
-            this.hide();
+            this.wasHit.emit(true);
         } else {
-            hitSound = PIXI.loader.resources['failureSound'].data;
+            hitSound = PIXI.loader.resources['failureSound'].data;    
+            this.wasHit.emit(false);
             // this.increaseScore(-2000);
 
             // this.stillAllowedFailuresCount--;
             // this.allowedFailureSlotSprites[this.stillAllowedFailuresCount].alpha = 0.5;
         }
+    
+        this.sprite.texture = this.getTextureFromCounterpartType(true);
+        this.goToState(CounterpartStates.HitState);
+
 
         hitSound.play();
     }

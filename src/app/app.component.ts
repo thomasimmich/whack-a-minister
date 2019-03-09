@@ -30,8 +30,8 @@ export class AppComponent implements OnInit {
     wheelImage: 'assets/images/wheel.png',
     enemyImage: 'assets/images/scheuer.png',
     enemyImageWhacked: 'assets/images/scheuer-whacked.png',
-    friendImage: 'assets/images/peterlustig.png',
-    friendImageWhacked: 'assets/images/peterlustig-whacked.png',
+    friendImage: 'assets/images/greta.png',
+    friendImageWhacked: 'assets/images/greta-whacked.png',
     backgroundImage: 'assets/images/background.png',
     handImage: 'assets/images/hand.png',
     handSmackingImage: 'assets/images/hand-smacking.png',
@@ -162,9 +162,18 @@ export class AppComponent implements OnInit {
         position.y,
         scaleFactor
       );
-      
+      c.wasHit.subscribe((success: boolean) => this.onWasHit(success))
       this.counterparts.push(c);
       this.landscape.addChild(c.container);
+    }
+  }
+
+  onWasHit(success: boolean) {
+    if (success) {
+      
+      this.increaseScore(10);
+    } else {
+      this.increaseScore(-10);
     }
   }
 
