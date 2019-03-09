@@ -149,6 +149,10 @@ export class Counterpart {
         this.scoreText.y = this.sprite.y - this.sprite.height / 2;
     }
 
+    setSpeed(speed: number) {
+        this.waitingTime = 200 - (speed * 2);
+    }
+
     onPointerDown() {
         if (this.state == CounterpartStates.HitState) {
             return;

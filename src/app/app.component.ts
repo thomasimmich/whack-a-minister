@@ -66,6 +66,7 @@ export class AppComponent implements OnInit {
   private score: number;
   private scoreRoll: number;
   private speed: number;
+  private availableTime: number;
   private timeLeft: number;
 
   private landscape: Container;
@@ -99,6 +100,7 @@ export class AppComponent implements OnInit {
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
+    this.availableTime = 60;
 
     this.maxAllowedFailuresCount = 3;
     this.allowedFailureSlotSprites = [];
@@ -507,6 +509,7 @@ export class AppComponent implements OnInit {
         }
       } break;
       case GameStates.GameOverState: {
+        
         if (this.stateTime > 100) {
           this.landscape.alpha = 1.0
           this.changeCounterpart();
@@ -517,14 +520,10 @@ export class AppComponent implements OnInit {
     }
     //this.enemy.rotation += 0.1 * delta;
 
-    this.carSprite.rotation = Math.sin(this.stateTime / 2) / 320;
-    this.frontWheelSprite.rotation += 0.1 * delta;
-    this.rearWheelSprite.rotation += 0.1 * delta;
-
-    for (let i = 0; i < 5; i++) {
-      this.backgroundSprites[i].tilePosition.x -= 2 * this.speed * (i + 1);
+    if (this.gameState != GameStates.GameOverState) {
+      this.updateRide(delta);
     }
-
+    
     this.updateTimerProgress(delta);
 
 
@@ -534,12 +533,34 @@ export class AppComponent implements OnInit {
     // }
   }
 
+  updateRide(delta: number) {
+    this.carSprite.rotation = Math.sin(this.stateTime / 2) / 320 * this.speed;
+    this.frontWheelSprite.rotation += 0.05 * delta * this.speed;
+    this.rearWheelSprite.rotation += 0.05 * delta * this.speed;
+
+    for (let i = 0; i < 5; i++) {
+      this.backgroundSprites[i].tilePosition.x -= 2 * this.speed * (i + 1);
+    }
+  }
+
   updateTimerProgress(delta: number) {
     this.timeLeft -= delta / 100;
+
     if (this.timeLeft <= 0) {
       this.landscape.alpha = 0.5;
       this.goToState(GameStates.GameOverState);
+      return;
     }
+
+    
+    this.speed = (this.availableTime / this.timeLeft);
+
+    for (let i = 0; i < this.counterparts.length; i++) {
+      this.counterparts[i].setSpeed(this.speed);
+    }
+    this.stateText.text = this.speed.toString();
+
+ 
     //console.log(this.timeLeft);
     // let width = this.timerProgress.parent.width * 0.5;
     // this.timerProgress.beginFill(0xFF0000);
@@ -563,7 +584,7 @@ export class AppComponent implements OnInit {
     this.score = 0;
     this.scoreRoll = 0;
     this.speed = 1.0;
-    this.timeLeft = 4;
+    this.timeLeft = this.availableTime;
     this.chanceForEnemy = 0.8;
     this.counterpartType = this.calculateCounterpartTypeRandomly();
 
