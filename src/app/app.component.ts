@@ -37,10 +37,13 @@ export class AppComponent implements OnInit {
     backgroundImage2: 'assets/images/back2.png',
     backgroundImage3: 'assets/images/back3.png',
     backgroundImage4: 'assets/images/back4.png',
+    fuelgauge: 'assets/images/fuelgauge.png',
+    needle: 'assets/images/needle.png',
     handImage: 'assets/images/hand.png',
     handSmackingImage: 'assets/images/hand-smacking.png',
     clapSound: 'assets/sounds/clap.mp3',
     punchSound: 'assets/sounds/punch.mp3',
+    backingTrack: 'assets/sounds/scheuertrack1.mp3',
     failureSound: 'assets/sounds/failure.mp3'
   };
 
@@ -61,7 +64,7 @@ export class AppComponent implements OnInit {
   private stillAllowedFailuresCount: number;
   private maxAllowedFailuresCount: number;
   private allowedFailureSlotSprites: Sprite[];
-  private timerProgress: Graphics;
+  private needleSprite: Sprite;
 
   private score: number;
   private scoreRoll: number;
@@ -211,32 +214,30 @@ export class AppComponent implements OnInit {
 
 
   setupTimerDisplay() {
-    let barX = 100;
-    let barY = 10;
-    let barHeight = 20;
-    let barWidth = 100;
+    let container = new PIXI.DisplayObjectContainer();
 
-    let bar = new PIXI.DisplayObjectContainer();
+    let gaugeSprite = new PIXI.Sprite(
+      PIXI.loader.resources['fuelgauge'].texture
+    );
+    container.addChild(gaugeSprite);
 
-    let border = new PIXI.Graphics();
-    border.beginFill(0x222222);
-    border.drawRoundedRect(barX, barY, barWidth, barHeight, barHeight / 2);
-    border.endFill();
-    bar.addChild(border);
+    this.needleSprite = new PIXI.Sprite(
+      PIXI.loader.resources['needle'].texture
+    );
 
-    let background = new PIXI.Graphics();
-    background.beginFill(0xFFFFFF);
-    background.drawRoundedRect(barX + 2, barY + 2, barWidth - 4, barHeight - 4, barHeight / 2);
-    background.endFill();
-    bar.addChild(background);
+    this.needleSprite.x = gaugeSprite.width / 2;
+    this.needleSprite.y = this.needleSprite.height * 0.7  ;
+    this.needleSprite.anchor.x = 0.5;
+    this.needleSprite.anchor.y = 0.5;
+    container.addChild(this.needleSprite);
 
-    this.timerProgress = new PIXI.Graphics();
-    this.timerProgress.beginFill(0xFF0000);
-    this.timerProgress.drawRoundedRect(barX + 2, barY + 2, barWidth - 4, barHeight - 4, barHeight / 2);
-    this.timerProgress.endFill();
-    bar.addChild(this.timerProgress);
+    let scaleFactor = (this.app.renderer.view.height / this.referenceWidth) * 4;
+  
+    container.scale.x *= scaleFactor;
+    container.scale.y *= scaleFactor;    
+    container.x = (this.app.renderer.view.width - container.width) / 2;
 
-    this.app.stage.addChild(bar);
+    this.app.stage.addChild(container);
   }
 
   setupFailuresDisplay() {
@@ -410,6 +411,9 @@ export class AppComponent implements OnInit {
     this.setupTimerDisplay();
     this.setupGameVariables();
 
+    let backingTrack: Sound = PIXI.loader.resources['backingTrack'].data;
+    //backingTrack.play();
+
     this.app.ticker.add(this.update.bind(this));
   }
 
@@ -552,13 +556,14 @@ export class AppComponent implements OnInit {
       return;
     }
 
-    
     this.speed = (this.availableTime / this.timeLeft);
 
     for (let i = 0; i < this.counterparts.length; i++) {
       this.counterparts[i].setSpeed(this.speed);
     }
     this.stateText.text = this.speed.toString();
+
+    this.needleSprite.rotation = Math.sin(10) + Math.sin(90) / this.speed;
 
  
     //console.log(this.timeLeft);
@@ -587,6 +592,9 @@ export class AppComponent implements OnInit {
     this.timeLeft = this.availableTime;
     this.chanceForEnemy = 0.8;
     this.counterpartType = this.calculateCounterpartTypeRandomly();
+
+
+    
 
     this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
     // for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
