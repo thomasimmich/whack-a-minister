@@ -50,7 +50,9 @@ export class Counterpart {
         this.sprite.interactive = true;
         this.sprite.on("pointerdown", this.onPointerDown.bind(this));
 
+
         this.mask = new PIXI.Graphics();
+        this.mask.beginFill(0xFFFFFF, 1);   
         this.mask.drawRect(
             this.sprite.x - this.sprite.width / 2,
             this.sprite.y - this.sprite.height / 2,
@@ -58,6 +60,7 @@ export class Counterpart {
             this.sprite.height
         );
 
+        this.container.interactive = true;
         this.container.mask = this.mask;
         this.container.addChild(this.sprite);
 
