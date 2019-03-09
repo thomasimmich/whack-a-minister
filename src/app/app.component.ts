@@ -1,4 +1,4 @@
-import { Counterpart, CounterpartTypes } from './counterpart.class';
+import { Counterpart, CounterpartTypes, HitEvent } from './counterpart.class';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sprite, Application, Sound, Text, Point, Container } from 'pixi.js';
 
@@ -59,6 +59,7 @@ export class AppComponent implements OnInit {
   private allowedFailureSlotSprites: Sprite[];
 
   private score: number;
+  private scoreRoll: number;
   private speed: number;
 
   private landscape: Container;
@@ -162,19 +163,25 @@ export class AppComponent implements OnInit {
         position.y,
         scaleFactor
       );
-      c.wasHit.subscribe((success: boolean) => this.onWasHit(success))
+      c.wasHit.subscribe((event: HitEvent) => this.onWasHit(event))
       this.counterparts.push(c);
       this.landscape.addChild(c.container);
     }
   }
 
-  onWasHit(success: boolean) {
+  onWasHit(event: HitEvent) {
+    let sender = event.sender;
+    let success = event.success;
+    let scoreDelta = 0;
     if (success) {
-      
-      this.increaseScore(10);
+      scoreDelta = 10 + this.scoreRoll;
+      this.scoreRoll += 2;
     } else {
-      this.increaseScore(-10);
+      scoreDelta = -30;
+      this.scoreRoll = 0;
     }
+    this.increaseScore(scoreDelta);
+    sender.setScore(scoreDelta);
   }
 
   setupBackground() {
@@ -479,10 +486,10 @@ export class AppComponent implements OnInit {
 
 
 
-    if (this.score <= 0) {
-      this.landscape.alpha = 0.5;
-      this.goToState(GameStates.GameOverState);
-    }
+    // if (this.score <= 0) {
+    //   this.landscape.alpha = 0.5;
+    //   this.goToState(GameStates.GameOverState);
+    // }
   }
 
   updateTurnVariables() {
@@ -493,7 +500,8 @@ export class AppComponent implements OnInit {
   }
 
   initGameVariables() {
-    this.score = 2000;
+    this.score = 0;
+    this.scoreRoll = 0;
     this.speed = 1.0;
     this.chanceForEnemy = 0.8;
     this.counterpartType = this.calculateCounterpartTypeRandomly();
@@ -506,8 +514,10 @@ export class AppComponent implements OnInit {
 
   increaseScore(inc: number) {
     this.score += inc;
+    if (this.score < 0) {
+      this.score = 0;
+    }
     this.scoreText.text = this.score.toString();
-
   }
 
   getTextureFromCounterpartType(isWhacked: boolean): any {
