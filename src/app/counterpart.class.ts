@@ -10,7 +10,8 @@ export enum CounterpartStates {
     HiddenState = 'Hidden',
     HidingState = 'Hiding',
     ShowingState = 'Showing',
-    WaitingState = 'Waiting'
+    WaitingState = 'Waiting',
+    HitState = 'Hit'
 }
 
 export class Counterpart {
@@ -27,7 +28,6 @@ export class Counterpart {
     private sprite: Sprite;
     private origin: Point;
     private mask: Graphics;
-    private maskPosition;
     private visbilityFactor: number;
 
     public constructor(ticker: PIXI.ticker.Ticker, x: number, y: number, scaleFactor: number) {
@@ -105,6 +105,11 @@ export class Counterpart {
                 this.goToState(CounterpartStates.HidingState);
             }
         }
+        if (this.state == CounterpartStates.HitState) {
+            if (this.isStateFinished()) {
+                this.goToState(CounterpartStates.HidingState);
+            }
+        }
         this.sprite.y = this.origin.y + this.sprite.height * (1 - this.visbilityFactor);
 
         this.container.rotation = Math.sin(this.stateTime / 2) / 320;
@@ -122,21 +127,27 @@ export class Counterpart {
             this.stateDuration = 15;
         } else if (this.state == CounterpartStates.WaitingState) {
             this.stateDuration = this.waitingTime;
+        } else if (this.state == CounterpartStates.HitState) {
+            this.stateDuration = 20;
         }
     }
 
     onPointerDown() {
         let hitSound: Sound;
+
         if (this.type == CounterpartTypes.EnemyCounterpart) {
             hitSound = PIXI.loader.resources['punchSound'].data;
-            this.hide();
         } else {
-            hitSound = PIXI.loader.resources['failureSound'].data;
+            hitSound = PIXI.loader.resources['failureSound'].data;    
             // this.increaseScore(-2000);
 
             // this.stillAllowedFailuresCount--;
             // this.allowedFailureSlotSprites[this.stillAllowedFailuresCount].alpha = 0.5;
         }
+    
+        this.sprite.texture = this.getTextureFromCounterpartType(true);
+        this.goToState(CounterpartStates.HitState);
+
 
         hitSound.play();
     }
