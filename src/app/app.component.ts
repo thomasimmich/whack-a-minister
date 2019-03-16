@@ -1,7 +1,7 @@
 import { Counterpart, CounterpartTypes, HitEvent, HitStatus } from './counterpart.class';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sprite, Application, Sound, Text, Point, Container, Graphics, TextStyle } from 'pixi.js';
-import { BrowserModule } from '@angular/platform-browser';
+
 
 //import * as PIXI from "pixi.js/dist/pixi.js"
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
@@ -30,6 +30,7 @@ export class AppComponent implements OnInit {
     carImage: 'assets/images/car.png',
     wheelImage: 'assets/images/wheel.png',
     enemyImage: 'assets/images/scheuer.png',
+    backingTrack: 'assets/sounds/scheuertrack1.mp3',
     enemyImageWhacked: 'assets/images/scheuer-whacked.png',
     friendImage: 'assets/images/greta.png',
     friendImageWhacked: 'assets/images/greta-whacked.png',
@@ -45,8 +46,17 @@ export class AppComponent implements OnInit {
     handSmackingImage: 'assets/images/hand-smacking.png',
     clapSound: 'assets/sounds/clap.mp3',
     punchSound: 'assets/sounds/punch.mp3',
-    backingTrack: 'assets/sounds/scheuertrack1.mp3',
-    failureSound: 'assets/sounds/failure.mp3'
+    failureSound: 'assets/sounds/failure.mp3',
+   // punchSound0: 'assets/sounds/punch0.png', 
+    punchSound0: 'assets/sounds/punch0.mp3',
+    punchSound1: 'assets/sounds/punch1.mp3',
+    punchSound2: 'assets/sounds/punch2.mp3',
+    punchSound3: 'assets/sounds/punch3.mp3',
+    punchSound4: 'assets/sounds/punch4.mp3',
+    punchSound5: 'assets/sounds/punch5.mp3',
+    punchSound6: 'assets/sounds/punch6.mp3',
+    punchSound7: 'assets/sounds/punch7.mp3',
+    punchSound8: 'assets/sounds/punch8.mp3',                             
   };
 
   title = 'Scheuer-Den-Scheuer';
@@ -133,12 +143,23 @@ export class AppComponent implements OnInit {
       PIXI.loader.add(name, this.manifest[name]);
     }
 
-    PIXI.loader.
-      on("progress", this.onLoad).
-      load(this.setup.bind(this));
+    PIXI.loader.on('progress', this.onProgress.bind(this));
+
+    //PIXI.loader.once('complete', this.setup.bind(this));
+
+    PIXI.loader.load(this.onLoad.bind(this));
+
   }
 
-  onLoad(loader, resource) {
+  onLoad(loader, resources) {
+
+    const sound: Sound = resources['backingTrack'].data;
+    sound.play();
+
+    this.setup();
+  }
+
+  onProgress(loader, resource) {
     console.log(`loaded ${resource.url}. Loading is ${loader.progress}% complete.`);
   }
 
@@ -206,8 +227,8 @@ export class AppComponent implements OnInit {
       let relPosition = this.holeRelPositions[i];
       let position = new Point(
         relPosition.x * this.app.screen.width,
-        this.app.screen.height - relPosition.y * this.carSprite.height
-        - this.relStreetHeight * this.app.screen.height // street offset
+        this.app.screen.height - relPosition.y * this.carSprite.height / 0.85
+        //- this.relStreetHeight * this.app.screen.height // street offset
       );
       let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
 
@@ -218,7 +239,7 @@ export class AppComponent implements OnInit {
         scaleFactor,
         this.textStyle
       );
-     
+
       c.wasHit.subscribe((event: HitEvent) => this.onWasHit(event))
       this.counterparts.push(c);
       this.landscape.addChild(c.container);
@@ -241,7 +262,7 @@ export class AppComponent implements OnInit {
     this.increaseScore(scoreDelta);
     sender.setScore(scoreDelta);
   }
-  
+
   setupGameOver() {
     let textStyle = new PIXI.TextStyle({
       fontFamily: 'Arial',
@@ -399,9 +420,9 @@ export class AppComponent implements OnInit {
     this.carSprite.scale.y *= scaleFactor;
 
     this.carSprite.position.set(
-      this.app.renderer.view.width * 0.5065,
-      this.app.renderer.view.height - this.carSprite.height * 0.8
-      - this.relStreetHeight * this.app.screen.height // street offset
+      this.app.screen.width * 0.5065,
+      (this.app.screen.height - this.carSprite.height * 0.8)
+      // street offset
       // - Math.min(
       //   this.app.renderer.view.height * 0.15, // relative to screen height the car will become higher
       //   this.carSprite.height * 0.4 // but not higher than one forth of the car's height
@@ -432,9 +453,9 @@ export class AppComponent implements OnInit {
     this.frontWheelSprite.scale.y *= scaleFactor;
 
     this.frontWheelSprite.position.set(
-      this.app.renderer.view.width * 0.82,
+      this.app.screen.width * 0.82,
       this.app.screen.height - this.frontWheelSprite.height / 2
-      - this.relStreetHeight * this.app.screen.height // street offset
+      //- this.relStreetHeight * this.app.screen.height // street offset
     );
     this.landscape.addChild(this.frontWheelSprite);
 
@@ -448,7 +469,7 @@ export class AppComponent implements OnInit {
     this.rearWheelSprite.position.set(
       this.app.renderer.view.width * 0.249,
       this.app.screen.height - this.rearWheelSprite.height / 2
-      - this.relStreetHeight * this.app.screen.height // street offset
+      //- this.relStreetHeight * this.app.screen.height // street offset
     );
 
     this.landscape.addChild(this.rearWheelSprite);
@@ -506,9 +527,6 @@ export class AppComponent implements OnInit {
     this.setupTimerDisplay();
     this.setupGameVariables();
 
-    let backingTrack: Sound = PIXI.loader.resources['backingTrack'].data;
-    //backingTrack.play();
-
     this.app.ticker.add(this.update.bind(this));
   }
 
@@ -519,7 +537,7 @@ export class AppComponent implements OnInit {
 
     let hitSound: Sound;
     if (this.counterpartType == CounterpartTypes.EnemyCounterpart) {
-      hitSound = PIXI.loader.resources['punchSound'].data;
+      hitSound = PIXI.loader.resources['punchSound0'].data;
       this.increaseScore(1000);
     } else {
       hitSound = PIXI.loader.resources['failureSound'].data;
@@ -637,7 +655,7 @@ export class AppComponent implements OnInit {
   }
 
   updateTimerProgress(delta: number) {
-    this.timeLeft -= delta / 100;
+    this.timeLeft -= delta / 60;
 
     if (this.timeLeft <= 0) {
       //this.landscape.alpha = 0.5;
@@ -682,6 +700,8 @@ export class AppComponent implements OnInit {
 
   initGameVariables() {
     this.score = 0;
+    this.scoreText.text = '';
+
     this.scoreRoll = 0;
     this.speed = 1.0;
     this.timeLeft = this.availableTime;
@@ -694,8 +714,8 @@ export class AppComponent implements OnInit {
       c.container.visible = true;
     }
 
-    let backingTrack = PIXI.loader.resources['backingTrack'].data;
-    backingTrack.play();
+
+    // sound.autopla
 
     this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
     // for (let i = 0; i < this.maxAllowedFailuresCount; i++) {

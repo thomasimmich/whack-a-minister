@@ -39,6 +39,7 @@ export class Counterpart {
 
     private sprite: Sprite;
     private punchCoronaSprite: Sprite;
+    private lastSoundIndex: number;
     private scoreText: Text;
     private origin: Point;
     private mask: Graphics;
@@ -198,7 +199,20 @@ export class Counterpart {
 
         let hitSound: Sound;
         if (this.type == CounterpartTypes.EnemyCounterpart) {
-            hitSound = PIXI.loader.resources['punchSound'].data;
+            let punchSoundsLength = 9;
+            // two same sounds after another do not work in pixis
+            // audio engine ... so we have to make sure that they
+            // change even though we take random numbers!
+            let soundIndex = Math.floor(punchSoundsLength * Math.random());
+            if (soundIndex == this.lastSoundIndex) {
+                soundIndex = this.lastSoundIndex - 1;
+                if (soundIndex < 0) {
+                    soundIndex = punchSoundsLength - 1;
+                }
+            }
+            this.lastSoundIndex = soundIndex;
+
+            hitSound = PIXI.loader.resources['punchSound' + soundIndex.toString()].data;
 
             this.wasHit.emit(new HitEvent(this, HitStatus.EnemyHitSuccess));
         } else {
