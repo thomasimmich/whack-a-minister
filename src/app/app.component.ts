@@ -216,6 +216,7 @@ export class AppComponent implements OnInit {
         scaleFactor,
         this.textStyle
       );
+     
       c.wasHit.subscribe((event: HitEvent) => this.onWasHit(event))
       this.counterparts.push(c);
       this.landscape.addChild(c.container);
@@ -272,7 +273,7 @@ export class AppComponent implements OnInit {
     this.needleSprite.anchor.y = 0.5;
     container.addChild(this.needleSprite);
 
-    let scaleFactor = (this.app.renderer.view.height / this.referenceWidth) * 4;
+    let scaleFactor = (this.app.renderer.view.height / this.referenceWidth) * 2;
 
     container.scale.x *= scaleFactor;
     container.scale.y *= scaleFactor;
@@ -311,6 +312,7 @@ export class AppComponent implements OnInit {
     let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
     this.cursorSprite.scale.x *= scaleFactor;
     this.cursorSprite.scale.y *= scaleFactor;
+    this.cursorSprite.visible = false;
 
     this.app.stage.addChild(this.cursorSprite);
 
