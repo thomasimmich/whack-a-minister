@@ -4,7 +4,8 @@ import { Ease } from './ease.class';
 
 export enum CounterpartTypes {
     EnemyCounterpart = 'Enemy',
-    FriendCounterpart = 'Friend'
+    FriendCounterpart = 'Friend',
+    TimeBonusCounterpart = 'TimeBonus'
 }
 
 export enum CounterpartStates {
@@ -19,7 +20,8 @@ export enum CounterpartStates {
 export enum HitStatus {
     EnemyHitSuccess = 'Success',
     FriendHitFailure = 'Failure',
-    CounterpartMissed = 'Missed'
+    CounterpartMissed = 'Missed',
+    TimeBonusHit = 'TimeBonus'
 }
 
 export class HitEvent {
@@ -212,13 +214,16 @@ export class Counterpart {
             hitSound = PIXI.loader.resources['punchSound' + soundIndex.toString()].data;
 
             this.wasHit.emit(new HitEvent(this, HitStatus.EnemyHitSuccess));
-        } else {
+        } else if (this.type == CounterpartTypes.FriendCounterpart) {
             hitSound = PIXI.loader.resources['failureSound'].data;
             this.wasHit.emit(new HitEvent(this, HitStatus.FriendHitFailure));
             // this.increaseScore(-2000);
 
             // this.stillAllowedFailuresCount--;
             // this.allowedFailureSlotSprites[this.stillAllowedFailuresCount].alpha = 0.5;
+        } else if (this.type == CounterpartTypes.TimeBonusCounterpart) {
+            hitSound = PIXI.loader.resources['squeezeSound'].data;
+            this.wasHit.emit(new HitEvent(this, HitStatus.TimeBonusHit));
         }
 
 
@@ -237,8 +242,8 @@ export class Counterpart {
             return PIXI.loader.resources['enemyImage' + addon].texture
         } else if (this.type == CounterpartTypes.FriendCounterpart) {
             return PIXI.loader.resources['friendImage' + addon].texture
+        } else if (this.type == CounterpartTypes.TimeBonusCounterpart) {
+            return PIXI.loader.resources['timeBonusImage' + addon].texture;
         }
     }
-
-
 }

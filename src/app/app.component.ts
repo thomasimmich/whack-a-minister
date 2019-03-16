@@ -34,6 +34,8 @@ export class AppComponent implements OnInit {
     enemyImageWhacked: 'assets/images/scheuer-whacked.png',
     friendImage: 'assets/images/greta.png',
     friendImageWhacked: 'assets/images/greta-whacked.png',
+    timeBonusImage: 'assets/images/scheuermilch.png',
+    timeBonusImageWhacked: 'assets/images/scheuermilch-whacked.png',
     punchCorona: 'assets/images/punch-corona.png',
     backgroundImage0: 'assets/images/back0.png',
     backgroundImage1: 'assets/images/back1.png',
@@ -47,6 +49,7 @@ export class AppComponent implements OnInit {
     clapSound: 'assets/sounds/clap.mp3',
     punchSound: 'assets/sounds/punch.mp3',
     failureSound: 'assets/sounds/failure.mp3',
+    squeezeSound: 'assets/sounds/squeeze.mp3',
    // punchSound0: 'assets/sounds/punch0.png', 
     punchSound0: 'assets/sounds/punch0.mp3',
     punchSound1: 'assets/sounds/punch1.mp3',
@@ -69,6 +72,7 @@ export class AppComponent implements OnInit {
   private relStreetHeight: number;
 
   private chanceForEnemy: number;
+  private chanceForTimeBonus: number;
   private counterpartType: CounterpartTypes;
   public counterparts: Counterpart[];
   private counterpartHiddenTime: number;
@@ -256,6 +260,11 @@ export class AppComponent implements OnInit {
     } else if (hitStatus == HitStatus.FriendHitFailure) {
       scoreDelta = -30;
       this.scoreRoll = 0;
+    } else if (hitStatus == HitStatus.TimeBonusHit) {
+      this.timeLeft += 10;
+      if (this.timeLeft > this.availableTime) {
+        this.timeLeft = this.availableTime;
+      }
     } else {
       this.scoreRoll = 0;
     }
@@ -705,7 +714,8 @@ export class AppComponent implements OnInit {
     this.scoreRoll = 0;
     this.speed = 1.0;
     this.timeLeft = this.availableTime;
-    this.chanceForEnemy = 0.8;
+    this.chanceForEnemy = 0.9;
+    this.chanceForTimeBonus = 0.1;
     this.counterpartType = this.calculateCounterpartTypeRandomly();
 
 
@@ -746,6 +756,9 @@ export class AppComponent implements OnInit {
 
   calculateCounterpartTypeRandomly(): CounterpartTypes {
     if (Math.random() >= this.chanceForEnemy) {
+      if (Math.random() <= this.chanceForTimeBonus) {
+        return CounterpartTypes.TimeBonusCounterpart;
+      }
       return CounterpartTypes.FriendCounterpart;
     } else {
       return CounterpartTypes.EnemyCounterpart;
