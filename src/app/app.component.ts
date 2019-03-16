@@ -227,8 +227,8 @@ export class AppComponent implements OnInit {
       let relPosition = this.holeRelPositions[i];
       let position = new Point(
         relPosition.x * this.app.screen.width,
-        this.app.screen.height - relPosition.y * this.carSprite.height
-        - this.relStreetHeight * this.app.screen.height // street offset
+        this.app.screen.height - relPosition.y * this.carSprite.height / 0.85
+        //- this.relStreetHeight * this.app.screen.height // street offset
       );
       let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
 
@@ -420,9 +420,9 @@ export class AppComponent implements OnInit {
     this.carSprite.scale.y *= scaleFactor;
 
     this.carSprite.position.set(
-      this.app.renderer.view.width * 0.5065,
-      this.app.renderer.view.height - this.carSprite.height * 0.8
-      - this.relStreetHeight * this.app.screen.height // street offset
+      this.app.screen.width * 0.5065,
+      (this.app.screen.height - this.carSprite.height * 0.8)
+      // street offset
       // - Math.min(
       //   this.app.renderer.view.height * 0.15, // relative to screen height the car will become higher
       //   this.carSprite.height * 0.4 // but not higher than one forth of the car's height
@@ -453,9 +453,9 @@ export class AppComponent implements OnInit {
     this.frontWheelSprite.scale.y *= scaleFactor;
 
     this.frontWheelSprite.position.set(
-      this.app.renderer.view.width * 0.82,
+      this.app.screen.width * 0.82,
       this.app.screen.height - this.frontWheelSprite.height / 2
-      - this.relStreetHeight * this.app.screen.height // street offset
+      //- this.relStreetHeight * this.app.screen.height // street offset
     );
     this.landscape.addChild(this.frontWheelSprite);
 
@@ -469,7 +469,7 @@ export class AppComponent implements OnInit {
     this.rearWheelSprite.position.set(
       this.app.renderer.view.width * 0.249,
       this.app.screen.height - this.rearWheelSprite.height / 2
-      - this.relStreetHeight * this.app.screen.height // street offset
+      //- this.relStreetHeight * this.app.screen.height // street offset
     );
 
     this.landscape.addChild(this.rearWheelSprite);
