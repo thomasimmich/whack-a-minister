@@ -33,6 +33,7 @@ export class AppComponent implements OnInit {
     enemyImageWhacked: 'assets/images/scheuer-whacked.png',
     friendImage: 'assets/images/greta.png',
     friendImageWhacked: 'assets/images/greta-whacked.png',
+    punchCorona: 'assets/images/punch-corona.png',
     backgroundImage0: 'assets/images/back0.png',
     backgroundImage1: 'assets/images/back1.png',
     backgroundImage2: 'assets/images/back2.png',
@@ -316,15 +317,15 @@ export class AppComponent implements OnInit {
 
     this.app.stage.addChild(this.cursorSprite);
 
-    interaction.on("pointerover", () => {
-      this.cursorSprite.visible = true;
-    });
-    interaction.on("pointerout", () => {
-      this.cursorSprite.visible = false;
-    });
-    interaction.on("pointermove", (event) => {
-      this.cursorSprite.position = event.data.global;
-    });
+    // interaction.on("pointerover", () => {
+    //   this.cursorSprite.visible = true;
+    // });
+    // interaction.on("pointerout", () => {
+    //   this.cursorSprite.visible = false;
+    // });
+    // interaction.on("pointermove", (event) => {
+    //   this.cursorSprite.position = event.data.global;
+    // });
   }
 
   setupLandscape() {

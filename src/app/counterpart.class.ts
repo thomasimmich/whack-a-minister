@@ -32,6 +32,7 @@ export class Counterpart {
     private waitingTime: number;
 
     private sprite: Sprite;
+    private punchCoronaSprite: Sprite;
     private scoreText: Text;
     private origin: Point;
     private mask: Graphics;
@@ -70,15 +71,27 @@ export class Counterpart {
             this.sprite.width,
             this.sprite.height + 200
         );
-        
-        let holeContainer = new PIXI.Container();
 
+        this.punchCoronaSprite = new PIXI.Sprite(PIXI.loader.resources['punchCorona'].texture);
+        this.punchCoronaSprite.x = x;
+        this.punchCoronaSprite.y = y;
+        this.punchCoronaSprite.scale.x *= scaleFactor;
+        this.punchCoronaSprite.scale.y *= scaleFactor;
+        this.punchCoronaSprite.anchor.set(0.5);   
+        this.punchCoronaSprite.visible = false;     
+        this.container.addChild(this.punchCoronaSprite);  
+
+        
+        let holeContainer = new PIXI.Container();   
         holeContainer.interactive = true;
         holeContainer.mask = this.mask;
         holeContainer.addChild(this.sprite);
 
         this.container.addChild(holeContainer);
         this.container.addChild(this.scoreText);
+
+
+
 
         this.visbilityFactor = 0;
         this.waitingTime = 200;
@@ -128,6 +141,7 @@ export class Counterpart {
             }
 
             if (this.isStateFinished()) {
+                this.punchCoronaSprite.visible = false;
                 this.goToState(CounterpartStates.HidingHitState);
             }
         }
@@ -174,10 +188,12 @@ export class Counterpart {
             return;
         }
 
+        this.punchCoronaSprite.visible = true;
+        
         let hitSound: Sound;
-
         if (this.type == CounterpartTypes.EnemyCounterpart) {
             hitSound = PIXI.loader.resources['punchSound'].data;
+
             this.wasHit.emit(new HitEvent(this, true));
         } else {
             hitSound = PIXI.loader.resources['failureSound'].data;
