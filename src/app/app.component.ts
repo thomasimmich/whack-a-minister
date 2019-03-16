@@ -348,7 +348,7 @@ export class AppComponent implements OnInit {
   }
 
   setupCursor() {
-    this.app.renderer.plugins.interaction.cursorStyles.default = 'none';
+    //this.app.renderer.plugins.interaction.cursorStyles.default = 'none';
 
     let interaction = this.app.renderer.plugins.interaction;
 
@@ -693,6 +693,9 @@ export class AppComponent implements OnInit {
       let c = this.counterparts[i];
       c.container.visible = true;
     }
+
+    let backingTrack = PIXI.loader.resources['backingTrack'].data;
+    backingTrack.play();
 
     this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
     // for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
