@@ -603,7 +603,7 @@ export class AppComponent implements OnInit {
     }
     this.stateText.text = this.speed.toString();
 
-    this.needleSprite.rotation = Math.sin(10) + Math.sin(90) / this.speed;
+    this.needleSprite.rotation = Math.sin(10) + Math.sin(90) / this.speed + Math.random() / 30;
 
 
     //console.log(this.timeLeft);
