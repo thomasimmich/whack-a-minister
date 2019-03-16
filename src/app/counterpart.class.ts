@@ -10,6 +10,7 @@ export enum CounterpartTypes {
 export enum CounterpartStates {
     HiddenState = 'Hidden',
     HidingState = 'Hiding',
+    HidingHitState = 'HidingHit',
     ShowingState = 'Showing',
     WaitingState = 'Waiting',
     HitState = 'Hit'
@@ -98,7 +99,7 @@ export class Counterpart {
                 this.goToState(CounterpartStates.WaitingState);
             }
         }
-        if (this.state == CounterpartStates.HidingState) {
+        if (this.state == CounterpartStates.HidingState || this.state == CounterpartStates.HidingHitState) {
             this.visbilityFactor = Math.max(0.0, Ease.outSine(this.stateTime / this.stateDuration));
 
             if (this.isStateFinished()) {
@@ -123,7 +124,7 @@ export class Counterpart {
             }
 
             if (this.isStateFinished()) {
-                this.goToState(CounterpartStates.HidingState);
+                this.goToState(CounterpartStates.HidingHitState);
             }
         }
         this.sprite.y = this.origin.y + this.sprite.height * (1 - this.visbilityFactor);
@@ -163,7 +164,7 @@ export class Counterpart {
     }
 
     onPointerDown() {
-        if (this.state == CounterpartStates.HitState) {
+        if (this.state == CounterpartStates.HitState || this.state == CounterpartStates.HidingHitState) {
             return;
         }
 
