@@ -1,4 +1,4 @@
-import { Counterpart, CounterpartTypes, HitEvent } from './counterpart.class';
+import { Counterpart, CounterpartTypes, HitEvent, HitStatus } from './counterpart.class';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sprite, Application, Sound, Text, Point, Container, Graphics, TextStyle } from 'pixi.js';
 import { BrowserModule } from '@angular/platform-browser';
@@ -226,13 +226,15 @@ export class AppComponent implements OnInit {
 
   onWasHit(event: HitEvent) {
     let sender = event.sender;
-    let success = event.success;
+    let hitStatus = event.hitStatus;
     let scoreDelta = 0;
-    if (success) {
+    if (hitStatus == HitStatus.EnemyHitSuccess) {
       scoreDelta = 10 + this.scoreRoll;
       this.scoreRoll += 2;
-    } else {
+    } else if (hitStatus == HitStatus.FriendHitFailure) {
       scoreDelta = -30;
+      this.scoreRoll = 0;
+    } else {
       this.scoreRoll = 0;
     }
     this.increaseScore(scoreDelta);

@@ -16,8 +16,14 @@ export enum CounterpartStates {
     HitState = 'Hit'
 }
 
+export enum HitStatus {
+    EnemyHitSuccess = 'Success',
+    FriendHitFailure = 'Failure',
+    CounterpartMissed = 'Missed'
+}
+
 export class HitEvent {
-    public constructor(public sender: Counterpart, public success: boolean) {}
+    public constructor(public sender: Counterpart, public hitStatus: HitStatus) {}
 }
 
 export class Counterpart {
@@ -129,7 +135,7 @@ export class Counterpart {
             if (this.isStateFinished()) {
                 if (this.type == CounterpartTypes.EnemyCounterpart) {
                     // enemy is hiding without being hit at all
-                    this.wasHit.emit(new HitEvent(this, false));
+                    this.wasHit.emit(new HitEvent(this, HitStatus.CounterpartMissed));
                 }
                 this.goToState(CounterpartStates.HidingState);
             }
@@ -189,15 +195,15 @@ export class Counterpart {
         }
 
         this.punchCoronaSprite.visible = true;
-        
+
         let hitSound: Sound;
         if (this.type == CounterpartTypes.EnemyCounterpart) {
             hitSound = PIXI.loader.resources['punchSound'].data;
 
-            this.wasHit.emit(new HitEvent(this, true));
+            this.wasHit.emit(new HitEvent(this, HitStatus.EnemyHitSuccess));
         } else {
             hitSound = PIXI.loader.resources['failureSound'].data;
-            this.wasHit.emit(new HitEvent(this, false));
+            this.wasHit.emit(new HitEvent(this, HitStatus.FriendHitFailure));
             // this.increaseScore(-2000);
 
             // this.stillAllowedFailuresCount--;
