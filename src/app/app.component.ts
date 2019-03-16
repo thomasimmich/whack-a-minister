@@ -67,6 +67,7 @@ export class AppComponent implements OnInit {
   private maxAllowedFailuresCount: number;
   private allowedFailureSlotSprites: Sprite[];
   private needleSprite: Sprite;
+  private gameOverContainer: Container;
 
   private score: number;
   private scoreRoll: number;
@@ -239,6 +240,53 @@ export class AppComponent implements OnInit {
     }
     this.increaseScore(scoreDelta);
     sender.setScore(scoreDelta);
+  }
+  
+  setupGameOver() {
+    let textStyle = new PIXI.TextStyle({
+      fontFamily: 'Arial',
+      fontSize: this.app.screen.height / 4,
+      fontStyle: 'italic',
+      fontWeight: 'bold',
+      fill: ['#ffffff', '#DE3249'], // gradient
+      stroke: '#4a1850',
+      strokeThickness: 5,
+      dropShadow: true,
+      dropShadowColor: '#000000',
+      dropShadowBlur: 4,
+      dropShadowAngle: Math.PI / 6,
+      dropShadowDistance: 6,
+      wordWrap: true,
+      wordWrapWidth: 440
+    });
+
+    this.gameOverContainer = new PIXI.Container();
+
+    let shield = new PIXI.Graphics();
+    shield.beginFill(0xDE3249);
+    shield.drawRect(0, 0, this.app.screen.width, this.app.screen.height);
+    shield.endFill();
+    shield.alpha = 0.5;
+
+    let gameOverText = new PIXI.Text(this.gameState, textStyle);
+    gameOverText.text = 'GAME OVER';
+    gameOverText.position.x = (this.app.screen.width - gameOverText.width) / 2;
+    gameOverText.position.y = (this.app.screen.height - gameOverText.height) / 2;
+
+    this.gameOverContainer.addChild(shield);
+    this.gameOverContainer.addChild(gameOverText);
+
+    this.gameOverContainer.interactive = true;
+    this.gameOverContainer.visible = false;
+    this.gameOverContainer.on("pointerdown", this.onPointerDownOnGameOverScreen.bind(this));
+
+    this.app.stage.addChild(this.gameOverContainer);
+  }
+
+  onPointerDownOnGameOverScreen() {
+    this.initGameVariables();
+    this.gameOverContainer.visible = false;
+    this.goToState(GameStates.IdleState);
   }
 
   setupBackground() {
@@ -447,6 +495,7 @@ export class AppComponent implements OnInit {
 
     this.setupLandscape();
     this.setupBackground();
+    this.setupGameOver();
     this.setupCar();
     this.setupCounterparts();
     this.setupCounterpart();
@@ -492,6 +541,8 @@ export class AppComponent implements OnInit {
       this.goToState(GameStates.CounterpartHittingState);
     } else {
       this.landscape.alpha = 0.5;
+      this.carSprite.visible = false;
+
       this.goToState(GameStates.GameOverState);
     }
   }
@@ -558,13 +609,6 @@ export class AppComponent implements OnInit {
         }
       } break;
       case GameStates.GameOverState: {
-
-        if (this.stateTime > 100) {
-          this.landscape.alpha = 1.0
-          this.changeCounterpart();
-          this.initGameVariables();
-          this.goToState(GameStates.CounterpartHiddenState)
-        }
       } break;
     }
     //this.enemy.rotation += 0.1 * delta;
@@ -596,7 +640,13 @@ export class AppComponent implements OnInit {
     this.timeLeft -= delta / 100;
 
     if (this.timeLeft <= 0) {
-      this.landscape.alpha = 0.5;
+      //this.landscape.alpha = 0.5;
+      this.gameOverContainer.visible = true;
+      for (let i = 0; i < this.counterparts.length; i++) {
+        let c = this.counterparts[i];
+        c.container.visible = false;
+      }
+
       this.goToState(GameStates.GameOverState);
       return;
     }
@@ -639,7 +689,10 @@ export class AppComponent implements OnInit {
     this.counterpartType = this.calculateCounterpartTypeRandomly();
 
 
-
+    for (let i = 0; i < this.counterparts.length; i++) {
+      let c = this.counterparts[i];
+      c.container.visible = true;
+    }
 
     this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
     // for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
