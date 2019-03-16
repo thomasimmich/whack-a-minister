@@ -70,10 +70,14 @@ export class Counterpart {
             this.sprite.width,
             this.sprite.height + 200
         );
+        
+        let holeContainer = new PIXI.Container();
 
-        this.container.interactive = true;
-        this.container.mask = this.mask;
-        this.container.addChild(this.sprite);
+        holeContainer.interactive = true;
+        holeContainer.mask = this.mask;
+        holeContainer.addChild(this.sprite);
+
+        this.container.addChild(holeContainer);
         this.container.addChild(this.scoreText);
 
         this.visbilityFactor = 0;
