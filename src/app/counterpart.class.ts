@@ -1,5 +1,5 @@
 import { EventEmitter, Output } from '@angular/core';
-import { Sprite, Container, Sound, Point, Graphics, Text } from "pixi.js";
+import { Sprite, Container, Sound, Point, Graphics, Text, TextStyle } from "pixi.js";
 import { Ease } from './ease.class';
 
 export enum CounterpartTypes {
@@ -38,7 +38,7 @@ export class Counterpart {
 
     @Output() wasHit = new EventEmitter();
 
-    public constructor(ticker: PIXI.ticker.Ticker, x: number, y: number, scaleFactor: number) {
+    public constructor(ticker: PIXI.ticker.Ticker, x: number, y: number, scaleFactor: number, textStyle: TextStyle) {
         ticker.add(this.update.bind(this));
         this.state = CounterpartStates.HiddenState;
 
@@ -58,7 +58,7 @@ export class Counterpart {
         this.sprite.interactive = true;
         this.sprite.on("pointerdown", this.onPointerDown.bind(this));
 
-        this.scoreText = new PIXI.Text('');
+        this.scoreText = new PIXI.Text('', textStyle);
         this.setScore(0);
 
         this.mask = new PIXI.Graphics();
@@ -77,12 +77,6 @@ export class Counterpart {
 
         this.visbilityFactor = 0;
         this.waitingTime = 200;
-    }
-
-    hide() {
-        if (this.state == CounterpartStates.WaitingState) {
-            this.goToState(CounterpartStates.HidingState);
-        }
     }
 
     show(type: CounterpartTypes, waitingTime: number) {
@@ -108,15 +102,26 @@ export class Counterpart {
             this.visbilityFactor = Math.max(0.0, Ease.outSine(this.stateTime / this.stateDuration));
 
             if (this.isStateFinished()) {
+                this.scoreText.scale.x = 0;
+                this.scoreText.scale.y = 0;
                 this.goToState(CounterpartStates.HiddenState);
             }
         }
         if (this.state == CounterpartStates.WaitingState) {
             if (this.isStateFinished()) {
+                if (this.type == CounterpartTypes.EnemyCounterpart) {
+                    // enemy is hiding without being hit at all
+                    this.wasHit.emit(new HitEvent(this, false));
+                }
                 this.goToState(CounterpartStates.HidingState);
             }
         }
         if (this.state == CounterpartStates.HitState) {
+            if (this.scoreText.scale.x < 1.0) {
+                this.scoreText.scale.x += 0.1;
+                this.scoreText.scale.y += 0.1;
+            }
+
             if (this.isStateFinished()) {
                 this.goToState(CounterpartStates.HidingState);
             }
@@ -144,7 +149,11 @@ export class Counterpart {
     }
 
     setScore(score: number) {
-        this.scoreText.text = score.toString();
+        let prefix = '';
+        if (score > 0) {
+            prefix = '+';
+        }          
+        this.scoreText.text = prefix + score.toString();
         this.scoreText.x = this.sprite.x - this.scoreText.width / 2;
         this.scoreText.y = this.sprite.y - this.sprite.height / 2;
     }

@@ -1,6 +1,7 @@
 import { Counterpart, CounterpartTypes, HitEvent } from './counterpart.class';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Sprite, Application, Sound, Text, Point, Container, Graphics } from 'pixi.js';
+import { Sprite, Application, Sound, Text, Point, Container, Graphics, TextStyle } from 'pixi.js';
+import { BrowserModule } from '@angular/platform-browser';
 
 //import * as PIXI from "pixi.js/dist/pixi.js"
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
@@ -82,8 +83,9 @@ export class AppComponent implements OnInit {
   private backgroundSprites: PIXI.extras.TilingSprite[];
   private stateText: Text;
   private stateTime: number;
-  private enemyCommentText: Text;
+
   private scoreText: Text;
+  private textStyle: TextStyle;
   private holeRelPositions: Point[] = [
     //new Point(0.16, 0.43),//1-Kofferraum
     new Point(0.16, 1),//2-ganzhinten
@@ -122,6 +124,8 @@ export class AppComponent implements OnInit {
     if (!PIXI.utils.isWebGLSupported()) {
     }
 
+    this.loadFonts();
+
     // Add to the PIXI loader
     for (let name in this.manifest) {
       PIXI.loader.add(name, this.manifest[name]);
@@ -136,6 +140,49 @@ export class AppComponent implements OnInit {
     console.log(`loaded ${resource.url}. Loading is ${loader.progress}% complete.`);
   }
 
+  loadFonts() {
+    // window.we.WebFontConfig = {
+    //   google: {
+    //     families: ['Snippet', 'Arvo:700italic', 'Podkova:700']
+    //   },
+
+    //   active: function () {
+    //     // do something
+    //     init();
+    //   }
+    // };
+
+    // include the web-font loader script
+    /* jshint ignore:start */
+    (function () {
+      var wf = document.createElement('script');
+      wf.src = ('https:' === document.location.protocol ? 'https' : 'http') +
+        '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+      wf.type = 'text/javascript';
+      wf.async = true;
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(wf, s);
+    })();
+    /* jshint ignore:end */
+
+    this.textStyle = new PIXI.TextStyle({
+      fontFamily: 'Arial',
+      fontSize: 36,
+      fontStyle: 'italic',
+      fontWeight: 'bold',
+      fill: ['#ffffff', '#00ff99'], // gradient
+      stroke: '#4a1850',
+      strokeThickness: 5,
+      dropShadow: true,
+      dropShadowColor: '#000000',
+      dropShadowBlur: 4,
+      dropShadowAngle: Math.PI / 6,
+      dropShadowDistance: 6,
+      wordWrap: true,
+      wordWrapWidth: 440
+    });
+  }
+
   setupGameVariables() {
     this.initGameVariables();
     this.updateTurnVariables();
@@ -143,19 +190,12 @@ export class AppComponent implements OnInit {
   }
 
   setupText() {
-    this.enemyCommentText = new PIXI.Text('AUA! Friss Staub!');
-    this.enemyCommentText.x = this.counterpartSprite.x - this.enemyCommentText.width / 2;
-    this.enemyCommentText.y = this.counterpartSprite.y - this.counterpartSprite.height / 2 - this.enemyCommentText.height;
-
-    this.app.stage.addChild(this.enemyCommentText);
-
     this.stateText = new PIXI.Text(this.gameState);
     this.app.stage.addChild(this.stateText);
   }
 
   setupScore() {
-    this.scoreText = new PIXI.Text('         ');
-    this.scoreText.position.x = this.app.screen.width - this.scoreText.width;
+    this.scoreText = new PIXI.Text('', this.textStyle);
     this.app.stage.addChild(this.scoreText);
   }
 
@@ -173,7 +213,8 @@ export class AppComponent implements OnInit {
         this.app.ticker,
         position.x,
         position.y,
-        scaleFactor
+        scaleFactor,
+        this.textStyle
       );
       c.wasHit.subscribe((event: HitEvent) => this.onWasHit(event))
       this.counterparts.push(c);
@@ -226,15 +267,15 @@ export class AppComponent implements OnInit {
     );
 
     this.needleSprite.x = gaugeSprite.width / 2;
-    this.needleSprite.y = this.needleSprite.height * 0.7  ;
+    this.needleSprite.y = this.needleSprite.height * 0.7;
     this.needleSprite.anchor.x = 0.5;
     this.needleSprite.anchor.y = 0.5;
     container.addChild(this.needleSprite);
 
     let scaleFactor = (this.app.renderer.view.height / this.referenceWidth) * 4;
-  
+
     container.scale.x *= scaleFactor;
-    container.scale.y *= scaleFactor;    
+    container.scale.y *= scaleFactor;
     container.x = (this.app.renderer.view.width - container.width) / 2;
 
     this.app.stage.addChild(container);
@@ -439,7 +480,6 @@ export class AppComponent implements OnInit {
 
     if (this.stillAllowedFailuresCount > 0) {
       this.cursorSprite.texture = PIXI.loader.resources['handSmackingImage'].texture;
-      this.enemyCommentText.visible = true;
 
       this.counterpartSprite.texture = this.getTextureFromCounterpartType(true);
       this.counterpartSprite.scale.x -= 0.1;
@@ -501,7 +541,7 @@ export class AppComponent implements OnInit {
         }
         if (this.stateTime > 30) {
           this.cursorSprite.texture = PIXI.loader.resources['handImage'].texture;
-          this.enemyCommentText.visible = false;
+
           this.counterpartSprite.scale.x += 0.1;
           this.counterpartSprite.scale.y += 0.1;
           this.counterpartSprite.visible = false;
@@ -513,7 +553,7 @@ export class AppComponent implements OnInit {
         }
       } break;
       case GameStates.GameOverState: {
-        
+
         if (this.stateTime > 100) {
           this.landscape.alpha = 1.0
           this.changeCounterpart();
@@ -527,7 +567,7 @@ export class AppComponent implements OnInit {
     if (this.gameState != GameStates.GameOverState) {
       this.updateRide(delta);
     }
-    
+
     this.updateTimerProgress(delta);
 
 
@@ -565,7 +605,7 @@ export class AppComponent implements OnInit {
 
     this.needleSprite.rotation = Math.sin(10) + Math.sin(90) / this.speed;
 
- 
+
     //console.log(this.timeLeft);
     // let width = this.timerProgress.parent.width * 0.5;
     // this.timerProgress.beginFill(0xFF0000);
@@ -594,7 +634,7 @@ export class AppComponent implements OnInit {
     this.counterpartType = this.calculateCounterpartTypeRandomly();
 
 
-    
+
 
     this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
     // for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
@@ -608,6 +648,7 @@ export class AppComponent implements OnInit {
       this.score = 0;
     }
     this.scoreText.text = this.score.toString();
+    this.scoreText.position.x = this.app.screen.width - this.scoreText.width;
   }
 
   getTextureFromCounterpartType(isWhacked: boolean): any {
