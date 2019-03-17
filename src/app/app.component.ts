@@ -415,6 +415,7 @@ export class AppComponent implements OnInit {
     this.landscape = new PIXI.DisplayObjectContainer();
     this.landscape.pivot.x = 0.5;
     this.landscape.pivot.y = 0.5;
+
     //(PIXI.DisplayObjectContainer)(this.landscape).anchor.x = 0.5;
     //(PIXI.DisplayObjectContainer)(this.landscape).anchor.y = 0.5;
     this.app.stage.addChild(this.landscape);
@@ -441,6 +442,9 @@ export class AppComponent implements OnInit {
       // )
     );
     this.landscape.addChild(this.carSprite);
+
+    this.carSprite.interactive = true;
+    this.carSprite.on("pointerdown", this.onPointerDownOnCar.bind(this)); 
 
     // this.app.ticker.add(function (delta) {
     //   // just for fun, let's rotate mr rabbit a little
@@ -499,7 +503,7 @@ export class AppComponent implements OnInit {
     sprite.scale.y *= scaleFactor;
 
     sprite.interactive = true;
-    sprite.on("pointerdown", this.onPointerDown.bind(this));
+    //sprite.on("pointerdown", this.onPointerDown.bind(this));
 
     this.landscape.addChild(sprite);
 
@@ -540,6 +544,11 @@ export class AppComponent implements OnInit {
     this.setupGameVariables();
 
     this.app.ticker.add(this.update.bind(this));
+  }
+
+  onPointerDownOnCar() {
+    let hitSound = PIXI.loader.resources['punchSound0'].data;
+    this.scoreRoll = 0;
   }
 
   onPointerDown() {
