@@ -1,10 +1,11 @@
 import { Counterpart, CounterpartTypes, HitEvent, HitStatus } from './counterpart.class';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sprite, Application, Sound, Text, Point, Container, Graphics, TextStyle } from 'pixi.js';
-
+import createPlayer from 'web-audio-player';
 
 //import * as PIXI from "pixi.js/dist/pixi.js"
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
+declare var AudioPlayer:any;
 
 enum GameStates {
   IdleState = 'Idle',
@@ -75,6 +76,7 @@ export class AppComponent implements OnInit {
   private counterpartType: CounterpartTypes;
   public counterparts: Counterpart[];
   private counterpartHiddenTime: number;
+  private audio: any;
 
   private stillAllowedFailuresCount: number;
   private maxAllowedFailuresCount: number;
@@ -155,10 +157,24 @@ export class AppComponent implements OnInit {
 
   }
 
-  onLoad(loader, resources) {
 
-    const sound: Sound = resources['backingTrack'].data;
-    sound.play();
+  onLoad(loader, resources) {
+    
+    this.audio = createPlayer('assets/sounds/scheuertrack1.mp3')
+    this.audio.on('load', () => {
+      console.log('Audio loaded...')
+      
+      // start playing audio file
+      this.audio.play()
+      
+      // and connect your node somewhere, such as
+      // the AudioContext output so the user can hear it!
+      this.audio.node.connect(this.audio.context.destination)
+    })
+     
+    this.audio.on('ended', () => {
+      console.log('Audio ended...')
+    })
 
     this.setup();
   }
@@ -738,7 +754,7 @@ export class AppComponent implements OnInit {
     this.carSprite.interactive = true;
     this.restartText.visible = false;
 
-    // sound.autopla
+    this.audio.play();
 
     this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
     // for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
