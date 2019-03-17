@@ -8,9 +8,9 @@ declare var PIXI: any; // instead of importing pixi like some tutorials say to d
 
 enum GameStates {
   IdleState = 'Idle',
+  HittingState = 'Hitting',
   CounterpartVisibleState = 'Visible',
   CounterpartHiddenState = 'Hidden',
-  CounterpartHittingState = 'Hitting',
   CounterpartRepositioningState = 'Repositioning',
   GameOverState = 'Game Over'
 };
@@ -42,6 +42,7 @@ export class AppComponent implements OnInit {
     backgroundImage2: 'assets/images/back2.png',
     backgroundImage3: 'assets/images/back3.png',
     backgroundImage4: 'assets/images/back4.png',
+    boxingGloveImage: 'assets/images/boxing-glove.png',
     fuelgauge: 'assets/images/fuelgauge.png',
     needle: 'assets/images/needle.png',
     handImage: 'assets/images/hand.png',
@@ -220,7 +221,7 @@ export class AppComponent implements OnInit {
 
   setupText() {
     this.stateText = new PIXI.Text(this.gameState);
-    this.stateText.visible = false;
+    //this.stateText.visible = false;
     this.app.stage.addChild(this.stateText);
   }
 
@@ -254,10 +255,15 @@ export class AppComponent implements OnInit {
   }
 
   onWasHit(event: HitEvent) {
+    
+    
     let sender = event.sender;
     let hitStatus = event.hitStatus;
     let scoreDelta = 0;
     if (hitStatus == HitStatus.EnemyHitSuccess) {
+      this.cursorSprite.visible = true;
+      this.goToState(GameStates.HittingState);
+
       scoreDelta = 10 + this.scoreRoll;
       this.scoreRoll += 2;
     } else if (hitStatus == HitStatus.FriendHitFailure) {
@@ -310,7 +316,7 @@ export class AppComponent implements OnInit {
     this.gameOverContainer.addChild(shield);
     this.gameOverContainer.addChild(gameOverText);
 
-    this.gameOverContainer.interactive = true;
+    this.gameOverContainer.interactive = false;
     this.gameOverContainer.visible = false;
     this.gameOverContainer.on("pointerdown", this.onPointerDownOnGameOverScreen.bind(this));
 
@@ -320,6 +326,7 @@ export class AppComponent implements OnInit {
   onPointerDownOnGameOverScreen() {
     this.initGameVariables();
     this.gameOverContainer.visible = false;
+    this.gameOverContainer.interactive = false;
     this.goToState(GameStates.IdleState);
   }
 
@@ -388,7 +395,7 @@ export class AppComponent implements OnInit {
     let interaction = this.app.renderer.plugins.interaction;
 
     this.cursorSprite = new PIXI.Sprite(
-      PIXI.loader.resources['handImage'].texture
+      PIXI.loader.resources['boxingGloveImage'].texture
     );
 
 
@@ -408,9 +415,9 @@ export class AppComponent implements OnInit {
     // interaction.on("pointerout", () => {
     //   this.cursorSprite.visible = false;
     // });
-    // interaction.on("pointermove", (event) => {
-    //   this.cursorSprite.position = event.data.global;
-    // });
+    interaction.on("pointermove", (event) => {
+      this.cursorSprite.position = event.data.global;
+    });
   }
 
   setupLandscape() {
@@ -572,21 +579,6 @@ export class AppComponent implements OnInit {
     }
 
     hitSound.play();
-
-
-    if (this.stillAllowedFailuresCount > 0) {
-      this.cursorSprite.texture = PIXI.loader.resources['handSmackingImage'].texture;
-
-      this.counterpartSprite.texture = this.getTextureFromCounterpartType(true);
-      this.counterpartSprite.scale.x -= 0.1;
-      this.counterpartSprite.scale.y -= 0.1;
-      this.goToState(GameStates.CounterpartHittingState);
-    } else {
-      this.landscape.alpha = 0.5;
-      this.carSprite.visible = false;
-
-      this.goToState(GameStates.GameOverState);
-    }
   }
 
   update(delta: number) {
@@ -632,35 +624,34 @@ export class AppComponent implements OnInit {
       //     this.goToState(GameStates.CounterpartHiddenState);
       //   }
       // } break;
-      case GameStates.CounterpartHittingState: {
-        if (this.stateTime > 5) {
-          let clapSound: Sound = PIXI.loader.resources['clapSound'].data;
-          clapSound.play();
+      case GameStates.HittingState: {
+        if (this.stateTime < 5) {
+          this.cursorSprite.x -= 3;
         }
-        if (this.stateTime > 30) {
-          this.cursorSprite.texture = PIXI.loader.resources['handImage'].texture;
-
-          this.counterpartSprite.scale.x += 0.1;
-          this.counterpartSprite.scale.y += 0.1;
-          this.counterpartSprite.visible = false;
-          this.counterpartSprite.texture = this.getTextureFromCounterpartType(false);
-
-          this.counterpartSprite.visible = false;
-          this.changeCounterpart();
-          this.goToState(GameStates.CounterpartHiddenState);
+        if (this.stateTime >= 5) {
+          this.cursorSprite.x += 3;
+        }        
+        
+        if (this.stateTime > 10) {
+          this.cursorSprite.visible = false;
+          this.goToState(GameStates.IdleState);
         }
       } break;
       case GameStates.GameOverState: {
+        if (this.stateTime > 200) {
+          this.gameOverContainer.interactive = true;
+        }
       } break;
     }
     //this.enemy.rotation += 0.1 * delta;
 
     if (this.gameState != GameStates.GameOverState) {
       this.updateRide(delta);
+      this.updateTimerProgress(delta);
     }
 
-    this.updateTimerProgress(delta);
-
+    
+    
 
     // if (this.score <= 0) {
     //   this.landscape.alpha = 0.5;
@@ -698,7 +689,7 @@ export class AppComponent implements OnInit {
     for (let i = 0; i < this.counterparts.length; i++) {
       this.counterparts[i].setSpeed(this.speed);
     }
-    this.stateText.text = this.speed.toString();
+    //this.stateText.text = this.speed.toString();
 
     this.needleSprite.rotation = Math.sin(10) + Math.sin(90) / this.speed + Math.random() / 30;
 
