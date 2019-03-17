@@ -2,7 +2,6 @@ import { Counterpart, CounterpartTypes, HitEvent, HitStatus } from './counterpar
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sprite, Application, Sound, Text, Point, Container, Graphics, TextStyle } from 'pixi.js';
 import createPlayer from 'web-audio-player';
-import { version } from 'punycode';
 
 //import * as PIXI from "pixi.js/dist/pixi.js"
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
