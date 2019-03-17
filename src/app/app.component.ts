@@ -68,7 +68,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.1'
+  public readonly version = '0.0.11'
   private referenceWidth: number;
   private relStreetHeight: number;
 
