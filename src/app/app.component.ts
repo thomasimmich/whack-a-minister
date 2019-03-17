@@ -3,10 +3,12 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sprite, Application, Sound, Text, Point, Container, Graphics, TextStyle } from 'pixi.js';
 import createPlayer from 'web-audio-player';
 
+
 //import * as PIXI from "pixi.js/dist/pixi.js"
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
 
 enum GameStates {
+  SplashState = 'Splash',
   IdleState = 'Idle',
   HittingState = 'Hitting',
   GameOverState = 'Game Over'
@@ -65,9 +67,10 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.12'
+  public readonly version = '0.0.13'
   private referenceWidth: number;
   private relStreetHeight: number;
+  private progressText: Text;
 
   private chanceForEnemy: number;
   private chanceForTimeBonus: number;
@@ -142,7 +145,8 @@ export class AppComponent implements OnInit {
     }
 
     this.loadFonts();
-
+    this.progressText = new PIXI.Text();
+    this.stateText = new PIXI.Text(this.gameState);
 
 
     // Add to the PIXI loader
@@ -152,7 +156,7 @@ export class AppComponent implements OnInit {
 
     PIXI.loader.on('progress', this.onProgress.bind(this));
 
-    //PIXI.loader.once('complete', this.setup.bind(this));
+    PIXI.loader.on('complete', this.onLoadCompleted.bind(this));
 
     PIXI.loader.load(this.onLoad.bind(this));
 
@@ -176,15 +180,36 @@ export class AppComponent implements OnInit {
     })
   }
 
+  onLoadCompleted() {
+    this.progressText.style = this.textStyle;
+    this.progressText.text = 'PRESS TO START';
+    
+    this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
+    this.progressText.y = this.app.screen.height / 2;
+    this.progressText.interactive = true;
+    this.goToState(GameStates.SplashState);
 
-  onLoad(loader, resources) {
+    this.progressText.on("pointerdown", this.onStart.bind(this));
+  }
 
-
-
+  onStart() {
     this.setup();
   }
 
+  onLoad(loader, resources) {
+    
+
+
+    //this.setup();
+  }
+
   onProgress(loader, resource) {
+    this.progressText.text = 'Loading '+Math.round(loader.progress.toString())+'%';
+
+    this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
+    this.progressText.y = this.app.screen.height / 2;
+
+    this.app.stage.addChild(this.progressText);
     console.log(`loaded ${resource.url}. Loading is ${loader.progress}% complete.`);
   }
 
@@ -237,7 +262,7 @@ export class AppComponent implements OnInit {
   }
 
   setupText() {
-    this.stateText = new PIXI.Text(this.gameState);
+
     this.stateText.visible = false;
     this.app.stage.addChild(this.stateText);
 
@@ -659,9 +684,7 @@ export class AppComponent implements OnInit {
       //   }
       // } break;
       case GameStates.IdleState: {
-        if (this.audio == null && this.stateTime > 100) {
-          this.loadBackingTrack(); 
-        }
+
       } break;
       case GameStates.HittingState: {
         if (this.stateTime < 5) {
@@ -772,6 +795,10 @@ export class AppComponent implements OnInit {
     }
     this.carSprite.interactive = true;
     this.restartText.visible = false;
+
+    if (this.audio == null) {
+      this.loadBackingTrack(); 
+    }
 
     if (this.audio) {
       this.audio.play();
