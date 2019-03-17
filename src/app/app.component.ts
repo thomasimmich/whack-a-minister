@@ -218,6 +218,7 @@ export class AppComponent implements OnInit {
 
   setupText() {
     this.stateText = new PIXI.Text(this.gameState);
+    this.stateText.visible = false;
     this.app.stage.addChild(this.stateText);
   }
 
@@ -359,7 +360,8 @@ export class AppComponent implements OnInit {
 
     container.scale.x *= scaleFactor;
     container.scale.y *= scaleFactor;
-    container.x = (this.app.renderer.view.width - container.width) / 2;
+    container.x = 40 * scaleFactor;
+    container.y = 20 * scaleFactor;
 
     this.app.stage.addChild(container);
   }
@@ -739,8 +741,10 @@ export class AppComponent implements OnInit {
     if (this.score < 0) {
       this.score = 0;
     }
+    let scaleFactor = (this.app.screen.width / this.referenceWidth);
     this.scoreText.text = this.score.toString();
-    this.scoreText.position.x = this.app.screen.width - this.scoreText.width;
+    this.scoreText.position.x = this.app.screen.width - this.scoreText.width - 80 * scaleFactor;
+    this.scoreText.position.y = 20;
   }
 
   getTextureFromCounterpartType(isWhacked: boolean): any {
