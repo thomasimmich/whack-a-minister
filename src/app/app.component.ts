@@ -45,6 +45,7 @@ export class AppComponent implements OnInit {
     boxingGloveImage: 'assets/images/boxing-glove.png',
     fuelgauge: 'assets/images/fuelgauge.png',
     needle: 'assets/images/needle.png',
+    failureSound: 'assets/sounds/failure.mp3',
     squeezeSound: 'assets/sounds/squeeze.mp3',
    // punchSound0: 'assets/sounds/punch0.png', 
     punchSound0: 'assets/sounds/punch0.mp3',
