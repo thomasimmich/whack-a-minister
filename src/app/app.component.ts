@@ -67,7 +67,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.13'
+  public readonly version = '0.0.14'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -163,6 +163,9 @@ export class AppComponent implements OnInit {
   }
 
   loadBackingTrack() {
+    this.audio = PIXI.loader.resources['backingTrack'].data;
+
+    /*
     this.audio = createPlayer('assets/sounds/scheuertrack1.mp3')
     this.audio.on('load', () => {
       console.log('Audio loaded...')
@@ -177,7 +180,8 @@ export class AppComponent implements OnInit {
 
     this.audio.on('ended', () => {
       console.log('Audio ended...')
-    })
+    })*/
+
   }
 
   onLoadCompleted() {
