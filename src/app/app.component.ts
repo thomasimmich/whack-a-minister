@@ -85,6 +85,7 @@ export class AppComponent implements OnInit {
   private allowedFailureSlotSprites: Sprite[];
   private needleSprite: Sprite;
   private gameOverContainer: Container;
+  private restartText: Text;
 
   private score: number;
   private scoreRoll: number;
@@ -221,7 +222,7 @@ export class AppComponent implements OnInit {
 
   setupText() {
     this.stateText = new PIXI.Text(this.gameState);
-    //this.stateText.visible = false;
+    this.stateText.visible = false;
     this.app.stage.addChild(this.stateText);
   }
 
@@ -285,7 +286,7 @@ export class AppComponent implements OnInit {
   setupGameOver() {
     let textStyle = new PIXI.TextStyle({
       fontFamily: 'Arial',
-      fontSize: this.app.screen.height / 4,
+      fontSize: this.app.screen.width / 8,
       fontStyle: 'italic',
       fontWeight: 'bold',
       fill: ['#ffffff', '#DE3249'], // gradient
@@ -313,8 +314,15 @@ export class AppComponent implements OnInit {
     gameOverText.position.x = (this.app.screen.width - gameOverText.width) / 2;
     gameOverText.position.y = (this.app.screen.height - gameOverText.height) / 2;
 
+    this.restartText = new PIXI.Text(this.gameState);
+    this.restartText.text = 'PRESS TO RESTART';
+    this.restartText.position.x = (this.app.screen.width - this.restartText.width) / 2;
+    this.restartText.position.y = (this.app.screen.height - this.restartText.height * 4);    
+    this.restartText.visible = false;
+
     this.gameOverContainer.addChild(shield);
     this.gameOverContainer.addChild(gameOverText);
+    this.gameOverContainer.addChild(this.restartText);
 
     this.gameOverContainer.interactive = false;
     this.gameOverContainer.visible = false;
@@ -639,6 +647,7 @@ export class AppComponent implements OnInit {
       } break;
       case GameStates.GameOverState: {
         if (this.stateTime > 200) {
+          this.restartText.visible = true;
           this.gameOverContainer.interactive = true;
         }
       } break;
@@ -679,7 +688,8 @@ export class AppComponent implements OnInit {
         let c = this.counterparts[i];
         c.container.visible = false;
       }
-
+      this.cursorSprite.visible = false;
+      this.carSprite.interactive = false;
       this.goToState(GameStates.GameOverState);
       return;
     }
@@ -721,7 +731,7 @@ export class AppComponent implements OnInit {
     this.speed = 1.0;
     this.timeLeft = this.availableTime;
     this.chanceForEnemy = 0.8;
-    this.chanceForTimeBonus = 0.1;
+    this.chanceForTimeBonus = 0.05;
     this.counterpartType = this.calculateCounterpartTypeRandomly();
 
 
@@ -729,7 +739,8 @@ export class AppComponent implements OnInit {
       let c = this.counterparts[i];
       c.container.visible = true;
     }
-
+    this.carSprite.interactive = true;
+    this.restartText.visible = false;
 
     // sound.autopla
 

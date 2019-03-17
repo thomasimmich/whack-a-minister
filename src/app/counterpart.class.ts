@@ -184,7 +184,7 @@ export class Counterpart {
         }          
         this.scoreText.text = prefix + score.toString();
         this.scoreText.x = this.sprite.x - this.scoreText.width / 2;
-        this.scoreText.y = this.sprite.y - this.sprite.height;
+        this.scoreText.y = this.sprite.y - this.sprite.height + 20;
         this.scoreText.scale.x = 0;
         this.scoreText.scale.y = 0;
     }
