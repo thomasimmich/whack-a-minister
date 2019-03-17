@@ -147,6 +147,10 @@ export class Counterpart {
             }
 
             if (this.isStateFinished()) {
+                if (this.type == CounterpartTypes.TimeBonusCounterpart) {
+                    let sound = PIXI.loader.resources['timeBonusJingle'].data;
+                    sound.play();
+                }
                 this.punchCoronaSprite.visible = false;
                 this.goToState(CounterpartStates.HidingHitState);
             }
@@ -225,8 +229,6 @@ export class Counterpart {
             hitSound = PIXI.loader.resources['squeezeSound'].data;
             this.wasHit.emit(new HitEvent(this, HitStatus.TimeBonusHit));
         }
-
-
         hitSound.play();
 
         this.sprite.texture = this.getTextureFromCounterpartType(true);

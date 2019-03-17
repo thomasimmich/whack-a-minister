@@ -59,7 +59,8 @@ export class AppComponent implements OnInit {
     punchSound5: 'assets/sounds/punch5.mp3',
     punchSound6: 'assets/sounds/punch6.mp3',
     punchSound7: 'assets/sounds/punch7.mp3',
-    punchSound8: 'assets/sounds/punch8.mp3',                             
+    punchSound8: 'assets/sounds/punch8.mp3',        
+    timeBonusJingle: 'assets/sounds/party.mp3',                     
   };
 
   title = 'Scheuer-Den-Scheuer';
@@ -726,7 +727,7 @@ export class AppComponent implements OnInit {
     this.scoreRoll = 0;
     this.speed = 1.0;
     this.timeLeft = this.availableTime;
-    this.chanceForEnemy = 0.9;
+    this.chanceForEnemy = 0.8;
     this.chanceForTimeBonus = 0.1;
     this.counterpartType = this.calculateCounterpartTypeRandomly();
 
