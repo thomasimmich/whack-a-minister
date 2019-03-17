@@ -762,7 +762,7 @@ export class AppComponent implements OnInit {
     this.speed = 1.0;
     this.timeLeft = this.availableTime;
     this.chanceForEnemy = 0.8;
-    this.chanceForTimeBonus = 1.05;
+    this.chanceForTimeBonus = 0.05;
     this.counterpartType = this.calculateCounterpartTypeRandomly();
 
 
