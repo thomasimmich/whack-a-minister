@@ -261,6 +261,7 @@ export class AppComponent implements OnInit {
       scoreDelta = -30;
       this.scoreRoll = 0;
     } else if (hitStatus == HitStatus.TimeBonusHit) {
+      scoreDelta = 10;
       this.timeLeft += 10;
       if (this.timeLeft > this.availableTime) {
         this.timeLeft = this.availableTime;
