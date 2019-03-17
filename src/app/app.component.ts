@@ -1,17 +1,16 @@
 import { Counterpart, CounterpartTypes, HitEvent, HitStatus } from './counterpart.class';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sprite, Application, Sound, Text, Point, Container, Graphics, TextStyle } from 'pixi.js';
+import createPlayer from 'web-audio-player';
 
 
 //import * as PIXI from "pixi.js/dist/pixi.js"
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
 
 enum GameStates {
+  SplashState = 'Splash',
   IdleState = 'Idle',
   HittingState = 'Hitting',
-  CounterpartVisibleState = 'Visible',
-  CounterpartHiddenState = 'Hidden',
-  CounterpartRepositioningState = 'Repositioning',
   GameOverState = 'Game Over'
 };
 
@@ -47,7 +46,7 @@ export class AppComponent implements OnInit {
     needle: 'assets/images/needle.png',
     failureSound: 'assets/sounds/failure.mp3',
     squeezeSound: 'assets/sounds/squeeze.mp3',
-   // punchSound0: 'assets/sounds/punch0.png', 
+    // punchSound0: 'assets/sounds/punch0.png', 
     punchSound0: 'assets/sounds/punch0.mp3',
     punchSound1: 'assets/sounds/punch1.mp3',
     punchSound2: 'assets/sounds/punch2.mp3',
@@ -56,25 +55,29 @@ export class AppComponent implements OnInit {
     punchSound5: 'assets/sounds/punch5.mp3',
     punchSound6: 'assets/sounds/punch6.mp3',
     punchSound7: 'assets/sounds/punch7.mp3',
-    punchSound8: 'assets/sounds/punch8.mp3',        
-    timeBonusJingle: 'assets/sounds/party.mp3',    
-    honk: 'assets/sounds/honk.mp3',                  
+    punchSound8: 'assets/sounds/punch8.mp3',
+    timeBonusJingle: 'assets/sounds/party.mp3',
+    honk: 'assets/sounds/honk.mp3',
   };
 
-  title = 'Scheuer-Den-Scheuer';
+  title = 'Scheuer den Scheuer';
 
   @ViewChild('pixiContainer') pixiContainer; // this allows us to reference and load stuff into the div container
   public app: Application; // this will be our pixi application
+
   public gameState: GameStates;
 
+  public readonly version = '0.0.14'
   private referenceWidth: number;
   private relStreetHeight: number;
+  private progressText: Text;
 
   private chanceForEnemy: number;
   private chanceForTimeBonus: number;
   private counterpartType: CounterpartTypes;
   public counterparts: Counterpart[];
   private counterpartHiddenTime: number;
+  private audio: any;
 
   private stillAllowedFailuresCount: number;
   private maxAllowedFailuresCount: number;
@@ -122,6 +125,7 @@ export class AppComponent implements OnInit {
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
     this.availableTime = 60;
+    this.audio = null;
 
     this.maxAllowedFailuresCount = 3;
     this.allowedFailureSlotSprites = [];
@@ -141,6 +145,9 @@ export class AppComponent implements OnInit {
     }
 
     this.loadFonts();
+    this.progressText = new PIXI.Text();
+    this.stateText = new PIXI.Text(this.gameState);
+
 
     // Add to the PIXI loader
     for (let name in this.manifest) {
@@ -149,21 +156,64 @@ export class AppComponent implements OnInit {
 
     PIXI.loader.on('progress', this.onProgress.bind(this));
 
-    //PIXI.loader.once('complete', this.setup.bind(this));
+    PIXI.loader.on('complete', this.onLoadCompleted.bind(this));
 
     PIXI.loader.load(this.onLoad.bind(this));
 
   }
 
-  onLoad(loader, resources) {
+  loadBackingTrack() {
+    this.audio = PIXI.loader.resources['backingTrack'].data;
 
-    const sound: Sound = resources['backingTrack'].data;
-    sound.play();
+    /*
+    this.audio = createPlayer('assets/sounds/scheuertrack1.mp3')
+    this.audio.on('load', () => {
+      console.log('Audio loaded...')
 
+      // start playing audio file
+      this.audio.play();
+
+      // and connect your node somewhere, such as
+      // the AudioContext output so the user can hear it!
+      this.audio.node.connect(this.audio.context.destination)
+    })
+
+    this.audio.on('ended', () => {
+      console.log('Audio ended...')
+    })*/
+
+  }
+
+  onLoadCompleted() {
+    this.progressText.style = this.textStyle;
+    this.progressText.text = 'PRESS TO START';
+    
+    this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
+    this.progressText.y = this.app.screen.height / 2;
+    this.progressText.interactive = true;
+    this.goToState(GameStates.SplashState);
+
+    this.progressText.on("pointerdown", this.onStart.bind(this));
+  }
+
+  onStart() {
     this.setup();
   }
 
+  onLoad(loader, resources) {
+    
+
+
+    //this.setup();
+  }
+
   onProgress(loader, resource) {
+    this.progressText.text = 'Loading '+Math.round(loader.progress.toString())+'%';
+
+    this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
+    this.progressText.y = this.app.screen.height / 2;
+
+    this.app.stage.addChild(this.progressText);
     console.log(`loaded ${resource.url}. Loading is ${loader.progress}% complete.`);
   }
 
@@ -213,13 +263,22 @@ export class AppComponent implements OnInit {
   setupGameVariables() {
     this.initGameVariables();
     this.updateTurnVariables();
-    this.goToState(GameStates.CounterpartHiddenState);
   }
 
   setupText() {
-    this.stateText = new PIXI.Text(this.gameState);
+
     this.stateText.visible = false;
     this.app.stage.addChild(this.stateText);
+
+    let versionText = new PIXI.Text(this.title + ' ' + this.version);
+    let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
+    versionText.scale.x *= scaleFactor / 0.35;
+    versionText.scale.y *= scaleFactor / 0.35;
+
+    versionText.position.x = (this.app.screen.width - versionText.width) / 2;
+    versionText.position.y = this.app.screen.height - versionText.height;
+    versionText.alpha = 0.5;
+    this.app.stage.addChild(versionText);
   }
 
   setupScore() {
@@ -252,8 +311,8 @@ export class AppComponent implements OnInit {
   }
 
   onWasHit(event: HitEvent) {
-    
-    
+
+
     let sender = event.sender;
     let hitStatus = event.hitStatus;
     let scoreDelta = 0;
@@ -313,7 +372,7 @@ export class AppComponent implements OnInit {
     this.restartText = new PIXI.Text(this.gameState);
     this.restartText.text = 'PRESS TO RESTART';
     this.restartText.position.x = (this.app.screen.width - this.restartText.width) / 2;
-    this.restartText.position.y = (this.app.screen.height - this.restartText.height * 4);    
+    this.restartText.position.y = (this.app.screen.height - this.restartText.height * 4);
     this.restartText.visible = false;
 
     this.gameOverContainer.addChild(shield);
@@ -457,7 +516,7 @@ export class AppComponent implements OnInit {
     this.landscape.addChild(this.carSprite);
 
     this.carSprite.interactive = true;
-    this.carSprite.on("pointerdown", this.onPointerDownOnCar.bind(this)); 
+    this.carSprite.on("pointerdown", this.onPointerDownOnCar.bind(this));
 
     // this.app.ticker.add(function (delta) {
     //   // just for fun, let's rotate mr rabbit a little
@@ -566,23 +625,23 @@ export class AppComponent implements OnInit {
   }
 
   onPointerDown() {
-    if (this.gameState != GameStates.CounterpartVisibleState) {
-      return;
-    }
+    // if (this.gameState != GameStates.GameOverState) {
+    //   return;
+    // }
 
-    let hitSound: Sound;
-    if (this.counterpartType == CounterpartTypes.EnemyCounterpart) {
-      hitSound = PIXI.loader.resources['punchSound0'].data;
-      this.increaseScore(1000);
-    } else {
-      hitSound = PIXI.loader.resources['failureSound'].data;
-      this.increaseScore(-2000);
+    // let hitSound: Sound;
+    // if (this.counterpartType == CounterpartTypes.EnemyCounterpart) {
+    //   hitSound = PIXI.loader.resources['punchSound0'].data;
+    //   this.increaseScore(1000);
+    // } else {
+    //   hitSound = PIXI.loader.resources['failureSound'].data;
+    //   this.increaseScore(-2000);
 
-      this.stillAllowedFailuresCount--;
-      this.allowedFailureSlotSprites[this.stillAllowedFailuresCount].alpha = 0.5;
-    }
+    //   this.stillAllowedFailuresCount--;
+    //   this.allowedFailureSlotSprites[this.stillAllowedFailuresCount].alpha = 0.5;
+    // }
 
-    hitSound.play();
+    // hitSound.play();
   }
 
   update(delta: number) {
@@ -628,14 +687,17 @@ export class AppComponent implements OnInit {
       //     this.goToState(GameStates.CounterpartHiddenState);
       //   }
       // } break;
+      case GameStates.IdleState: {
+
+      } break;
       case GameStates.HittingState: {
         if (this.stateTime < 5) {
           this.cursorSprite.x -= 3;
         }
         if (this.stateTime >= 5) {
           this.cursorSprite.x += 3;
-        }        
-        
+        }
+
         if (this.stateTime > 10) {
           this.cursorSprite.visible = false;
           this.goToState(GameStates.IdleState);
@@ -655,8 +717,8 @@ export class AppComponent implements OnInit {
       this.updateTimerProgress(delta);
     }
 
-    
-    
+
+
 
     // if (this.score <= 0) {
     //   this.landscape.alpha = 0.5;
@@ -738,9 +800,17 @@ export class AppComponent implements OnInit {
     this.carSprite.interactive = true;
     this.restartText.visible = false;
 
-    // sound.autopla
+    if (this.audio == null) {
+      this.loadBackingTrack(); 
+    }
 
-    this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
+    if (this.audio) {
+      this.audio.play();
+    }
+    
+
+    this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;+
+    this.goToState(GameStates.IdleState);
     // for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
     //   this.allowedFailureSlotSprites[i].alpha = 1.0;
     // }
