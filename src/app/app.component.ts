@@ -60,7 +60,8 @@ export class AppComponent implements OnInit {
     punchSound6: 'assets/sounds/punch6.mp3',
     punchSound7: 'assets/sounds/punch7.mp3',
     punchSound8: 'assets/sounds/punch8.mp3',        
-    timeBonusJingle: 'assets/sounds/party.mp3',                     
+    timeBonusJingle: 'assets/sounds/party.mp3',    
+    honk: 'assets/sounds/honk.mp3',                  
   };
 
   title = 'Scheuer-Den-Scheuer';
@@ -548,7 +549,8 @@ export class AppComponent implements OnInit {
   }
 
   onPointerDownOnCar() {
-    let hitSound = PIXI.loader.resources['punchSound0'].data;
+    let sound = PIXI.loader.resources['honk'].data;
+    sound.play();
     this.scoreRoll = 0;
   }
 
