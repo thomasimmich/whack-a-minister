@@ -145,6 +145,8 @@ export class AppComponent implements OnInit {
 
     this.loadFonts();
 
+    this.loadBackingTrack(); 
+
     // Add to the PIXI loader
     for (let name in this.manifest) {
       PIXI.loader.add(name, this.manifest[name]);
@@ -158,9 +160,7 @@ export class AppComponent implements OnInit {
 
   }
 
-
-  onLoad(loader, resources) {
-
+  loadBackingTrack() {
     this.audio = createPlayer('assets/sounds/scheuertrack1.mp3')
     this.audio.on('load', () => {
       console.log('Audio loaded...')
@@ -176,6 +176,12 @@ export class AppComponent implements OnInit {
     this.audio.on('ended', () => {
       console.log('Audio ended...')
     })
+  }
+
+
+  onLoad(loader, resources) {
+
+
 
     this.setup();
   }
@@ -239,6 +245,10 @@ export class AppComponent implements OnInit {
     this.app.stage.addChild(this.stateText);
 
     let versionText = new PIXI.Text(this.title + ' ' + this.version);
+    let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
+    versionText.scale.x *= scaleFactor / 0.35;
+    versionText.scale.y *= scaleFactor / 0.35;
+
     versionText.position.x = (this.app.screen.width - versionText.width) / 2;
     versionText.position.y = this.app.screen.height - versionText.height;
     versionText.alpha = 0.5;
