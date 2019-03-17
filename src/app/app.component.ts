@@ -9,9 +9,6 @@ declare var PIXI: any; // instead of importing pixi like some tutorials say to d
 enum GameStates {
   IdleState = 'Idle',
   HittingState = 'Hitting',
-  CounterpartVisibleState = 'Visible',
-  CounterpartHiddenState = 'Hidden',
-  CounterpartRepositioningState = 'Repositioning',
   GameOverState = 'Game Over'
 };
 
@@ -68,7 +65,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.11'
+  public readonly version = '0.0.12'
   private referenceWidth: number;
   private relStreetHeight: number;
 
@@ -125,6 +122,7 @@ export class AppComponent implements OnInit {
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
     this.availableTime = 60;
+    this.audio = null;
 
     this.maxAllowedFailuresCount = 3;
     this.allowedFailureSlotSprites = [];
@@ -145,7 +143,7 @@ export class AppComponent implements OnInit {
 
     this.loadFonts();
 
-    this.loadBackingTrack(); 
+
 
     // Add to the PIXI loader
     for (let name in this.manifest) {
@@ -166,7 +164,7 @@ export class AppComponent implements OnInit {
       console.log('Audio loaded...')
 
       // start playing audio file
-      this.audio.play()
+      this.audio.play();
 
       // and connect your node somewhere, such as
       // the AudioContext output so the user can hear it!
@@ -236,7 +234,6 @@ export class AppComponent implements OnInit {
   setupGameVariables() {
     this.initGameVariables();
     this.updateTurnVariables();
-    this.goToState(GameStates.CounterpartHiddenState);
   }
 
   setupText() {
@@ -599,23 +596,23 @@ export class AppComponent implements OnInit {
   }
 
   onPointerDown() {
-    if (this.gameState != GameStates.CounterpartVisibleState) {
-      return;
-    }
+    // if (this.gameState != GameStates.GameOverState) {
+    //   return;
+    // }
 
-    let hitSound: Sound;
-    if (this.counterpartType == CounterpartTypes.EnemyCounterpart) {
-      hitSound = PIXI.loader.resources['punchSound0'].data;
-      this.increaseScore(1000);
-    } else {
-      hitSound = PIXI.loader.resources['failureSound'].data;
-      this.increaseScore(-2000);
+    // let hitSound: Sound;
+    // if (this.counterpartType == CounterpartTypes.EnemyCounterpart) {
+    //   hitSound = PIXI.loader.resources['punchSound0'].data;
+    //   this.increaseScore(1000);
+    // } else {
+    //   hitSound = PIXI.loader.resources['failureSound'].data;
+    //   this.increaseScore(-2000);
 
-      this.stillAllowedFailuresCount--;
-      this.allowedFailureSlotSprites[this.stillAllowedFailuresCount].alpha = 0.5;
-    }
+    //   this.stillAllowedFailuresCount--;
+    //   this.allowedFailureSlotSprites[this.stillAllowedFailuresCount].alpha = 0.5;
+    // }
 
-    hitSound.play();
+    // hitSound.play();
   }
 
   update(delta: number) {
@@ -661,6 +658,11 @@ export class AppComponent implements OnInit {
       //     this.goToState(GameStates.CounterpartHiddenState);
       //   }
       // } break;
+      case GameStates.IdleState: {
+        if (this.audio == null && this.stateTime > 100) {
+          this.loadBackingTrack(); 
+        }
+      } break;
       case GameStates.HittingState: {
         if (this.stateTime < 5) {
           this.cursorSprite.x -= 3;
@@ -760,7 +762,7 @@ export class AppComponent implements OnInit {
     this.speed = 1.0;
     this.timeLeft = this.availableTime;
     this.chanceForEnemy = 0.8;
-    this.chanceForTimeBonus = 0.05;
+    this.chanceForTimeBonus = 1.05;
     this.counterpartType = this.calculateCounterpartTypeRandomly();
 
 
@@ -771,9 +773,13 @@ export class AppComponent implements OnInit {
     this.carSprite.interactive = true;
     this.restartText.visible = false;
 
-    this.audio.play();
+    if (this.audio) {
+      this.audio.play();
+    }
+    
 
-    this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
+    this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;+
+    this.goToState(GameStates.IdleState);
     // for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
     //   this.allowedFailureSlotSprites[i].alpha = 1.0;
     // }
