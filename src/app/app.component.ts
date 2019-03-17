@@ -2,10 +2,10 @@ import { Counterpart, CounterpartTypes, HitEvent, HitStatus } from './counterpar
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sprite, Application, Sound, Text, Point, Container, Graphics, TextStyle } from 'pixi.js';
 import createPlayer from 'web-audio-player';
+import { version } from 'punycode';
 
 //import * as PIXI from "pixi.js/dist/pixi.js"
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
-declare var AudioPlayer:any;
 
 enum GameStates {
   IdleState = 'Idle',
@@ -48,7 +48,7 @@ export class AppComponent implements OnInit {
     needle: 'assets/images/needle.png',
     failureSound: 'assets/sounds/failure.mp3',
     squeezeSound: 'assets/sounds/squeeze.mp3',
-   // punchSound0: 'assets/sounds/punch0.png', 
+    // punchSound0: 'assets/sounds/punch0.png', 
     punchSound0: 'assets/sounds/punch0.mp3',
     punchSound1: 'assets/sounds/punch1.mp3',
     punchSound2: 'assets/sounds/punch2.mp3',
@@ -57,17 +57,19 @@ export class AppComponent implements OnInit {
     punchSound5: 'assets/sounds/punch5.mp3',
     punchSound6: 'assets/sounds/punch6.mp3',
     punchSound7: 'assets/sounds/punch7.mp3',
-    punchSound8: 'assets/sounds/punch8.mp3',        
-    timeBonusJingle: 'assets/sounds/party.mp3',    
-    honk: 'assets/sounds/honk.mp3',                  
+    punchSound8: 'assets/sounds/punch8.mp3',
+    timeBonusJingle: 'assets/sounds/party.mp3',
+    honk: 'assets/sounds/honk.mp3',
   };
 
-  title = 'Scheuer-Den-Scheuer';
+  title = 'Scheuer den Scheuer';
 
   @ViewChild('pixiContainer') pixiContainer; // this allows us to reference and load stuff into the div container
   public app: Application; // this will be our pixi application
+
   public gameState: GameStates;
 
+  public readonly version = '0.0.1'
   private referenceWidth: number;
   private relStreetHeight: number;
 
@@ -159,19 +161,19 @@ export class AppComponent implements OnInit {
 
 
   onLoad(loader, resources) {
-    
+
     this.audio = createPlayer('assets/sounds/scheuertrack1.mp3')
     this.audio.on('load', () => {
       console.log('Audio loaded...')
-      
+
       // start playing audio file
       this.audio.play()
-      
+
       // and connect your node somewhere, such as
       // the AudioContext output so the user can hear it!
       this.audio.node.connect(this.audio.context.destination)
     })
-     
+
     this.audio.on('ended', () => {
       console.log('Audio ended...')
     })
@@ -236,6 +238,12 @@ export class AppComponent implements OnInit {
     this.stateText = new PIXI.Text(this.gameState);
     this.stateText.visible = false;
     this.app.stage.addChild(this.stateText);
+
+    let versionText = new PIXI.Text(this.title + ' ' + this.version);
+    versionText.position.x = (this.app.screen.width - versionText.width) / 2;
+    versionText.position.y = this.app.screen.height - versionText.height;
+    versionText.alpha = 0.5;
+    this.app.stage.addChild(versionText);
   }
 
   setupScore() {
@@ -268,8 +276,8 @@ export class AppComponent implements OnInit {
   }
 
   onWasHit(event: HitEvent) {
-    
-    
+
+
     let sender = event.sender;
     let hitStatus = event.hitStatus;
     let scoreDelta = 0;
@@ -329,7 +337,7 @@ export class AppComponent implements OnInit {
     this.restartText = new PIXI.Text(this.gameState);
     this.restartText.text = 'PRESS TO RESTART';
     this.restartText.position.x = (this.app.screen.width - this.restartText.width) / 2;
-    this.restartText.position.y = (this.app.screen.height - this.restartText.height * 4);    
+    this.restartText.position.y = (this.app.screen.height - this.restartText.height * 4);
     this.restartText.visible = false;
 
     this.gameOverContainer.addChild(shield);
@@ -473,7 +481,7 @@ export class AppComponent implements OnInit {
     this.landscape.addChild(this.carSprite);
 
     this.carSprite.interactive = true;
-    this.carSprite.on("pointerdown", this.onPointerDownOnCar.bind(this)); 
+    this.carSprite.on("pointerdown", this.onPointerDownOnCar.bind(this));
 
     // this.app.ticker.add(function (delta) {
     //   // just for fun, let's rotate mr rabbit a little
@@ -650,8 +658,8 @@ export class AppComponent implements OnInit {
         }
         if (this.stateTime >= 5) {
           this.cursorSprite.x += 3;
-        }        
-        
+        }
+
         if (this.stateTime > 10) {
           this.cursorSprite.visible = false;
           this.goToState(GameStates.IdleState);
@@ -671,8 +679,8 @@ export class AppComponent implements OnInit {
       this.updateTimerProgress(delta);
     }
 
-    
-    
+
+
 
     // if (this.score <= 0) {
     //   this.landscape.alpha = 0.5;
