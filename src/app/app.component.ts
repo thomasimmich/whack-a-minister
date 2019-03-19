@@ -69,7 +69,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.14'
+  public readonly version = '0.0.15'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -543,13 +543,6 @@ export class AppComponent implements OnInit {
     this.carSprite.interactive = true;
     this.carSprite.on("pointerdown", this.onPointerDownOnCar.bind(this));
 
-    // this.app.ticker.add(function (delta) {
-    //   // just for fun, let's rotate mr rabbit a little
-    //   // delta is 1 if running at 100% performance
-    //   // creates frame-independent transformation
-    //   this.carSprite.rotation += 0.1 * delta;
-    // });
-
     this.setupWheels();
   }
 
@@ -619,7 +612,6 @@ export class AppComponent implements OnInit {
     this.counterpartSprite.scale.y *= scaleFactor;
 
     this.counterpartSprite.interactive = true;
-    this.counterpartSprite.on("pointerdown", this.onPointerDown.bind(this));
     this.counterpartSprite.visible = false;
     this.landscape.addChild(this.counterpartSprite);
     this.changeCounterpart();
@@ -649,26 +641,6 @@ export class AppComponent implements OnInit {
     this.scoreRoll = 0;
   }
 
-  onPointerDown() {
-    // if (this.gameState != GameStates.GameOverState) {
-    //   return;
-    // }
-
-    // let hitSound: Sound;
-    // if (this.counterpartType == CounterpartTypes.EnemyCounterpart) {
-    //   hitSound = PIXI.loader.resources['punchSound0'].data;
-    //   this.increaseScore(1000);
-    // } else {
-    //   hitSound = PIXI.loader.resources['failureSound'].data;
-    //   this.increaseScore(-2000);
-
-    //   this.stillAllowedFailuresCount--;
-    //   this.allowedFailureSlotSprites[this.stillAllowedFailuresCount].alpha = 0.5;
-    // }
-
-    // hitSound.play();
-  }
-
   update(delta: number) {
 
     this.stateTime += delta;
@@ -681,37 +653,7 @@ export class AppComponent implements OnInit {
     }
 
     switch (this.gameState) {
-      // case GameStates.CounterpartHiddenState: {
-      //   if (this.landscape.scale.x > 1.0) {
-      //     this.landscape.scale.x -= 0.05;
-      //     this.landscape.scale.y -= 0.05;
-      //   }
-
-      //   if (this.stateTime > this.counterpartHiddenDuration) {
-      //     this.speed += 0.2;
-      //     this.counterpartSprite.visible = true;
-      //     this.goToState(GameStates.CounterpartVisibleState);
-      //   }
-      // } break;
-      // case GameStates.CounterpartVisibleState: {
-      //   if (this.landscape.scale.x < this.landscapeZoom) {
-      //     this.landscape.scale.x += 0.05;
-      //     this.landscape.scale.y += 0.05;
-      //   }
-
-      //   if (this.stateTime > this.counterpartVisibleDuration) {
-      //     // the player missed an enemy
-      //     this.counterpartSprite.visible = false;
-
-      //     if (this.counterpartType == CounterpartTypes.EnemyCounterpart) {
-      //       this.increaseScore(-500);
-      //       PIXI.loader.resources['failureSound'].data.play();
-      //     }
-
-      //     this.changeCounterpart();
-      //     this.goToState(GameStates.CounterpartHiddenState);
-      //   }
-      // } break;
+ 
       case GameStates.IdleState: {
 
       } break;
@@ -785,18 +727,6 @@ export class AppComponent implements OnInit {
     //this.stateText.text = this.speed.toString();
 
     this.needleSprite.rotation = Math.sin(10) + Math.sin(90) / this.speed + Math.random() / 30;
-
-
-    //console.log(this.timeLeft);
-    // let width = this.timerProgress.parent.width * 0.5;
-    // this.timerProgress.beginFill(0xFF0000);
-    // this.timerProgress.drawRoundedRect(
-    //   0,
-    //   0,
-    //   width,
-    //   this.timerProgress.height,
-    //   this.timerProgress.height / 2);
-    // this.timerProgress.endFill();
   }
 
   updateTurnVariables() {
@@ -824,7 +754,6 @@ export class AppComponent implements OnInit {
     }
     this.carSprite.interactive = true;
     this.restartText.visible = false;
-
     if (this.audio == null) {
       this.loadBackingTrack();
     }
@@ -834,8 +763,8 @@ export class AppComponent implements OnInit {
     }
 
 
-    this.stillAllowedFailuresCount = this.maxAllowedFailuresCount; +
-      this.goToState(GameStates.IdleState);
+    this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
+    this.goToState(GameStates.IdleState);
     // for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
     //   this.allowedFailureSlotSprites[i].alpha = 1.0;
     // }
