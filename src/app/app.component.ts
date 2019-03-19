@@ -2,7 +2,6 @@ import { Counterpart, CounterpartTypes, HitEvent, HitStatus } from './counterpar
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sprite, Application, Sound, Text, Point, Container, Graphics, TextStyle } from 'pixi.js';
 import createPlayer from 'web-audio-player';
-import { resource } from 'selenium-webdriver/http';
 
 
 //import * as PIXI from "pixi.js/dist/pixi.js"
@@ -32,6 +31,7 @@ export class AppComponent implements OnInit {
     wheelImage: 'assets/images/wheel.png',
     enemyImage: 'assets/images/scheuer.png',
     backingTrack: 'assets/sounds/scheuertrack1.mp3',
+    gameOverTrack: 'assets/sounds/gameover.mp3',
     enemyImageWhacked: 'assets/images/scheuer-whacked.png',
     friendImage: 'assets/images/greta.png',
     friendImageWhacked: 'assets/images/greta-whacked.png',
@@ -80,7 +80,7 @@ export class AppComponent implements OnInit {
   private counterpartType: CounterpartTypes;
   public counterparts: Counterpart[];
   private counterpartHiddenTime: number;
-  private audio: any;
+  private backingTrack: any;
 
   private stillAllowedFailuresCount: number;
   private maxAllowedFailuresCount: number;
@@ -128,7 +128,7 @@ export class AppComponent implements OnInit {
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
     this.availableTime = 60;
-    this.audio = null;
+    this.backingTrack = null;
 
     this.maxAllowedFailuresCount = 3;
     this.allowedFailureSlotSprites = [];
@@ -186,8 +186,6 @@ export class AppComponent implements OnInit {
   }
 
   loadBackingTrack() {
-    this.audio = PIXI.loader.resources['backingTrack'].data;
-
     /*
     this.audio = createPlayer('assets/sounds/scheuertrack1.mp3')
     this.audio.on('load', () => {
@@ -715,6 +713,9 @@ export class AppComponent implements OnInit {
       }
       this.cursorSprite.visible = false;
       this.carSprite.interactive = false;
+
+      PIXI.loader.resources['gameOverTrack'].data.play();
+
       this.goToState(GameStates.GameOverState);
       return;
     }
@@ -754,15 +755,9 @@ export class AppComponent implements OnInit {
     }
     this.carSprite.interactive = true;
     this.restartText.visible = false;
-    if (this.audio == null) {
-      this.loadBackingTrack();
-    }
-
-    if (this.audio) {
-      this.audio.play();
-    }
-
-
+ 
+    PIXI.loader.resources['backingTrack'].data.play();
+    
     this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
     this.goToState(GameStates.IdleState);
     // for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
