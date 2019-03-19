@@ -197,6 +197,8 @@ export class AppComponent implements OnInit {
   }
 
   onStart() {
+    this.progressText.visible = false;
+    this.progressText.interactive = false;
     this.setup();
   }
 
