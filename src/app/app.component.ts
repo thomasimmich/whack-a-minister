@@ -210,17 +210,17 @@ export class AppComponent implements OnInit {
   onLoadCompleted() {
     this.progressText.style = this.textStyle;
     this.progressText.text = 'START';
-    
+
     this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
     this.progressText.y = this.startScreenSprite.y + this.startScreenSprite.height / 2 - this.progressText.height;
-    
+
     this.app.stage.addChild(this.progressText);
     this.goToState(GameStates.SplashState);
   }
 
   onStart() {
-    this.progressText.visible = false;
-    this.progressText.interactive = false;
+    this.startScreenSprite.visible = false;
+    this.startScreenSprite.interactive = false;
     this.setup();
   }
 
@@ -234,7 +234,7 @@ export class AppComponent implements OnInit {
       this.showStartScreen();
     }
 
-    this.progressText.text = 'Loading '+Math.round(loader.progress.toString())+'%';
+    this.progressText.text = 'Loading ' + Math.round(loader.progress.toString()) + '%';
 
     this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
     this.progressText.y = this.app.screen.height / 2;
@@ -486,9 +486,7 @@ export class AppComponent implements OnInit {
       PIXI.loader.resources['boxingGloveImage'].texture
     );
 
-
-
-    this.cursorSprite.anchor.set(0.35, 0.25); // position specific to where the actual cursor point is
+    this.cursorSprite.anchor.set(0.15, 0.25); // position specific to where the actual cursor point is
 
     let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
     this.cursorSprite.scale.x *= scaleFactor;
@@ -503,9 +501,11 @@ export class AppComponent implements OnInit {
     // interaction.on("pointerout", () => {
     //   this.cursorSprite.visible = false;
     // });
-    interaction.on("pointermove", (event) => {
+    this.cursorSprite.position = new Point(-100, -100);
+    interaction.on("mousemove", (event) => {
       this.cursorSprite.position = event.data.global;
     });
+
   }
 
   setupLandscape() {
@@ -826,16 +826,16 @@ export class AppComponent implements OnInit {
     this.restartText.visible = false;
 
     if (this.audio == null) {
-      this.loadBackingTrack(); 
+      this.loadBackingTrack();
     }
 
     if (this.audio) {
       this.audio.play();
     }
-    
 
-    this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;+
-    this.goToState(GameStates.IdleState);
+
+    this.stillAllowedFailuresCount = this.maxAllowedFailuresCount; +
+      this.goToState(GameStates.IdleState);
     // for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
     //   this.allowedFailureSlotSprites[i].alpha = 1.0;
     // }
