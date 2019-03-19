@@ -2,6 +2,7 @@ import { Counterpart, CounterpartTypes, HitEvent, HitStatus } from './counterpar
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sprite, Application, Sound, Text, Point, Container, Graphics, TextStyle } from 'pixi.js';
 import createPlayer from 'web-audio-player';
+import { resource } from 'selenium-webdriver/http';
 
 
 //import * as PIXI from "pixi.js/dist/pixi.js"
@@ -26,6 +27,7 @@ export class AppComponent implements OnInit {
 
   // List of files to load
   private manifest = {
+    startScreenImage: 'assets/images/start-screen.png',
     carImage: 'assets/images/car.png',
     wheelImage: 'assets/images/wheel.png',
     enemyImage: 'assets/images/scheuer.png',
@@ -71,6 +73,7 @@ export class AppComponent implements OnInit {
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
+  private startScreenSprite: Sprite;
 
   private chanceForEnemy: number;
   private chanceForTimeBonus: number;
@@ -145,6 +148,7 @@ export class AppComponent implements OnInit {
     }
 
     this.loadFonts();
+
     this.progressText = new PIXI.Text();
     this.stateText = new PIXI.Text(this.gameState);
 
@@ -160,6 +164,25 @@ export class AppComponent implements OnInit {
 
     PIXI.loader.load(this.onLoad.bind(this));
 
+  }
+
+  showStartScreen() {
+    this.startScreenSprite = new PIXI.Sprite(
+      PIXI.loader.resources['startScreenImage'].texture
+    );
+    this.startScreenSprite.anchor.set(0.5, 0.5); // position specific to where the actual cursor point is
+
+    let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
+    this.startScreenSprite.scale.x *= scaleFactor;
+    this.startScreenSprite.scale.y *= scaleFactor;
+    this.startScreenSprite.x = this.app.renderer.view.width / 2;
+    this.startScreenSprite.y = this.app.renderer.view.height / 2;
+    this.startScreenSprite.interactive = true;
+
+    this.startScreenSprite.on("pointerdown", this.onStart.bind(this));
+
+
+    this.app.stage.addChild(this.startScreenSprite);
   }
 
   loadBackingTrack() {
@@ -186,14 +209,13 @@ export class AppComponent implements OnInit {
 
   onLoadCompleted() {
     this.progressText.style = this.textStyle;
-    this.progressText.text = 'PRESS TO START';
+    this.progressText.text = 'START';
     
     this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
-    this.progressText.y = this.app.screen.height / 2;
-    this.progressText.interactive = true;
+    this.progressText.y = this.startScreenSprite.y + this.startScreenSprite.height / 2 - this.progressText.height;
+    
+    this.app.stage.addChild(this.progressText);
     this.goToState(GameStates.SplashState);
-
-    this.progressText.on("pointerdown", this.onStart.bind(this));
   }
 
   onStart() {
@@ -203,19 +225,20 @@ export class AppComponent implements OnInit {
   }
 
   onLoad(loader, resources) {
-    
-
 
     //this.setup();
   }
 
   onProgress(loader, resource) {
+    if (resource.name == 'startScreenImage') {
+      this.showStartScreen();
+    }
+
     this.progressText.text = 'Loading '+Math.round(loader.progress.toString())+'%';
 
     this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
     this.progressText.y = this.app.screen.height / 2;
 
-    this.app.stage.addChild(this.progressText);
     console.log(`loaded ${resource.url}. Loading is ${loader.progress}% complete.`);
   }
 
