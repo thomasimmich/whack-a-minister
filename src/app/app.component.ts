@@ -83,6 +83,7 @@ export class AppComponent implements OnInit {
   private counterpartHiddenTime: number;
   private backingTrackPlayer: any;
   private gameOverPlayer: any;
+  private partyPlayer: any;
 
   private stillAllowedFailuresCount: number;
   private maxAllowedFailuresCount: number;
@@ -130,7 +131,7 @@ export class AppComponent implements OnInit {
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
-    this.availableTime = 2;
+    this.availableTime = 60;
     this.backingTrackPlayer = null;
     this.gameOverPlayer = null;
 
@@ -184,10 +185,7 @@ export class AppComponent implements OnInit {
     this.startScreenSprite.interactive = false;
 
     // this.startScreenSprite.on("pointerdown", this.onStart.bind(this));
-
-
     this.app.stage.addChild(this.startScreenSprite);
-
 
     this.progressText.style = this.textStyle;
     this.app.stage.addChild(this.progressText);
@@ -219,6 +217,18 @@ export class AppComponent implements OnInit {
     this.gameOverPlayer.on('ended', () => {
       console.log('Audio ended...')
     })
+
+    this.partyPlayer = createPlayer('assets/sounds/party.mp3')
+    this.partyPlayer.on('load', () => {
+      console.log('Audio loaded...')
+      // and connect your node somewhere, such as
+      // the AudioContext output so the user can hear it!
+      this.partyPlayer.node.connect(this.partyPlayer.context.destination)
+    })
+
+    this.partyPlayer.on('ended', () => {
+      console.log('Audio ended...')
+    })    
   }
 
   onLoadCompleted() {
@@ -231,7 +241,6 @@ export class AppComponent implements OnInit {
     this.progressText.text = 'FERTIG';
     this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
    // this.goToState(GameStates.SplashState);
-
 
     // start right away ...
     this.onStart();      
@@ -249,8 +258,6 @@ export class AppComponent implements OnInit {
   }
 
   onProgress(loader, resource) {
-
-
     if (resource.name == 'startScreenImage') {
       this.showStartScreen();
     }
@@ -363,8 +370,6 @@ export class AppComponent implements OnInit {
   }
 
   onWasHit(event: HitEvent) {
-
-
     let sender = event.sender;
     let hitStatus = event.hitStatus;
     let scoreDelta = 0;
@@ -380,6 +385,7 @@ export class AppComponent implements OnInit {
     } else if (hitStatus == HitStatus.TimeBonusHit) {
       scoreDelta = 10;
       this.timeLeft += 10;
+      this.partyPlayer.play();
       if (this.timeLeft > this.availableTime) {
         this.timeLeft = this.availableTime;
       }
@@ -827,9 +833,8 @@ export class AppComponent implements OnInit {
     this.speed = 1.0;
     this.timeLeft = this.availableTime;
     this.chanceForEnemy = 0.8;
-    this.chanceForTimeBonus = 0.05;
+    this.chanceForTimeBonus = 1.05;
     this.counterpartType = this.calculateCounterpartTypeRandomly();
-
 
     for (let i = 0; i < this.counterparts.length; i++) {
       let c = this.counterparts[i];
