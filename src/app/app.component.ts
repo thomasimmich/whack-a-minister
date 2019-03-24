@@ -800,7 +800,7 @@ export class AppComponent implements OnInit {
       this.cursorSprite.visible = false;
       this.carSprite.interactive = false;
 
-      this.backingTrack.stop();
+      //this.backingTrack.stop();
 
       //PIXI.loader.resources['gameOverTrack'].data.play();
 
