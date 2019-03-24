@@ -70,7 +70,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.23'
+  public readonly version = '0.0.24'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -81,7 +81,8 @@ export class AppComponent implements OnInit {
   private counterpartType: CounterpartTypes;
   public counterparts: Counterpart[];
   private counterpartHiddenTime: number;
-  private backingTrack: any;
+  private backingTrackPlayer: any;
+  private gameOverPlayer: any;
 
   private stillAllowedFailuresCount: number;
   private maxAllowedFailuresCount: number;
@@ -130,7 +131,8 @@ export class AppComponent implements OnInit {
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
     this.availableTime = 2;
-    this.backingTrack = null;
+    this.backingTrackPlayer = null;
+    this.gameOverPlayer = null;
 
     this.maxAllowedFailuresCount = 3;
     this.allowedFailureSlotSprites = [];
@@ -191,24 +193,32 @@ export class AppComponent implements OnInit {
     this.app.stage.addChild(this.progressText);
   }
 
-  loadBackingTrack() {
-    /*
-    this.audio = createPlayer('assets/sounds/scheuertrack1.mp3')
-    this.audio.on('load', () => {
+  setupBackingTrack() { 
+    this.backingTrackPlayer = createPlayer('assets/sounds/scheuertrack1.mp3')
+    this.backingTrackPlayer.on('load', () => {
       console.log('Audio loaded...')
-
       // start playing audio file
-      this.audio.play();
-
+      this.backingTrackPlayer.play();
       // and connect your node somewhere, such as
       // the AudioContext output so the user can hear it!
-      this.audio.node.connect(this.audio.context.destination)
+      this.backingTrackPlayer.node.connect(this.backingTrackPlayer.context.destination)
     })
 
-    this.audio.on('ended', () => {
+    this.backingTrackPlayer.on('ended', () => {
       console.log('Audio ended...')
-    })*/
+    })
 
+    this.gameOverPlayer = createPlayer('assets/sounds/gameover.mp3')
+    this.gameOverPlayer.on('load', () => {
+      console.log('Audio loaded...')
+      // and connect your node somewhere, such as
+      // the AudioContext output so the user can hear it!
+      this.gameOverPlayer.node.connect(this.gameOverPlayer.context.destination)
+    })
+
+    this.gameOverPlayer.on('ended', () => {
+      console.log('Audio ended...')
+    })
   }
 
   onLoadCompleted() {
@@ -685,6 +695,7 @@ export class AppComponent implements OnInit {
 
   setup() {
     this.app.stage.removeChildren();
+    this.setupBackingTrack();
     this.setupLandscape();
     this.setupBackground();
     this.setupGameOver();
@@ -697,8 +708,6 @@ export class AppComponent implements OnInit {
     //this.setupFailuresDisplay();
     this.setupTimerDisplay();
     this.setupGameVariables();
-
-    
   }
 
   onPointerDownOnCar() {
@@ -785,7 +794,9 @@ export class AppComponent implements OnInit {
       this.cursorSprite.visible = false;
       this.carSprite.interactive = false;
 
-      PIXI.loader.resources['gameOverTrack'].data.play();
+      //PIXI.loader.resources['gameOverTrack'].data.play();
+      this.backingTrackPlayer.stop();
+      this.gameOverPlayer.play();
 
       this.goToState(GameStates.GameOverState);
       return;
@@ -828,7 +839,8 @@ export class AppComponent implements OnInit {
     this.restartText.visible = false;
     this.imprintText.visible = false;
  
-    PIXI.loader.resources['backingTrack'].data.play();
+    //PIXI.loader.resources['backingTrack'].data.play();
+    //this.backingTrackPlayer.play();
 
     for (let i = 0; i < 5; i++) {
       this.backgroundSprites[i].position.x = 0;
