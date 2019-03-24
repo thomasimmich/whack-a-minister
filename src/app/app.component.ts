@@ -806,6 +806,9 @@ export class AppComponent implements OnInit {
     PIXI.loader.resources['backingTrack'].data.play();
     
     this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
+    this.app.ticker.stop();
+    this.app.ticker.start();
+
     this.goToState(GameStates.IdleState);
     // for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
     //   this.allowedFailureSlotSprites[i].alpha = 1.0;
