@@ -69,7 +69,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.17'
+  public readonly version = '0.0.18'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -128,7 +128,7 @@ export class AppComponent implements OnInit {
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
-    this.availableTime = 60;
+    this.availableTime = 2;
     this.backingTrack = null;
 
     this.maxAllowedFailuresCount = 3;
@@ -211,6 +211,10 @@ export class AppComponent implements OnInit {
   }
 
   onLoadCompleted() {
+    // avoid duplicate entry
+    if (this.gameState == GameStates.SplashState) {
+      return;
+    }
     this.startScreenSprite.interactive = true;
 
     this.progressText.text = 'START';
@@ -242,6 +246,13 @@ export class AppComponent implements OnInit {
     this.progressText.y = this.app.screen.height / 2;
 
     console.log(`loaded ${resource.url}. Loading is ${loader.progress}% complete.`);
+
+    // this workaround should guarantee that the 
+    // load complete method is called even though
+    // the event is not fired 
+    if (loader.progress >= 100) {
+      this.onLoadCompleted();
+    }
   }
 
   loadFonts() {
@@ -405,10 +416,12 @@ export class AppComponent implements OnInit {
       strokeThickness: 4
     });
     this.restartText = new PIXI.Text(this.gameState, style);
-    this.restartText.text = 'NOCHMAL SPIELEN';
+    this.restartText.text = 'NOCHMAL!';
     this.restartText.position.x = (this.app.screen.width - this.restartText.width) / 2;
     this.restartText.position.y = (this.app.screen.height - this.restartText.height * 4);
     this.restartText.visible = false;
+    this.restartText.on("pointerdown", this.onPointerDownOnRestartText.bind(this));
+
 
     style = new PIXI.TextStyle({
       fontFamily: 'Arial',
@@ -418,7 +431,7 @@ export class AppComponent implements OnInit {
     this.imprintText.text = 'CREDITS';
     this.imprintText.position.x = (this.app.screen.width - this.imprintText.width) / 2;
     this.imprintText.position.y = (this.app.screen.height - this.imprintText.height * 4);
-    this.imprintText.interactive = true;
+    this.imprintText.interactive = false;
     this.imprintText.visible = false;
     this.imprintText.on("pointerdown", this.onPointerDownOnImprintText.bind(this));
 
@@ -427,22 +440,23 @@ export class AppComponent implements OnInit {
     this.gameOverContainer.addChild(gameOverText);
     this.gameOverContainer.addChild(this.restartText);
     this.gameOverContainer.addChild(this.imprintText);
-
-    this.gameOverContainer.interactive = false;
     this.gameOverContainer.visible = false;
-    this.gameOverContainer.on("pointerdown", this.onPointerDownOnGameOverScreen.bind(this));
-
+    
     this.app.stage.addChild(this.gameOverContainer);
   }
 
   onPointerDownOnImprintText() {
-    window.open("https://www.scheuerdenscheuer.de/assets/docs/imprint.html", "_blank");
+    window.open("http://scheuerdenscheuer.de/assets/docs/imprint.html", "_blank");
   }
 
-  onPointerDownOnGameOverScreen() {
-    this.initGameVariables();
+  onPointerDownOnRestartText() {
     this.gameOverContainer.visible = false;
-    this.gameOverContainer.interactive = false;
+    this.restartText.interactive = false;
+    this.imprintText.interactive = false;
+
+    console.log(this);
+
+    this.initGameVariables();
     this.goToState(GameStates.IdleState);
   }
 
@@ -701,8 +715,10 @@ export class AppComponent implements OnInit {
       case GameStates.GameOverState: {
         if (this.stateTime > 100) {
           this.restartText.visible = true;
+          this.restartText.interactive = true;
+
           this.imprintText.visible = true;
-          this.gameOverContainer.interactive = true;
+          this.imprintText.interactive = true;
         }
       } break;
     }
@@ -786,6 +802,7 @@ export class AppComponent implements OnInit {
     }
     this.carSprite.interactive = true;
     this.restartText.visible = false;
+    this.imprintText.visible = false;
  
     PIXI.loader.resources['backingTrack'].data.play();
     
