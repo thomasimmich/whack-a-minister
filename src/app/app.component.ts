@@ -70,7 +70,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.24'
+  public readonly version = '0.0.26'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -206,17 +206,17 @@ export class AppComponent implements OnInit {
   //     console.log('Audio ended...')
   //   })
 
-    this.gameOverPlayer = createPlayer('assets/sounds/gameover.mp3')
-    this.gameOverPlayer.on('load', () => {
-      console.log('Audio loaded...')
-      // and connect your node somewhere, such as
-      // the AudioContext output so the user can hear it!
-      this.gameOverPlayer.node.connect(this.gameOverPlayer.context.destination)
-    })
+    // this.gameOverPlayer = createPlayer('assets/sounds/gameover.mp3')
+    // this.gameOverPlayer.on('load', () => {
+    //   console.log('Audio loaded...')
+    //   // and connect your node somewhere, such as
+    //   // the AudioContext output so the user can hear it!
+    //   this.gameOverPlayer.node.connect(this.gameOverPlayer.context.destination)
+    // })
 
-    this.gameOverPlayer.on('ended', () => {
-      console.log('Audio ended...')
-    })
+    // this.gameOverPlayer.on('ended', () => {
+    //   console.log('Audio ended...')
+    // })
 
     this.timeBonusPlayer = createPlayer('assets/sounds/party.mp3')
     this.timeBonusPlayer.on('load', () => {
@@ -796,9 +796,12 @@ export class AppComponent implements OnInit {
       this.cursorSprite.visible = false;
       this.carSprite.interactive = false;
 
-      PIXI.loader.resources['backingTrack'].data.stop();
+      let backingSound = PIXI.loader.resources['backingTrack'].data as Sound;
+      
+      //PIXI.loader.resources['backingTrack'].data.stop();
+      PIXI.loader.resources['gameOverTrack'].data.play();
       //this.backingTrackPlayer.stop();
-      this.gameOverPlayer.play();
+      //this.gameOverPlayer.play();
 
       this.goToState(GameStates.GameOverState);
       return;
