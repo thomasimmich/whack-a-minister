@@ -147,10 +147,11 @@ export class Counterpart {
             }
 
             if (this.isStateFinished()) {
-                if (this.type == CounterpartTypes.TimeBonusCounterpart) {
-                    let sound = PIXI.loader.resources['timeBonusJingle'].data;
-                    sound.play();
-                }
+                // This sound does not play on Safari for iOS ...
+                // if (this.type == CounterpartTypes.TimeBonusCounterpart) {
+                //     let sound = PIXI.loader.resources['timeBonusJingle'].data;
+                //     sound.play();
+                // }
                 this.punchCoronaSprite.visible = false;
                 this.goToState(CounterpartStates.HidingHitState);
             }

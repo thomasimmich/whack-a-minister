@@ -8,6 +8,7 @@ import createPlayer from 'web-audio-player';
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
 
 enum GameStates {
+  LoadingState = 'Loading',
   SplashState = 'Splash',
   IdleState = 'Idle',
   HittingState = 'Hitting',
@@ -69,7 +70,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.23'
+  public readonly version = '0.0.24'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -80,7 +81,9 @@ export class AppComponent implements OnInit {
   private counterpartType: CounterpartTypes;
   public counterparts: Counterpart[];
   private counterpartHiddenTime: number;
-  private backingTrack: any;
+  private backingTrackPlayer: any;
+  private gameOverPlayer: any;
+  private timeBonusPlayer: any;
 
   private stillAllowedFailuresCount: number;
   private maxAllowedFailuresCount: number;
@@ -129,12 +132,14 @@ export class AppComponent implements OnInit {
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
     this.availableTime = 60;
-    this.backingTrack = null;
+    this.backingTrackPlayer = null;
+    this.gameOverPlayer = null;
 
     this.maxAllowedFailuresCount = 3;
     this.allowedFailureSlotSprites = [];
     this.backgroundSprites = [];
     this.counterparts = [];
+    this.gameState = GameStates.LoadingState;
 
     const parent = this.pixiContainer.nativeElement;
     this.app = new PIXI.Application({
@@ -179,47 +184,66 @@ export class AppComponent implements OnInit {
     this.startScreenSprite.y = this.app.renderer.view.height / 2;
     this.startScreenSprite.interactive = false;
 
-    this.startScreenSprite.on("pointerdown", this.onStart.bind(this));
-
-
+    // this.startScreenSprite.on("pointerdown", this.onStart.bind(this));
     this.app.stage.addChild(this.startScreenSprite);
-
 
     this.progressText.style = this.textStyle;
     this.app.stage.addChild(this.progressText);
-       
   }
 
-  loadBackingTrack() {
-    /*
-    this.audio = createPlayer('assets/sounds/scheuertrack1.mp3')
-    this.audio.on('load', () => {
+  setupAlternativeAudio() { 
+  //   this.backingTrackPlayer = createPlayer('assets/sounds/scheuertrack1.mp3')
+  //   this.backingTrackPlayer.on('load', () => {
+  //     console.log('Audio loaded...')
+  //     // start playing audio file
+  //     //this.backingTrackPlayer.play();
+  //     // and connect your node somewhere, such as
+  //     // the AudioContext output so the user can hear it!
+  //     this.backingTrackPlayer.node.connect(this.backingTrackPlayer.context.destination)
+  //   })
+
+  //   this.backingTrackPlayer.on('ended', () => {
+  //     console.log('Audio ended...')
+  //   })
+
+    this.gameOverPlayer = createPlayer('assets/sounds/gameover.mp3')
+    this.gameOverPlayer.on('load', () => {
       console.log('Audio loaded...')
-
-      // start playing audio file
-      this.audio.play();
-
       // and connect your node somewhere, such as
       // the AudioContext output so the user can hear it!
-      this.audio.node.connect(this.audio.context.destination)
+      this.gameOverPlayer.node.connect(this.gameOverPlayer.context.destination)
     })
 
-    this.audio.on('ended', () => {
+    this.gameOverPlayer.on('ended', () => {
       console.log('Audio ended...')
-    })*/
+    })
 
+    this.timeBonusPlayer = createPlayer('assets/sounds/party.mp3')
+    this.timeBonusPlayer.on('load', () => {
+      console.log('Audio loaded...')
+      // and connect your node somewhere, such as
+      // the AudioContext output so the user can hear it!
+      this.timeBonusPlayer.node.connect(this.timeBonusPlayer.context.destination)
+    })
+
+    this.timeBonusPlayer.on('ended', () => {
+      console.log('Audio ended...')
+    })    
   }
 
   onLoadCompleted() {
     // avoid duplicate entry
-    if (this.gameState == GameStates.SplashState) {
+    if (this.gameState == GameStates.SplashState || this.gameState == GameStates.IdleState) {
       return;
     }
     this.startScreenSprite.interactive = true;
 
-    this.progressText.text = 'START';
+    this.progressText.text = 'FERTIG';
     this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
-    this.goToState(GameStates.SplashState);
+   // this.goToState(GameStates.SplashState);
+
+    // start right away ...
+    this.onStart();      
   }
 
   onStart() {
@@ -234,8 +258,6 @@ export class AppComponent implements OnInit {
   }
 
   onProgress(loader, resource) {
-
-
     if (resource.name == 'startScreenImage') {
       this.showStartScreen();
     }
@@ -348,8 +370,6 @@ export class AppComponent implements OnInit {
   }
 
   onWasHit(event: HitEvent) {
-
-
     let sender = event.sender;
     let hitStatus = event.hitStatus;
     let scoreDelta = 0;
@@ -365,6 +385,7 @@ export class AppComponent implements OnInit {
     } else if (hitStatus == HitStatus.TimeBonusHit) {
       scoreDelta = 10;
       this.timeLeft += 10;
+      this.timeBonusPlayer.play();
       if (this.timeLeft > this.availableTime) {
         this.timeLeft = this.availableTime;
       }
@@ -402,7 +423,7 @@ export class AppComponent implements OnInit {
     shield.alpha = 0.5;
 
     let gameOverText = new PIXI.Text(this.gameState, textStyle);
-    gameOverText.text = 'GAME OVER';
+    gameOverText.text = 'ZEIT UM!';
     gameOverText.position.x = (this.app.screen.width - gameOverText.width) / 2;
     gameOverText.position.y = (this.app.screen.height - gameOverText.height) / 2;
 
@@ -415,7 +436,7 @@ export class AppComponent implements OnInit {
       strokeThickness: 4
     });
     this.restartText = new PIXI.Text(this.gameState, style);
-    this.restartText.text = 'NOCHMAL!';
+    this.restartText.text = 'NOCHMAL';
     this.restartText.position.x = (this.app.screen.width - this.restartText.width) / 2;
     this.restartText.position.y = (this.app.screen.height - this.restartText.height * 4);
     this.restartText.visible = false;
@@ -460,20 +481,23 @@ export class AppComponent implements OnInit {
     a.dispatchEvent(e);
   };
   
-
   onPointerDownOnImprintText() {
-    window.location.assign('http://www.scheuerdenscheuer.de/assets/docs/imprint.html');
+    window.location.assign('./assets/docs/imprint.html');
   }
 
   onPointerDownOnRestartText() {
-    this.gameOverContainer.visible = false;
-    this.restartText.interactive = false;
-    this.imprintText.interactive = false;
+    // due to a bug that could not be resolved (on mobile phones, the second
+    // round after restart appears to be at slower frame rate), we reload the
+    // entire game
+    window.location.assign('.');
+    // this.gameOverContainer.visible = false;
+    // this.restartText.interactive = false;
+    // this.imprintText.interactive = false;
 
-    console.log(this);
+    // console.log(this);
 
-    this.initGameVariables();
-    this.goToState(GameStates.IdleState);
+    // this.initGameVariables();
+    // this.goToState(GameStates.IdleState);
   }
 
   setupBackground() {
@@ -677,6 +701,7 @@ export class AppComponent implements OnInit {
 
   setup() {
     this.app.stage.removeChildren();
+    this.setupAlternativeAudio();
     this.setupLandscape();
     this.setupBackground();
     this.setupGameOver();
@@ -689,8 +714,6 @@ export class AppComponent implements OnInit {
     //this.setupFailuresDisplay();
     this.setupTimerDisplay();
     this.setupGameVariables();
-
-    
   }
 
   onPointerDownOnCar() {
@@ -744,10 +767,6 @@ export class AppComponent implements OnInit {
       this.updateRide(delta);
       this.updateTimerProgress(delta);
     }
-
-
-
-
     // if (this.score <= 0) {
     //   this.landscape.alpha = 0.5;
     //   this.goToState(GameStates.GameOverState);
@@ -777,7 +796,9 @@ export class AppComponent implements OnInit {
       this.cursorSprite.visible = false;
       this.carSprite.interactive = false;
 
-      PIXI.loader.resources['gameOverTrack'].data.play();
+      PIXI.loader.resources['backingTrack'].data.stop();
+      //this.backingTrackPlayer.stop();
+      this.gameOverPlayer.play();
 
       this.goToState(GameStates.GameOverState);
       return;
@@ -811,7 +832,6 @@ export class AppComponent implements OnInit {
     this.chanceForTimeBonus = 0.05;
     this.counterpartType = this.calculateCounterpartTypeRandomly();
 
-
     for (let i = 0; i < this.counterparts.length; i++) {
       let c = this.counterparts[i];
       c.container.visible = true;
@@ -821,6 +841,7 @@ export class AppComponent implements OnInit {
     this.imprintText.visible = false;
  
     PIXI.loader.resources['backingTrack'].data.play();
+    //this.backingTrackPlayer.play();
 
     for (let i = 0; i < 5; i++) {
       this.backgroundSprites[i].position.x = 0;
