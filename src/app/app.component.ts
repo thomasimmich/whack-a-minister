@@ -69,7 +69,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.19'
+  public readonly version = '0.0.20'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -128,7 +128,7 @@ export class AppComponent implements OnInit {
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
-    this.availableTime = 60;
+    this.availableTime = 2;
     this.backingTrack = null;
 
     this.maxAllowedFailuresCount = 3;
@@ -424,7 +424,11 @@ export class AppComponent implements OnInit {
 
     style = new PIXI.TextStyle({
       fontFamily: 'Arial',
-      fontSize: 20
+      fontSize: 20,
+      fontWeight: 'bold',
+      fill: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 4
     });
     this.imprintText = new PIXI.Text(this.gameState, style);
     this.imprintText.text = 'CREDITS';
