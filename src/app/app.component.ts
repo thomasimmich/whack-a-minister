@@ -69,7 +69,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.20'
+  public readonly version = '0.0.21'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -128,7 +128,7 @@ export class AppComponent implements OnInit {
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
-    this.availableTime = 2;
+    this.availableTime = 60;
     this.backingTrack = null;
 
     this.maxAllowedFailuresCount = 3;
