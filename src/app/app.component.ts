@@ -795,8 +795,6 @@ export class AppComponent implements OnInit {
       }
       this.cursorSprite.visible = false;
       this.carSprite.interactive = false;
-
-      let backingSound = PIXI.loader.resources['backingTrack'].data as Sound;
       
       //PIXI.loader.resources['backingTrack'].data.stop();
       PIXI.loader.resources['gameOverTrack'].data.play();
