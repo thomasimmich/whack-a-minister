@@ -190,8 +190,9 @@ export class Counterpart {
         this.scoreText.scale.y = 0;
     }
 
-    setSpeed(speed: number) {
-        this.waitingTime = 200 - (speed * 2);
+    setTimeLeft(timeLeft: number) {
+        console.log(timeLeft);
+        this.waitingTime = 5 + timeLeft * 2;
     }
 
     onPointerDown() {

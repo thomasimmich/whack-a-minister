@@ -71,7 +71,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.24'
+  public readonly version = '0.0.25'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -808,7 +808,7 @@ export class AppComponent implements OnInit {
     this.speed = (this.availableTime / this.timeLeft);
 
     for (let i = 0; i < this.counterparts.length; i++) {
-      this.counterparts[i].setSpeed(this.speed);
+      this.counterparts[i].setTimeLeft(this.timeLeft);
     }
     //this.stateText.text = this.speed.toString();
 
