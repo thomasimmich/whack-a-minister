@@ -69,7 +69,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.15'
+  public readonly version = '0.0.16'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -177,7 +177,7 @@ export class AppComponent implements OnInit {
     this.startScreenSprite.scale.y *= scaleFactor;
     this.startScreenSprite.x = this.app.renderer.view.width / 2;
     this.startScreenSprite.y = this.app.renderer.view.height / 2;
-    this.startScreenSprite.interactive = true;
+    this.startScreenSprite.interactive = false;
 
     this.startScreenSprite.on("pointerdown", this.onStart.bind(this));
 
@@ -206,6 +206,8 @@ export class AppComponent implements OnInit {
   }
 
   onLoadCompleted() {
+    this.startScreenSprite.interactive = true;
+
     this.progressText.style = this.textStyle;
     this.progressText.text = 'START';
 
@@ -392,8 +394,16 @@ export class AppComponent implements OnInit {
     gameOverText.position.x = (this.app.screen.width - gameOverText.width) / 2;
     gameOverText.position.y = (this.app.screen.height - gameOverText.height) / 2;
 
-    this.restartText = new PIXI.Text(this.gameState);
-    this.restartText.text = 'PRESS TO RESTART';
+    let style = new PIXI.TextStyle({
+      fontFamily: 'Arial',
+      fontSize: 36,
+      fontWeight: 'bold',
+      fill: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 4
+    });
+    this.restartText = new PIXI.Text(this.gameState, style);
+    this.restartText.text = 'NOCHMAL SPIELEN';
     this.restartText.position.x = (this.app.screen.width - this.restartText.width) / 2;
     this.restartText.position.y = (this.app.screen.height - this.restartText.height * 4);
     this.restartText.visible = false;
@@ -616,7 +626,7 @@ export class AppComponent implements OnInit {
   }
 
   setup() {
-
+    this.app.stage.removeChildren();
     this.setupLandscape();
     this.setupBackground();
     this.setupGameOver();
@@ -669,7 +679,7 @@ export class AppComponent implements OnInit {
         }
       } break;
       case GameStates.GameOverState: {
-        if (this.stateTime > 200) {
+        if (this.stateTime > 100) {
           this.restartText.visible = true;
           this.gameOverContainer.interactive = true;
         }
