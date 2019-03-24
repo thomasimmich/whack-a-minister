@@ -130,7 +130,7 @@ export class AppComponent implements OnInit {
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
-    this.availableTime = 2;
+    this.availableTime = 60;
     this.backingTrack = null;
 
     this.maxAllowedFailuresCount = 3;
