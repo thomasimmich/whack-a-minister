@@ -1,3 +1,23 @@
+Skip to content
+ 
+Search or jump to…
+
+Pull requests
+Issues
+Marketplace
+Explore
+ 
+@thomasimmich Sign out
+1
+0 0 thomasimmich/whack-a-minister
+ Code  Issues 0  Pull requests 0  Projects 0  Wiki  Insights  Settings
+whack-a-minister/src/app/app.component.ts
+@thomasimmich thomasimmich Added reload for restart
+46eb58b 2 hours ago
+@thomasimmich
+@autemox
+901 lines (729 sloc)  27.1 KB
+    
 import { Counterpart, CounterpartTypes, HitEvent, HitStatus } from './counterpart.class';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sprite, Application, Sound, Text, Point, Container, Graphics, TextStyle } from 'pixi.js';
@@ -70,7 +90,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.27'
+  public readonly version = '0.0.23'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -81,9 +101,7 @@ export class AppComponent implements OnInit {
   private counterpartType: CounterpartTypes;
   public counterparts: Counterpart[];
   private counterpartHiddenTime: number;
-  private backingTrackPlayer: any;
-  private gameOverPlayer: any;
-  private timeBonusPlayer: any;
+  private backingTrack: any;
 
   private stillAllowedFailuresCount: number;
   private maxAllowedFailuresCount: number;
@@ -131,9 +149,8 @@ export class AppComponent implements OnInit {
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
-    this.availableTime = 60;
-    this.backingTrackPlayer = null;
-    this.gameOverPlayer = null;
+    this.availableTime = 2;
+    this.backingTrack = null;
 
     this.maxAllowedFailuresCount = 3;
     this.allowedFailureSlotSprites = [];
@@ -185,50 +202,30 @@ export class AppComponent implements OnInit {
     this.startScreenSprite.interactive = false;
 
     // this.startScreenSprite.on("pointerdown", this.onStart.bind(this));
+
+
     this.app.stage.addChild(this.startScreenSprite);
+
 
     this.progressText.style = this.textStyle;
     this.app.stage.addChild(this.progressText);
   }
 
-  setupAlternativeAudio() { 
-  //   this.backingTrackPlayer = createPlayer('assets/sounds/scheuertrack1.mp3')
-  //   this.backingTrackPlayer.on('load', () => {
-  //     console.log('Audio loaded...')
-  //     // start playing audio file
-  //     //this.backingTrackPlayer.play();
-  //     // and connect your node somewhere, such as
-  //     // the AudioContext output so the user can hear it!
-  //     this.backingTrackPlayer.node.connect(this.backingTrackPlayer.context.destination)
-  //   })
-
-  //   this.backingTrackPlayer.on('ended', () => {
-  //     console.log('Audio ended...')
-  //   })
-
-    // this.gameOverPlayer = createPlayer('assets/sounds/gameover.mp3')
-    // this.gameOverPlayer.on('load', () => {
-    //   console.log('Audio loaded...')
-    //   // and connect your node somewhere, such as
-    //   // the AudioContext output so the user can hear it!
-    //   this.gameOverPlayer.node.connect(this.gameOverPlayer.context.destination)
-    // })
-
-    // this.gameOverPlayer.on('ended', () => {
-    //   console.log('Audio ended...')
-    // })
-
-    this.timeBonusPlayer = createPlayer('assets/sounds/party.mp3')
-    this.timeBonusPlayer.on('load', () => {
+  loadBackingTrack() {
+    /*
+    this.audio = createPlayer('assets/sounds/scheuertrack1.mp3')
+    this.audio.on('load', () => {
       console.log('Audio loaded...')
+      // start playing audio file
+      this.audio.play();
       // and connect your node somewhere, such as
       // the AudioContext output so the user can hear it!
-      this.timeBonusPlayer.node.connect(this.timeBonusPlayer.context.destination)
+      this.audio.node.connect(this.audio.context.destination)
     })
-
-    this.timeBonusPlayer.on('ended', () => {
+    this.audio.on('ended', () => {
       console.log('Audio ended...')
-    })    
+    })*/
+
   }
 
   onLoadCompleted() {
@@ -241,6 +238,7 @@ export class AppComponent implements OnInit {
     this.progressText.text = 'FERTIG';
     this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
    // this.goToState(GameStates.SplashState);
+
 
     // start right away ...
     this.onStart();      
@@ -258,6 +256,8 @@ export class AppComponent implements OnInit {
   }
 
   onProgress(loader, resource) {
+
+
     if (resource.name == 'startScreenImage') {
       this.showStartScreen();
     }
@@ -370,6 +370,8 @@ export class AppComponent implements OnInit {
   }
 
   onWasHit(event: HitEvent) {
+
+
     let sender = event.sender;
     let hitStatus = event.hitStatus;
     let scoreDelta = 0;
@@ -385,7 +387,6 @@ export class AppComponent implements OnInit {
     } else if (hitStatus == HitStatus.TimeBonusHit) {
       scoreDelta = 10;
       this.timeLeft += 10;
-      this.timeBonusPlayer.play();
       if (this.timeLeft > this.availableTime) {
         this.timeLeft = this.availableTime;
       }
@@ -701,7 +702,6 @@ export class AppComponent implements OnInit {
 
   setup() {
     this.app.stage.removeChildren();
-    this.setupAlternativeAudio();
     this.setupLandscape();
     this.setupBackground();
     this.setupGameOver();
@@ -714,6 +714,8 @@ export class AppComponent implements OnInit {
     //this.setupFailuresDisplay();
     this.setupTimerDisplay();
     this.setupGameVariables();
+
+    
   }
 
   onPointerDownOnCar() {
@@ -767,6 +769,10 @@ export class AppComponent implements OnInit {
       this.updateRide(delta);
       this.updateTimerProgress(delta);
     }
+
+
+
+
     // if (this.score <= 0) {
     //   this.landscape.alpha = 0.5;
     //   this.goToState(GameStates.GameOverState);
@@ -795,11 +801,8 @@ export class AppComponent implements OnInit {
       }
       this.cursorSprite.visible = false;
       this.carSprite.interactive = false;
-      
-      //PIXI.loader.resources['backingTrack'].data.stop();
+
       PIXI.loader.resources['gameOverTrack'].data.play();
-      //this.backingTrackPlayer.stop();
-      //this.gameOverPlayer.play();
 
       this.goToState(GameStates.GameOverState);
       return;
@@ -833,6 +836,7 @@ export class AppComponent implements OnInit {
     this.chanceForTimeBonus = 0.05;
     this.counterpartType = this.calculateCounterpartTypeRandomly();
 
+
     for (let i = 0; i < this.counterparts.length; i++) {
       let c = this.counterparts[i];
       c.container.visible = true;
@@ -842,7 +846,6 @@ export class AppComponent implements OnInit {
     this.imprintText.visible = false;
  
     PIXI.loader.resources['backingTrack'].data.play();
-    //this.backingTrackPlayer.play();
 
     for (let i = 0; i < 5; i++) {
       this.backgroundSprites[i].position.x = 0;
