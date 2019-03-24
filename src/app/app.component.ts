@@ -69,7 +69,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.21'
+  public readonly version = '0.0.22'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
