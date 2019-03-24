@@ -69,7 +69,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.16'
+  public readonly version = '0.0.17'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -88,6 +88,7 @@ export class AppComponent implements OnInit {
   private needleSprite: Sprite;
   private gameOverContainer: Container;
   private restartText: Text;
+  private imprintText: Text;
 
   private score: number;
   private scoreRoll: number;
@@ -122,12 +123,12 @@ export class AppComponent implements OnInit {
   private counterpartVisibleDuration: number;
 
   ngOnInit() {
-
+    
     // reference width is taken from iPad Pro Retina
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
-    this.availableTime = 60;
+    this.availableTime =2;
     this.backingTrack = null;
 
     this.maxAllowedFailuresCount = 3;
@@ -408,15 +409,33 @@ export class AppComponent implements OnInit {
     this.restartText.position.y = (this.app.screen.height - this.restartText.height * 4);
     this.restartText.visible = false;
 
+    style = new PIXI.TextStyle({
+      fontFamily: 'Arial',
+      fontSize: 20
+    });
+    this.imprintText = new PIXI.Text(this.gameState, style);
+    this.imprintText.text = 'CREDITS';
+    this.imprintText.position.x = (this.app.screen.width - this.imprintText.width) / 2;
+    this.imprintText.position.y = (this.app.screen.height - this.imprintText.height * 4);
+    this.imprintText.interactive = true;
+    this.imprintText.visible = false;
+    this.imprintText.on("pointerdown", this.onPointerDownOnImprintText.bind(this));
+
+
     this.gameOverContainer.addChild(shield);
     this.gameOverContainer.addChild(gameOverText);
     this.gameOverContainer.addChild(this.restartText);
+    this.gameOverContainer.addChild(this.imprintText);
 
     this.gameOverContainer.interactive = false;
     this.gameOverContainer.visible = false;
     this.gameOverContainer.on("pointerdown", this.onPointerDownOnGameOverScreen.bind(this));
 
     this.app.stage.addChild(this.gameOverContainer);
+  }
+
+  onPointerDownOnImprintText() {
+    window.open("https://www.scheuerdenscheuer.de/imprint.md", "_blank");
   }
 
   onPointerDownOnGameOverScreen() {
@@ -681,6 +700,7 @@ export class AppComponent implements OnInit {
       case GameStates.GameOverState: {
         if (this.stateTime > 100) {
           this.restartText.visible = true;
+          this.imprintText.visible = true;
           this.gameOverContainer.interactive = true;
         }
       } break;
