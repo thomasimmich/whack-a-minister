@@ -448,8 +448,21 @@ export class AppComponent implements OnInit {
     this.app.stage.addChild(this.gameOverContainer);
   }
 
+  openTab(url) {
+    // Create link in memory
+    var a = window.document.createElement("a");
+    a.target = '_blank';
+    a.href = url;
+  
+    // Dispatch fake click
+    var e = window.document.createEvent("MouseEvents");
+    e.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+    a.dispatchEvent(e);
+  };
+  
+
   onPointerDownOnImprintText() {
-    window.open("http://www.scheuerdenscheuer.de/assets/docs/imprint.html", "_blank");
+    this.openTab('http://www.scheuerdenscheuer.de/assets/docs/imprint.html');
   }
 
   onPointerDownOnRestartText() {
