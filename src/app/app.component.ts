@@ -150,7 +150,6 @@ export class AppComponent implements OnInit {
 
     this.loadFonts();
 
-    this.progressText = new PIXI.Text();
     this.stateText = new PIXI.Text(this.gameState);
 
 
@@ -184,6 +183,11 @@ export class AppComponent implements OnInit {
 
 
     this.app.stage.addChild(this.startScreenSprite);
+
+    this.progressText = new PIXI.Text();
+    this.progressText.style = this.textStyle;
+    this.app.stage.addChild(this.progressText);
+       
   }
 
   loadBackingTrack() {
@@ -209,13 +213,8 @@ export class AppComponent implements OnInit {
   onLoadCompleted() {
     this.startScreenSprite.interactive = true;
 
-    this.progressText.style = this.textStyle;
     this.progressText.text = 'START';
-
     this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
-    this.progressText.y = this.startScreenSprite.y + this.startScreenSprite.height / 2 - this.progressText.height;
-
-    this.app.stage.addChild(this.progressText);
     this.goToState(GameStates.SplashState);
   }
 
@@ -231,11 +230,13 @@ export class AppComponent implements OnInit {
   }
 
   onProgress(loader, resource) {
+
+
     if (resource.name == 'startScreenImage') {
       this.showStartScreen();
     }
 
-    this.progressText.text = 'Loading ' + Math.round(loader.progress.toString()) + '%';
+    this.progressText.text = 'Lade ' + Math.round(loader.progress.toString()) + '%';
 
     this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
     this.progressText.y = this.app.screen.height / 2;
