@@ -385,6 +385,11 @@ export class AppComponent implements OnInit {
     } else if (hitStatus == HitStatus.TimeBonusHit) {
       scoreDelta = 10;
       this.timeLeft += 10;
+
+      if (this.timeBonusPlayer == null) {
+        this.setupAlternativeAudio();
+      }
+
       this.timeBonusPlayer.play();
       if (this.timeLeft > this.availableTime) {
         this.timeLeft = this.availableTime;
@@ -701,7 +706,7 @@ export class AppComponent implements OnInit {
 
   setup() {
     this.app.stage.removeChildren();
-    this.setupAlternativeAudio();
+    //this.setupAlternativeAudio();
     this.setupLandscape();
     this.setupBackground();
     this.setupGameOver();
