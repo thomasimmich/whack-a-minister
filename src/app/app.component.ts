@@ -69,7 +69,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.18'
+  public readonly version = '0.0.19'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -128,7 +128,7 @@ export class AppComponent implements OnInit {
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
-    this.availableTime = 2;
+    this.availableTime = 60;
     this.backingTrack = null;
 
     this.maxAllowedFailuresCount = 3;
@@ -226,10 +226,10 @@ export class AppComponent implements OnInit {
     this.startScreenSprite.visible = false;
     this.startScreenSprite.interactive = false;
     this.setup();
+    this.app.ticker.add(this.update.bind(this));
   }
 
   onLoad(loader, resources) {
-
     //this.setup();
   }
 
@@ -445,7 +445,7 @@ export class AppComponent implements OnInit {
   }
 
   onPointerDownOnImprintText() {
-    window.open("http://scheuerdenscheuer.de/assets/docs/imprint.html", "_blank");
+    window.open("http://www.scheuerdenscheuer.de/assets/docs/imprint.html", "_blank");
   }
 
   onPointerDownOnRestartText() {
@@ -673,7 +673,7 @@ export class AppComponent implements OnInit {
     this.setupTimerDisplay();
     this.setupGameVariables();
 
-    this.app.ticker.add(this.update.bind(this));
+    
   }
 
   onPointerDownOnCar() {
