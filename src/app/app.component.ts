@@ -1,23 +1,3 @@
-Skip to content
- 
-Search or jump to…
-
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@thomasimmich Sign out
-1
-0 0 thomasimmich/whack-a-minister
- Code  Issues 0  Pull requests 0  Projects 0  Wiki  Insights  Settings
-whack-a-minister/src/app/app.component.ts
-@thomasimmich thomasimmich Added reload for restart
-46eb58b 2 hours ago
-@thomasimmich
-@autemox
-901 lines (729 sloc)  27.1 KB
-    
 import { Counterpart, CounterpartTypes, HitEvent, HitStatus } from './counterpart.class';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sprite, Application, Sound, Text, Point, Container, Graphics, TextStyle } from 'pixi.js';
@@ -90,7 +70,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.23'
+  public readonly version = '0.0.24'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -149,7 +129,7 @@ export class AppComponent implements OnInit {
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
-    this.availableTime = 2;
+    this.availableTime = 60;
     this.backingTrack = null;
 
     this.maxAllowedFailuresCount = 3;
@@ -216,12 +196,15 @@ export class AppComponent implements OnInit {
     this.audio = createPlayer('assets/sounds/scheuertrack1.mp3')
     this.audio.on('load', () => {
       console.log('Audio loaded...')
+
       // start playing audio file
       this.audio.play();
+
       // and connect your node somewhere, such as
       // the AudioContext output so the user can hear it!
       this.audio.node.connect(this.audio.context.destination)
     })
+
     this.audio.on('ended', () => {
       console.log('Audio ended...')
     })*/
