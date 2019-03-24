@@ -12,6 +12,7 @@ enum GameStates {
   SplashState = 'Splash',
   IdleState = 'Idle',
   HittingState = 'Hitting',
+  TimeBonusState = 'Time Bonus',
   GameOverState = 'Game Over'
 };
 
@@ -370,9 +371,11 @@ export class AppComponent implements OnInit {
     } else if (hitStatus == HitStatus.TimeBonusHit) {
       scoreDelta = 10;
       this.timeLeft += 10;
+      
       if (this.timeLeft > this.availableTime) {
         this.timeLeft = this.availableTime;
       }
+      this.goToState(GameStates.TimeBonusState);
     } else {
       this.scoreRoll = 0;
     }
@@ -736,6 +739,15 @@ export class AppComponent implements OnInit {
           this.goToState(GameStates.IdleState);
         }
       } break;
+
+      case GameStates.TimeBonusState: {
+        if (this.stateTime > 10) {
+          let sound = PIXI.loader.resources['timeBonusJingle'].data;
+          sound.play();
+          this.goToState(GameStates.IdleState);
+        }
+      } break;
+
       case GameStates.GameOverState: {
         if (this.stateTime > 100) {
           this.restartText.visible = true;
@@ -745,6 +757,8 @@ export class AppComponent implements OnInit {
           this.imprintText.interactive = true;
         }
       } break;
+
+
     }
     //this.enemy.rotation += 0.1 * delta;
 
@@ -818,7 +832,6 @@ export class AppComponent implements OnInit {
     this.chanceForEnemy = 0.8;
     this.chanceForTimeBonus = 0.05;
     this.counterpartType = this.calculateCounterpartTypeRandomly();
-
 
     for (let i = 0; i < this.counterparts.length; i++) {
       let c = this.counterparts[i];
