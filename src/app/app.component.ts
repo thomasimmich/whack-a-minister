@@ -71,7 +71,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.25'
+  public readonly version = '0.0.27'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -130,7 +130,7 @@ export class AppComponent implements OnInit {
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
-    this.availableTime = 60;
+    this.availableTime = 2;
     this.backingTrack = null;
 
     this.maxAllowedFailuresCount = 3;
@@ -166,7 +166,6 @@ export class AppComponent implements OnInit {
     PIXI.loader.on('complete', this.onLoadCompleted.bind(this));
 
     PIXI.loader.load(this.onLoad.bind(this));
-
   }
 
   showStartScreen() {
@@ -182,7 +181,7 @@ export class AppComponent implements OnInit {
     this.startScreenSprite.y = this.app.renderer.view.height / 2;
     this.startScreenSprite.interactive = false;
 
-    // this.startScreenSprite.on("pointerdown", this.onStart.bind(this));
+    this.startScreenSprite.on("pointerdown", this.onStart.bind(this));
 
 
     this.app.stage.addChild(this.startScreenSprite);
@@ -192,43 +191,45 @@ export class AppComponent implements OnInit {
     this.app.stage.addChild(this.progressText);
   }
 
-  loadBackingTrack() {
-    /*
-    this.audio = createPlayer('assets/sounds/scheuertrack1.mp3')
-    this.audio.on('load', () => {
+  setupBackingTrack() {
+    
+    this.backingTrack = createPlayer('assets/sounds/scheuertrack1.mp3')
+
+    this.backingTrack.on('load', () => {
       console.log('Audio loaded...')
 
       // start playing audio file
-      this.audio.play();
+      this.backingTrack.play();
 
       // and connect your node somewhere, such as
       // the AudioContext output so the user can hear it!
-      this.audio.node.connect(this.audio.context.destination)
+      this.backingTrack.node.connect(this.backingTrack.context.destination)
     })
 
-    this.audio.on('ended', () => {
+    this.backingTrack.on('ended', () => {
       console.log('Audio ended...')
-    })*/
+    });
 
   }
 
   onLoadCompleted() {
+
     // avoid duplicate entry
     if (this.gameState == GameStates.SplashState || this.gameState == GameStates.IdleState) {
       return;
     }
     this.startScreenSprite.interactive = true;
 
-    this.progressText.text = 'FERTIG';
+    this.progressText.text = 'START';
     this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
    // this.goToState(GameStates.SplashState);
+    //PIXI.loader.resources['backingTrack'].data.play();
 
-
-    // start right away ...
-    this.onStart();      
   }
 
   onStart() {
+    //PIXI.loader.resources['backingTrack'].data.play();
+    
     this.startScreenSprite.visible = false;
     this.startScreenSprite.interactive = false;
     this.setup();
@@ -688,6 +689,7 @@ export class AppComponent implements OnInit {
 
   setup() {
     this.app.stage.removeChildren();
+    this.setupBackingTrack();
     this.setupLandscape();
     this.setupBackground();
     this.setupGameOver();
@@ -724,7 +726,6 @@ export class AppComponent implements OnInit {
     switch (this.gameState) {
  
       case GameStates.IdleState: {
-
       } break;
       case GameStates.HittingState: {
         if (this.stateTime < 5) {
@@ -799,7 +800,9 @@ export class AppComponent implements OnInit {
       this.cursorSprite.visible = false;
       this.carSprite.interactive = false;
 
-      PIXI.loader.resources['gameOverTrack'].data.play();
+      this.backingTrack.stop();
+
+      //PIXI.loader.resources['gameOverTrack'].data.play();
 
       this.goToState(GameStates.GameOverState);
       return;
@@ -841,7 +844,7 @@ export class AppComponent implements OnInit {
     this.restartText.visible = false;
     this.imprintText.visible = false;
  
-    PIXI.loader.resources['backingTrack'].data.play();
+    
 
     for (let i = 0; i < 5; i++) {
       this.backgroundSprites[i].position.x = 0;
