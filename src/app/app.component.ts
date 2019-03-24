@@ -71,7 +71,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.27'
+  public readonly version = '0.0.28'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -192,7 +192,9 @@ export class AppComponent implements OnInit {
   }
 
   setupBackingTrack() {
-    
+    PIXI.loader.resources['backingTrack'].data.play();
+
+    /*
     this.backingTrack = createPlayer('assets/sounds/scheuertrack1.mp3')
 
     this.backingTrack.on('load', () => {
@@ -209,7 +211,7 @@ export class AppComponent implements OnInit {
     this.backingTrack.on('ended', () => {
       console.log('Audio ended...')
     });
-
+*/
   }
 
   onLoadCompleted() {
@@ -701,9 +703,7 @@ export class AppComponent implements OnInit {
     this.setupScore();
     //this.setupFailuresDisplay();
     this.setupTimerDisplay();
-    this.setupGameVariables();
-
-    
+    this.setupGameVariables();    
   }
 
   onPointerDownOnCar() {
@@ -742,11 +742,11 @@ export class AppComponent implements OnInit {
       } break;
 
       case GameStates.TimeBonusState: {
-        if (this.stateTime > 10) {
-          let sound = PIXI.loader.resources['timeBonusJingle'].data;
-          sound.play();
-          this.goToState(GameStates.IdleState);
-        }
+        // if (this.stateTime > 10) {
+        //   let sound = PIXI.loader.resources['timeBonusJingle'].data;
+        //   sound.play();
+        // }
+        this.goToState(GameStates.IdleState);        
       } break;
 
       case GameStates.GameOverState: {

@@ -191,7 +191,7 @@ export class Counterpart {
     }
 
     setTimeLeft(timeLeft: number) {
-        this.waitingTime = 5 + timeLeft * 2;
+        this.waitingTime = 10 + timeLeft * 2;
     }
 
     onPointerDown() {
