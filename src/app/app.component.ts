@@ -436,7 +436,7 @@ export class AppComponent implements OnInit {
   }
 
   onPointerDownOnImprintText() {
-    window.open("https://www.scheuerdenscheuer.de/imprint.md", "_blank");
+    window.open("https://www.scheuerdenscheuer.de/assets/docs/imprint.html", "_blank");
   }
 
   onPointerDownOnGameOverScreen() {
