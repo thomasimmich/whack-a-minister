@@ -151,7 +151,7 @@ export class AppComponent implements OnInit {
     this.loadFonts();
 
     this.stateText = new PIXI.Text(this.gameState);
-
+    this.progressText = new PIXI.Text();
 
     // Add to the PIXI loader
     for (let name in this.manifest) {
@@ -184,7 +184,7 @@ export class AppComponent implements OnInit {
 
     this.app.stage.addChild(this.startScreenSprite);
 
-    this.progressText = new PIXI.Text();
+
     this.progressText.style = this.textStyle;
     this.app.stage.addChild(this.progressText);
        
@@ -241,7 +241,6 @@ export class AppComponent implements OnInit {
     }
 
     this.progressText.text = 'Lade ' + Math.round(loader.progress.toString()) + '%';
-
     this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
     this.progressText.y = this.app.screen.height / 2;
 
