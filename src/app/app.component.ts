@@ -8,6 +8,7 @@ import createPlayer from 'web-audio-player';
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
 
 enum GameStates {
+  LoadingState = 'Loading',
   SplashState = 'Splash',
   IdleState = 'Idle',
   HittingState = 'Hitting',
@@ -128,13 +129,14 @@ export class AppComponent implements OnInit {
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
     this.relStreetHeight = 0.05;
-    this.availableTime = 60;
+    this.availableTime = 2;
     this.backingTrack = null;
 
     this.maxAllowedFailuresCount = 3;
     this.allowedFailureSlotSprites = [];
     this.backgroundSprites = [];
     this.counterparts = [];
+    this.gameState = GameStates.LoadingState;
 
     const parent = this.pixiContainer.nativeElement;
     this.app = new PIXI.Application({
@@ -179,7 +181,7 @@ export class AppComponent implements OnInit {
     this.startScreenSprite.y = this.app.renderer.view.height / 2;
     this.startScreenSprite.interactive = false;
 
-    this.startScreenSprite.on("pointerdown", this.onStart.bind(this));
+    // this.startScreenSprite.on("pointerdown", this.onStart.bind(this));
 
 
     this.app.stage.addChild(this.startScreenSprite);
@@ -187,7 +189,6 @@ export class AppComponent implements OnInit {
 
     this.progressText.style = this.textStyle;
     this.app.stage.addChild(this.progressText);
-       
   }
 
   loadBackingTrack() {
@@ -212,14 +213,18 @@ export class AppComponent implements OnInit {
 
   onLoadCompleted() {
     // avoid duplicate entry
-    if (this.gameState == GameStates.SplashState) {
+    if (this.gameState == GameStates.SplashState || this.gameState == GameStates.IdleState) {
       return;
     }
     this.startScreenSprite.interactive = true;
 
-    this.progressText.text = 'START';
+    this.progressText.text = 'FERTIG';
     this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
-    this.goToState(GameStates.SplashState);
+   // this.goToState(GameStates.SplashState);
+
+
+    // start right away ...
+    this.onStart();      
   }
 
   onStart() {
@@ -402,7 +407,7 @@ export class AppComponent implements OnInit {
     shield.alpha = 0.5;
 
     let gameOverText = new PIXI.Text(this.gameState, textStyle);
-    gameOverText.text = 'GAME OVER';
+    gameOverText.text = 'ZEIT UM!';
     gameOverText.position.x = (this.app.screen.width - gameOverText.width) / 2;
     gameOverText.position.y = (this.app.screen.height - gameOverText.height) / 2;
 
@@ -415,7 +420,7 @@ export class AppComponent implements OnInit {
       strokeThickness: 4
     });
     this.restartText = new PIXI.Text(this.gameState, style);
-    this.restartText.text = 'NOCHMAL!';
+    this.restartText.text = 'NOCHMAL';
     this.restartText.position.x = (this.app.screen.width - this.restartText.width) / 2;
     this.restartText.position.y = (this.app.screen.height - this.restartText.height * 4);
     this.restartText.visible = false;
@@ -460,20 +465,23 @@ export class AppComponent implements OnInit {
     a.dispatchEvent(e);
   };
   
-
   onPointerDownOnImprintText() {
-    window.location.assign('http://www.scheuerdenscheuer.de/assets/docs/imprint.html');
+    window.location.assign('./assets/docs/imprint.html');
   }
 
   onPointerDownOnRestartText() {
-    this.gameOverContainer.visible = false;
-    this.restartText.interactive = false;
-    this.imprintText.interactive = false;
+    // due to a bug that could not be resolved (on mobile phones, the second
+    // round after restart appears to be at slower frame rate), we reload the
+    // entire game
+    window.location.assign('.');
+    // this.gameOverContainer.visible = false;
+    // this.restartText.interactive = false;
+    // this.imprintText.interactive = false;
 
-    console.log(this);
+    // console.log(this);
 
-    this.initGameVariables();
-    this.goToState(GameStates.IdleState);
+    // this.initGameVariables();
+    // this.goToState(GameStates.IdleState);
   }
 
   setupBackground() {
