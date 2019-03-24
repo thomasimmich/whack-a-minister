@@ -69,7 +69,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.15'
+  public readonly version = '0.0.23'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -88,6 +88,7 @@ export class AppComponent implements OnInit {
   private needleSprite: Sprite;
   private gameOverContainer: Container;
   private restartText: Text;
+  private imprintText: Text;
 
   private score: number;
   private scoreRoll: number;
@@ -122,7 +123,7 @@ export class AppComponent implements OnInit {
   private counterpartVisibleDuration: number;
 
   ngOnInit() {
-
+    
     // reference width is taken from iPad Pro Retina
     this.referenceWidth = 2732;
     this.landscapeZoom = 1.0;
@@ -149,9 +150,8 @@ export class AppComponent implements OnInit {
 
     this.loadFonts();
 
-    this.progressText = new PIXI.Text();
     this.stateText = new PIXI.Text(this.gameState);
-
+    this.progressText = new PIXI.Text();
 
     // Add to the PIXI loader
     for (let name in this.manifest) {
@@ -177,12 +177,17 @@ export class AppComponent implements OnInit {
     this.startScreenSprite.scale.y *= scaleFactor;
     this.startScreenSprite.x = this.app.renderer.view.width / 2;
     this.startScreenSprite.y = this.app.renderer.view.height / 2;
-    this.startScreenSprite.interactive = true;
+    this.startScreenSprite.interactive = false;
 
     this.startScreenSprite.on("pointerdown", this.onStart.bind(this));
 
 
     this.app.stage.addChild(this.startScreenSprite);
+
+
+    this.progressText.style = this.textStyle;
+    this.app.stage.addChild(this.progressText);
+       
   }
 
   loadBackingTrack() {
@@ -206,13 +211,14 @@ export class AppComponent implements OnInit {
   }
 
   onLoadCompleted() {
-    this.progressText.style = this.textStyle;
+    // avoid duplicate entry
+    if (this.gameState == GameStates.SplashState) {
+      return;
+    }
+    this.startScreenSprite.interactive = true;
+
     this.progressText.text = 'START';
-
     this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
-    this.progressText.y = this.startScreenSprite.y + this.startScreenSprite.height / 2 - this.progressText.height;
-
-    this.app.stage.addChild(this.progressText);
     this.goToState(GameStates.SplashState);
   }
 
@@ -220,24 +226,32 @@ export class AppComponent implements OnInit {
     this.startScreenSprite.visible = false;
     this.startScreenSprite.interactive = false;
     this.setup();
+    this.app.ticker.add(this.update.bind(this));
   }
 
   onLoad(loader, resources) {
-
     //this.setup();
   }
 
   onProgress(loader, resource) {
+
+
     if (resource.name == 'startScreenImage') {
       this.showStartScreen();
     }
 
-    this.progressText.text = 'Loading ' + Math.round(loader.progress.toString()) + '%';
-
+    this.progressText.text = 'Lade ' + Math.round(loader.progress.toString()) + '%';
     this.progressText.x = (this.app.screen.width - this.progressText.width) / 2;
     this.progressText.y = this.app.screen.height / 2;
 
     console.log(`loaded ${resource.url}. Loading is ${loader.progress}% complete.`);
+
+    // this workaround should guarantee that the 
+    // load complete method is called even though
+    // the event is not fired 
+    if (loader.progress >= 100) {
+      this.onLoadCompleted();
+    }
   }
 
   loadFonts() {
@@ -392,27 +406,73 @@ export class AppComponent implements OnInit {
     gameOverText.position.x = (this.app.screen.width - gameOverText.width) / 2;
     gameOverText.position.y = (this.app.screen.height - gameOverText.height) / 2;
 
-    this.restartText = new PIXI.Text(this.gameState);
-    this.restartText.text = 'PRESS TO RESTART';
+    let style = new PIXI.TextStyle({
+      fontFamily: 'Arial',
+      fontSize: 36,
+      fontWeight: 'bold',
+      fill: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 4
+    });
+    this.restartText = new PIXI.Text(this.gameState, style);
+    this.restartText.text = 'NOCHMAL!';
     this.restartText.position.x = (this.app.screen.width - this.restartText.width) / 2;
     this.restartText.position.y = (this.app.screen.height - this.restartText.height * 4);
     this.restartText.visible = false;
+    this.restartText.on("pointerdown", this.onPointerDownOnRestartText.bind(this));
+
+
+    style = new PIXI.TextStyle({
+      fontFamily: 'Arial',
+      fontSize: 20,
+      fontWeight: 'bold',
+      fill: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 4
+    });
+    this.imprintText = new PIXI.Text(this.gameState, style);
+    this.imprintText.text = 'CREDITS';
+    this.imprintText.position.x = (this.app.screen.width - this.imprintText.width) / 2;
+    this.imprintText.position.y = (this.app.screen.height - this.imprintText.height * 4);
+    this.imprintText.interactive = false;
+    this.imprintText.visible = false;
+    this.imprintText.on("pointerdown", this.onPointerDownOnImprintText.bind(this));
+
 
     this.gameOverContainer.addChild(shield);
     this.gameOverContainer.addChild(gameOverText);
     this.gameOverContainer.addChild(this.restartText);
-
-    this.gameOverContainer.interactive = false;
+    this.gameOverContainer.addChild(this.imprintText);
     this.gameOverContainer.visible = false;
-    this.gameOverContainer.on("pointerdown", this.onPointerDownOnGameOverScreen.bind(this));
-
+    
     this.app.stage.addChild(this.gameOverContainer);
   }
 
-  onPointerDownOnGameOverScreen() {
-    this.initGameVariables();
+  openTab(url) {
+    // Create link in memory
+    var a = window.document.createElement("a");
+    a.target = '_blank';
+    a.href = url;
+  
+    // Dispatch fake click
+    var e = window.document.createEvent("MouseEvents");
+    e.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+    a.dispatchEvent(e);
+  };
+  
+
+  onPointerDownOnImprintText() {
+    window.location.assign('http://www.scheuerdenscheuer.de/assets/docs/imprint.html');
+  }
+
+  onPointerDownOnRestartText() {
     this.gameOverContainer.visible = false;
-    this.gameOverContainer.interactive = false;
+    this.restartText.interactive = false;
+    this.imprintText.interactive = false;
+
+    console.log(this);
+
+    this.initGameVariables();
     this.goToState(GameStates.IdleState);
   }
 
@@ -616,7 +676,7 @@ export class AppComponent implements OnInit {
   }
 
   setup() {
-
+    this.app.stage.removeChildren();
     this.setupLandscape();
     this.setupBackground();
     this.setupGameOver();
@@ -630,7 +690,7 @@ export class AppComponent implements OnInit {
     this.setupTimerDisplay();
     this.setupGameVariables();
 
-    this.app.ticker.add(this.update.bind(this));
+    
   }
 
   onPointerDownOnCar() {
@@ -669,9 +729,12 @@ export class AppComponent implements OnInit {
         }
       } break;
       case GameStates.GameOverState: {
-        if (this.stateTime > 200) {
+        if (this.stateTime > 100) {
           this.restartText.visible = true;
-          this.gameOverContainer.interactive = true;
+          this.restartText.interactive = true;
+
+          this.imprintText.visible = true;
+          this.imprintText.interactive = true;
         }
       } break;
     }
@@ -755,10 +818,18 @@ export class AppComponent implements OnInit {
     }
     this.carSprite.interactive = true;
     this.restartText.visible = false;
+    this.imprintText.visible = false;
  
     PIXI.loader.resources['backingTrack'].data.play();
+
+    for (let i = 0; i < 5; i++) {
+      this.backgroundSprites[i].position.x = 0;
+    }
     
     this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
+    this.app.ticker.stop();
+    this.app.ticker.start();
+
     this.goToState(GameStates.IdleState);
     // for (let i = 0; i < this.maxAllowedFailuresCount; i++) {
     //   this.allowedFailureSlotSprites[i].alpha = 1.0;
