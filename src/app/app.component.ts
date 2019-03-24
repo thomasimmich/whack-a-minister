@@ -462,7 +462,7 @@ export class AppComponent implements OnInit {
   
 
   onPointerDownOnImprintText() {
-    this.openTab('http://www.scheuerdenscheuer.de/assets/docs/imprint.html');
+    window.location.assign('http://www.scheuerdenscheuer.de/assets/docs/imprint.html');
   }
 
   onPointerDownOnRestartText() {
@@ -821,6 +821,10 @@ export class AppComponent implements OnInit {
     this.imprintText.visible = false;
  
     PIXI.loader.resources['backingTrack'].data.play();
+
+    for (let i = 0; i < 5; i++) {
+      this.backgroundSprites[i].position.x = 0;
+    }
     
     this.stillAllowedFailuresCount = this.maxAllowedFailuresCount;
     this.app.ticker.stop();
