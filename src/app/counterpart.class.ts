@@ -191,7 +191,6 @@ export class Counterpart {
     }
 
     setTimeLeft(timeLeft: number) {
-        console.log(timeLeft);
         this.waitingTime = 5 + timeLeft * 2;
     }
 
