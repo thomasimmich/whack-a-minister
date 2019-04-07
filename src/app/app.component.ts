@@ -3,7 +3,6 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Sprite, Application, Sound, Text, Point, Container, Graphics, TextStyle } from 'pixi.js';
 import createPlayer from 'web-audio-player';
 
-
 //import * as PIXI from "pixi.js/dist/pixi.js"
 declare var PIXI: any; // instead of importing pixi like some tutorials say to do use declare
 
@@ -31,10 +30,10 @@ export class AppComponent implements OnInit {
     startScreenImage: 'assets/images/start-screen.png',
     carImage: 'assets/images/car.png',
     wheelImage: 'assets/images/wheel.png',
-    enemyImage: 'assets/images/scheuer.png',
+    enemyImage: 'assets/images/scheuer-bikehelmet.png',
     backingTrack: 'assets/sounds/scheuertrack1.mp3',
     gameOverTrack: 'assets/sounds/gameover.mp3',
-    enemyImageWhacked: 'assets/images/scheuer-whacked.png',
+    enemyImageWhacked: 'assets/images/scheuer-caked.png',
     friendImage: 'assets/images/greta.png',
     friendImageWhacked: 'assets/images/greta-whacked.png',
     timeBonusImage: 'assets/images/scheuermilch.png',
@@ -45,7 +44,7 @@ export class AppComponent implements OnInit {
     backgroundImage2: 'assets/images/back2.png',
     backgroundImage3: 'assets/images/back3.png',
     backgroundImage4: 'assets/images/back4.png',
-    boxingGloveImage: 'assets/images/boxing-glove.png',
+    boxingGloveImage: 'assets/images/cake.png',
     fuelgauge: 'assets/images/fuelgauge.png',
     needle: 'assets/images/needle.png',
     failureSound: 'assets/sounds/failure.mp3',
@@ -71,7 +70,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.28'
+  public readonly version = '0.0.30'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -563,6 +562,7 @@ export class AppComponent implements OnInit {
     let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
     this.cursorSprite.scale.x *= scaleFactor;
     this.cursorSprite.scale.y *= scaleFactor;
+    this.cursorSprite.rotation = -120;
     this.cursorSprite.visible = false;
 
     this.app.stage.addChild(this.cursorSprite);
@@ -730,13 +730,24 @@ export class AppComponent implements OnInit {
       case GameStates.HittingState: {
         if (this.stateTime < 5) {
           this.cursorSprite.x -= 3;
+          this.cursorSprite.rotation -= 0.1;
+          this.cursorSprite.scale.y -= 0.05;
         }
         if (this.stateTime >= 5) {
           this.cursorSprite.x += 3;
+          this.cursorSprite.rotation += 0.1;
+          this.cursorSprite.scale.y += 0.05;
         }
 
         if (this.stateTime > 10) {
           this.cursorSprite.visible = false;
+          this.cursorSprite.scale.x = 1.0;
+          this.cursorSprite.scale.y = 1.0;
+          let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
+          this.cursorSprite.scale.x *= scaleFactor;
+          this.cursorSprite.scale.y *= scaleFactor;
+
+          this.cursorSprite.rotation = -120;
           this.goToState(GameStates.IdleState);
         }
       } break;
