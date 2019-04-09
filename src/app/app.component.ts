@@ -50,15 +50,15 @@ export class AppComponent implements OnInit {
     failureSound: 'assets/sounds/failure.mp3',
     squeezeSound: 'assets/sounds/squeeze.mp3',
     // punchSound0: 'assets/sounds/punch0.png', 
-    punchSound0: 'assets/sounds/punch0.mp3',
-    punchSound1: 'assets/sounds/punch1.mp3',
-    punchSound2: 'assets/sounds/punch2.mp3',
-    punchSound3: 'assets/sounds/punch3.mp3',
-    punchSound4: 'assets/sounds/punch4.mp3',
-    punchSound5: 'assets/sounds/punch5.mp3',
-    punchSound6: 'assets/sounds/punch6.mp3',
-    punchSound7: 'assets/sounds/punch7.mp3',
-    punchSound8: 'assets/sounds/punch8.mp3',
+    punchSound0: 'assets/sounds/cake0.mp3',
+    punchSound1: 'assets/sounds/cake1.mp3',
+    punchSound2: 'assets/sounds/cake2.mp3',
+    punchSound3: 'assets/sounds/cake3.mp3',
+    punchSound4: 'assets/sounds/cake4.mp3',
+    punchSound5: 'assets/sounds/cake5.mp3',
+    punchSound6: 'assets/sounds/cake6.mp3',
+    punchSound7: 'assets/sounds/cake7.mp3',
+    punchSound8: 'assets/sounds/cake8.mp3',
     timeBonusJingle: 'assets/sounds/party.mp3',
     honk: 'assets/sounds/honk.mp3',
   };
@@ -70,7 +70,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.30'
+  public readonly version = '0.0.31'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
