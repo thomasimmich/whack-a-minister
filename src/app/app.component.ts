@@ -33,7 +33,7 @@ export class AppComponent implements OnInit {
     enemyImage: 'assets/images/scheuer-bikehelmet.png',
     backingTrack: 'assets/sounds/scheuertrack1.mp3',
     gameOverTrack: 'assets/sounds/gameover.mp3',
-    enemyImageWhacked: 'assets/images/scheuer-caked.png',
+    enemyImageWhacked: 'assets/images/scheuer-hammered.png',
     friendImage: 'assets/images/greta.png',
     friendImageWhacked: 'assets/images/greta-whacked.png',
     timeBonusImage: 'assets/images/scheuermilch.png',
@@ -44,21 +44,21 @@ export class AppComponent implements OnInit {
     backgroundImage2: 'assets/images/back2.png',
     backgroundImage3: 'assets/images/back3.png',
     backgroundImage4: 'assets/images/back4.png',
-    boxingGloveImage: 'assets/images/cake.png',
+    boxingGloveImage: 'assets/images/hammer.png',
     fuelgauge: 'assets/images/fuelgauge.png',
     needle: 'assets/images/needle.png',
     failureSound: 'assets/sounds/failure.mp3',
     squeezeSound: 'assets/sounds/squeeze.mp3',
     // punchSound0: 'assets/sounds/punch0.png', 
-    punchSound0: 'assets/sounds/cake0.mp3',
-    punchSound1: 'assets/sounds/cake1.mp3',
-    punchSound2: 'assets/sounds/cake2.mp3',
-    punchSound3: 'assets/sounds/cake3.mp3',
-    punchSound4: 'assets/sounds/cake4.mp3',
-    punchSound5: 'assets/sounds/cake5.mp3',
-    punchSound6: 'assets/sounds/cake6.mp3',
-    punchSound7: 'assets/sounds/cake7.mp3',
-    punchSound8: 'assets/sounds/cake8.mp3',
+    punchSound0: 'assets/sounds/hammer0.mp3',
+    punchSound1: 'assets/sounds/hammer1.mp3',
+    punchSound2: 'assets/sounds/hammer2.mp3',
+    punchSound3: 'assets/sounds/hammer3.mp3',
+    punchSound4: 'assets/sounds/hammer4.mp3',
+    punchSound5: 'assets/sounds/hammer5.mp3',
+    punchSound6: 'assets/sounds/hammer6.mp3',
+    punchSound7: 'assets/sounds/hammer7.mp3',
+    punchSound8: 'assets/sounds/hammer8.mp3',
     timeBonusJingle: 'assets/sounds/party.mp3',
     honk: 'assets/sounds/honk.mp3',
   };
@@ -70,7 +70,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.31'
+  public readonly version = '0.0.35'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -575,7 +575,9 @@ export class AppComponent implements OnInit {
     // });
     this.cursorSprite.position = new Point(-100, -100);
     interaction.on("mousemove", (event) => {
+      
       this.cursorSprite.position = event.data.global;
+      this.cursorSprite.position.y = this.carSprite.position.y - this.carSprite.height + this.cursorSprite.height;
     });
 
   }
@@ -731,21 +733,21 @@ export class AppComponent implements OnInit {
         if (this.stateTime < 5) {
           this.cursorSprite.x -= 3;
           this.cursorSprite.rotation -= 0.1;
-          this.cursorSprite.scale.y -= 0.05;
+          //this.cursorSprite.scale.y -= 0.05;
         }
         if (this.stateTime >= 5) {
           this.cursorSprite.x += 3;
           this.cursorSprite.rotation += 0.1;
-          this.cursorSprite.scale.y += 0.05;
+          //this.cursorSprite.scale.y += 0.05;
         }
 
         if (this.stateTime > 10) {
           this.cursorSprite.visible = false;
-          this.cursorSprite.scale.x = 1.0;
-          this.cursorSprite.scale.y = 1.0;
-          let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
-          this.cursorSprite.scale.x *= scaleFactor;
-          this.cursorSprite.scale.y *= scaleFactor;
+          // this.cursorSprite.scale.x = 1.0;
+          // this.cursorSprite.scale.y = 1.0;
+          // let scaleFactor = (this.app.renderer.view.width / this.referenceWidth);
+          // this.cursorSprite.scale.x *= scaleFactor;
+          // this.cursorSprite.scale.y *= scaleFactor;
 
           this.cursorSprite.rotation = -120;
           this.goToState(GameStates.IdleState);
