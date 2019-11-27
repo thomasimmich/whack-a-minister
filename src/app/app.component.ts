@@ -70,7 +70,7 @@ export class AppComponent implements OnInit {
 
   public gameState: GameStates;
 
-  public readonly version = '0.0.35'
+  public readonly version = '0.0.40'
   private referenceWidth: number;
   private relStreetHeight: number;
   private progressText: Text;
@@ -343,6 +343,7 @@ export class AppComponent implements OnInit {
 
       let c = new Counterpart(
         this.app.ticker,
+        i,
         position.x,
         position.y,
         scaleFactor,
@@ -647,7 +648,7 @@ export class AppComponent implements OnInit {
     this.rearWheelSprite.scale.y *= scaleFactor;
 
     this.rearWheelSprite.position.set(
-      this.app.renderer.view.width * 0.249,
+      this.app.renderer.view.width * 0.22,
       this.app.screen.height - this.rearWheelSprite.height / 2
       //- this.relStreetHeight * this.app.screen.height // street offset
     );
@@ -791,7 +792,7 @@ export class AppComponent implements OnInit {
   }
 
   updateRide(delta: number) {
-    this.carSprite.rotation = Math.sin(this.stateTime / 2) / 320 * this.speed;
+    this.carSprite.rotation = Math.sin(this.stateTime / 2) / 320;
     this.frontWheelSprite.rotation += 0.05 * delta * this.speed;
     this.rearWheelSprite.rotation += 0.05 * delta * this.speed;
 

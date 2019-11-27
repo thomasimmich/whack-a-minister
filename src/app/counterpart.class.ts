@@ -25,7 +25,7 @@ export enum HitStatus {
 }
 
 export class HitEvent {
-    public constructor(public sender: Counterpart, public hitStatus: HitStatus) {}
+    public constructor(public sender: Counterpart, public hitStatus: HitStatus) { }
 }
 
 export class Counterpart {
@@ -49,7 +49,7 @@ export class Counterpart {
 
     @Output() wasHit = new EventEmitter();
 
-    public constructor(ticker: PIXI.ticker.Ticker, x: number, y: number, scaleFactor: number, textStyle: TextStyle) {
+    public constructor(ticker: PIXI.ticker.Ticker, index: number, x: number, y: number, scaleFactor: number, textStyle: TextStyle) {
         ticker.add(this.update.bind(this));
         this.state = CounterpartStates.HiddenState;
 
@@ -74,24 +74,112 @@ export class Counterpart {
 
         this.mask = new PIXI.Graphics();
         this.mask.beginFill(0xFFFFFF, 1);
-        this.mask.drawRect(
-            this.sprite.x - this.sprite.width / 2,
-            this.sprite.y - this.sprite.height / 2 - 200,
-            this.sprite.width,
-            this.sprite.height + 200
-        );
+        if (index == 0) {
+            this.mask.drawPolygon(
+                [
+                    new Point(
+                        this.sprite.x - this.sprite.width / 2,
+                        this.sprite.y - this.sprite.height / 2 - 200
+                    ),
+                    new Point(
+                        this.sprite.x + this.sprite.width / 2,
+                        this.sprite.y - this.sprite.height / 2 - 200
+                    ),
+                    new Point(
+                        this.sprite.x + this.sprite.width / 2,
+                        this.sprite.y + 150 * scaleFactor
+                    ),
+                    new Point(
+                        this.sprite.x - this.sprite.width / 2,
+                        this.sprite.y + 200 * scaleFactor
+                    )                  
+                ]
+            );
+        }
+
+        if (index == 1) {
+            this.mask.drawPolygon(
+                [
+                    new Point(
+                        this.sprite.x - this.sprite.width / 2,
+                        this.sprite.y - this.sprite.height / 2 - 200
+                    ),
+                    new Point(
+                        this.sprite.x + this.sprite.width / 2,
+                        this.sprite.y - this.sprite.height / 2 - 200
+                    ),
+                    new Point(
+                        this.sprite.x + this.sprite.width / 2,
+                        this.sprite.y + 105 * scaleFactor
+                    ),
+                    new Point(
+                        this.sprite.x - this.sprite.width / 2,
+                        this.sprite.y + 155 * scaleFactor
+                    )                  
+                ]
+            );   
+        }        
+
+        if (index == 2) {
+            this.mask.drawPolygon(
+                [
+                    new Point(
+                        this.sprite.x - this.sprite.width / 2,
+                        this.sprite.y - this.sprite.height / 2 - 200
+                    ),
+                    new Point(
+                        this.sprite.x + this.sprite.width / 2,
+                        this.sprite.y - this.sprite.height / 2 - 200
+                    ),
+                    new Point(
+                        this.sprite.x + this.sprite.width / 2,
+                        this.sprite.y + 215 * scaleFactor
+                    ),
+                    new Point(
+                        this.sprite.x - this.sprite.width / 2,
+                        this.sprite.y + 185 * scaleFactor
+                    )                  
+                ]
+            );   
+        }           
+
+        if (index == 3) {
+            this.mask.drawPolygon(
+                [
+                    new Point(
+                        this.sprite.x - this.sprite.width / 2,
+                        this.sprite.y - this.sprite.height / 2 - 200
+                    ),
+                    new Point(
+                        this.sprite.x + this.sprite.width / 2,
+                        this.sprite.y - this.sprite.height / 2 - 200
+                    ),
+                    new Point(
+                        this.sprite.x + this.sprite.width / 2,
+                        this.sprite.y + 255 * scaleFactor
+                    ),
+                    new Point(
+                        this.sprite.x - this.sprite.width / 2,
+                        this.sprite.y + 225 * scaleFactor
+                    )                  
+                ]
+            );   
+        }     
+
+
+
 
         this.punchCoronaSprite = new PIXI.Sprite(PIXI.loader.resources['punchCorona'].texture);
         this.punchCoronaSprite.x = x;
         this.punchCoronaSprite.y = y - 100 * scaleFactor;
         this.punchCoronaSprite.scale.x *= scaleFactor;
         this.punchCoronaSprite.scale.y *= scaleFactor;
-        this.punchCoronaSprite.anchor.set(0.5);   
-        this.punchCoronaSprite.visible = false;     
-        this.container.addChild(this.punchCoronaSprite);  
+        this.punchCoronaSprite.anchor.set(0.5);
+        this.punchCoronaSprite.visible = false;
+        this.container.addChild(this.punchCoronaSprite);
 
-        
-        let holeContainer = new PIXI.Container();   
+
+        let holeContainer = new PIXI.Container();
         holeContainer.interactive = true;
         holeContainer.mask = this.mask;
         holeContainer.addChild(this.sprite);
@@ -182,7 +270,7 @@ export class Counterpart {
         let prefix = '';
         if (score > 0) {
             prefix = '+';
-        }          
+        }
         this.scoreText.text = prefix + score.toString();
         this.scoreText.x = this.sprite.x - this.scoreText.width / 2;
         this.scoreText.y = this.sprite.y - this.sprite.height + 20;
