@@ -1,8 +1,10 @@
 import { Box, PositionalAudio } from '@react-three/drei';
 import { useLoader } from '@react-three/fiber';
-import { useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { TextureLoader } from 'three';
 
+import { ECSContext } from '../../app/ECSContext';
+import { ScoreFacet } from '../../app/GameFacets';
 import { useWindowSize } from '../../hooks/useWindowSize';
 
 export enum HitableType {
@@ -16,6 +18,8 @@ export interface HitableProps {
 }
 
 export function Hitable(props: HitableProps) {
+  const ecs = useContext(ECSContext);
+
   const hitSoundRef = useRef<any>(null);
   //const hitSoundBuffer = useLoader(AudioLoader, '/sound.mp3');
   let textureURL = 'src/assets/images/people/';
@@ -34,6 +38,11 @@ export function Hitable(props: HitableProps) {
   const faceHeight = normalTexture.image.height / windowSize.width / 2;
 
   const onPointerDown = () => {
+    const playerOneScore = ecs.engine.entities.find((e) => e.has(ScoreFacet));
+    playerOneScore?.add(
+      new ScoreFacet({ scoreValue: playerOneScore.get(ScoreFacet)?.props.scoreValue! + 100 }),
+    );
+
     if (hitSoundRef.current) {
       if (!hitSoundRef.current.isPlaying) {
         hitSoundRef.current?.play();

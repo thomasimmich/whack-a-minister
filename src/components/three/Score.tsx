@@ -1,7 +1,11 @@
 import { Text } from '@react-three/drei';
 import React from 'react';
 
-export const Score: React.FC = () => {
+import { ScoreFacet } from '../../app/GameFacets';
+import { useRenderSystemEntities } from '../../hooks/useRenderSystemEntities';
+import { ScoreProps } from '../dom/Score';
+export const Score: React.FC<ScoreProps> = (props: ScoreProps) => {
+  console.log('score props', props);
   return (
     <React.Suspense fallback={null}>
       <Text
@@ -16,8 +20,19 @@ export const Score: React.FC = () => {
         anchorY="middle" // Vertical anchor point (default is 'top')
         position={[0, 0.15, 1]} // Position in the 3D space
       >
-        Hello, React Three Fiber!
+        {props?.scoreValue}
       </Text>
     </React.Suspense>
+  );
+};
+export const Scores: React.FC = () => {
+  const [scores] = useRenderSystemEntities((e) => e.has(ScoreFacet));
+
+  return (
+    <group>
+      {scores.map((e) => (
+        <Score key={e.id} {...e.get(ScoreFacet)?.props} />
+      ))}
+    </group>
   );
 };
