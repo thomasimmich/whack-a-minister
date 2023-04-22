@@ -2,23 +2,6 @@ import { Box } from '@react-three/drei';
 import { Canvas, useThree } from '@react-three/fiber';
 import { PropsWithChildren, useEffect, useRef } from 'react';
 
-const ScaledBox = () => {
-  const boxRef = useRef<any>(null);
-  const { size, viewport } = useThree();
-
-  useEffect(() => {
-    const aspectX = size.width / viewport.width;
-    const aspectY = size.height / viewport.height;
-    boxRef.current.scale.set(1.0 * aspectX, 1.0 * aspectY, 1.0);
-  }, [size, viewport]);
-
-  // useFrame(() => {
-  //   boxRef.current.rotation.y += 0.01;
-  // });
-
-  return <Box ref={boxRef} args={[1, 1, 1]} />;
-};
-
 const ScaledScene: React.FC<PropsWithChildren<{}>> = (props: PropsWithChildren<{}>) => {
   const sceneRef = useRef<any>(null);
   const { size, viewport } = useThree();

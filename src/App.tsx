@@ -3,6 +3,7 @@ import './App.css';
 
 //import { Train } from './components/three/Train';
 import { FullScreenCanvas } from './components/three/FullScreenCanvas';
+import { Train } from './components/three/Train';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Box args={[1, 1, 1]}>
           <meshBasicMaterial color="red" />
         </Box>
+        <Train />
       </FullScreenCanvas>
     </div>
   );
