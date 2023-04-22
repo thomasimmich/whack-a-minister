@@ -7,6 +7,7 @@ export function useCoachWidth() {
   const textureURL = 'src/assets/images/train/train-a.png';
   const texture = useLoader(TextureLoader, textureURL);
   const windowSize = useWindowSize();
+  // if the coach is exactly as wide as the window, it will be 1
   return texture.image.width / windowSize.width;
 }
 
