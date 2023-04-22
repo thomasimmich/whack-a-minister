@@ -11,6 +11,7 @@ export interface TrainCoachProps {
   index: number;
   type?: string;
 }
+
 export function TrainCoach(
   props: TrainCoachProps = {
     index: 0,
@@ -20,12 +21,12 @@ export function TrainCoach(
   const textureURL = 'src/assets/images/train/train-' + props.type + '.png';
   const texture = useLoader(TextureLoader, textureURL);
   const windowSize = useWindowSize();
-  const boxWidth = texture.image.width / windowSize.width;
-  const boxHeight = texture.image.height / windowSize.width;
+  const coachWidth = texture.image.width / windowSize.width;
+  const coachHeight = texture.image.height / windowSize.width;
 
   // Return the view, these are regular Threejs elements expressed in JSX
   return (
-    <Box position={[props.index * boxWidth, 0, 0]} args={[boxWidth, boxHeight, 1]}>
+    <Box position={[props.index * coachWidth, 0, 0]} args={[coachWidth, coachHeight, 1]}>
       <meshStandardMaterial map={texture} transparent />
     </Box>
   );
