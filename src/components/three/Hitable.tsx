@@ -5,15 +5,26 @@ import { TextureLoader } from 'three';
 
 import { useWindowSize } from '../../hooks/useWindowSize';
 
-export interface EnemyProps {
+export enum HitableType {
+  ENEMY,
+  FRIEND,
+}
+export interface HitableProps {
   index: number;
+
+  type: HitableType;
 }
 
-export function Enemy(props: EnemyProps) {
+export function Hitable(props: HitableProps) {
   const hitSoundRef = useRef<any>(null);
   //const hitSoundBuffer = useLoader(AudioLoader, '/sound.mp3');
+  let textureURL = 'src/assets/images/people/';
+  if (props.type === HitableType.ENEMY) {
+    textureURL += 'enemy-';
+  } else if (props.type === HitableType.FRIEND) {
+    textureURL += 'friend-';
+  }
 
-  const textureURL = 'src/assets/images/people/enemy-';
   const normalTexture = useLoader(TextureLoader, textureURL + 'a.png');
   const hitTexture = useLoader(TextureLoader, textureURL + 'c.png');
   const [currentTexture, setCurrentTexture] = useState(normalTexture);

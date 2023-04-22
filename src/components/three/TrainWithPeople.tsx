@@ -1,6 +1,5 @@
 import { useCoachWidth, useTrainPosition } from '../../hooks/useTrainPosition';
-import { Enemy } from './Enemy';
-import { Friend } from './Friend';
+import { Hitable, HitableType } from './Hitable';
 import { Train } from './Train';
 
 export const TrainWithPeople: React.FC<{}> = () => {
@@ -14,12 +13,12 @@ export const TrainWithPeople: React.FC<{}> = () => {
     <group>
       <Train coachCode={coachCode} />
       <group position={[peoplePosition, 0, 0.1]}>
-        <Enemy index={0} />
-        <Friend index={1} />
-        <Enemy index={2} />
-        <Enemy index={3} />
-        <Enemy index={4} />
-        <Enemy index={5} />
+        <Hitable index={0} type={HitableType.ENEMY} />
+        <Hitable index={1} type={HitableType.FRIEND} />
+        <Hitable index={2} type={HitableType.ENEMY} />
+        <Hitable index={3} type={HitableType.ENEMY} />
+        <Hitable index={4} type={HitableType.ENEMY} />
+        <Hitable index={5} type={HitableType.ENEMY} />
       </group>
     </group>
   );
