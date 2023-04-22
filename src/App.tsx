@@ -1,16 +1,19 @@
+import { Box } from '@react-three/drei';
+import './App.css';
 
-
-import './App.css'
-import { Score } from './components/Score'
+//import { Train } from './components/three/Train';
+import { FullScreenCanvas } from './components/three/FullScreenCanvas';
 
 function App() {
-
-
   return (
     <div>
-      <Score scoreValue={1000} />
+      <FullScreenCanvas>
+        <Box args={[1, 1, 1]}>
+          <meshBasicMaterial color="red" />
+        </Box>
+      </FullScreenCanvas>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
