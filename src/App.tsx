@@ -1,16 +1,17 @@
-import { Canvas } from '@react-three/fiber';
+import { Box } from '@react-three/drei';
 import './App.css';
-import { Box } from './components/three/Box';
+
+//import { Train } from './components/three/Train';
+import { FullScreenCanvas } from './components/three/FullScreenCanvas';
 
 function App() {
   return (
     <div>
-      <Canvas>
-        <ambientLight />
-        <pointLight position={[10, 10, 10]} />
-        <Box position={[-1.2, 0, 0]} />
-        <Box position={[1.2, 0, 0]} />
-      </Canvas>
+      <FullScreenCanvas>
+        <Box args={[1, 1, 1]}>
+          <meshBasicMaterial color="red" />
+        </Box>
+      </FullScreenCanvas>
     </div>
   );
 }
