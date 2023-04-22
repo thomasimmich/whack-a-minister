@@ -4,5 +4,5 @@ export interface ScoreProps {
 }
 
 export const Score: React.FC<ScoreProps> = (props: ScoreProps) => {
-  return <div>1000</div>
+  return <div className="  ">1000</div>
 }
