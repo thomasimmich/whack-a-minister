@@ -3,12 +3,12 @@ import { useLoader } from '@react-three/fiber';
 import { TextureLoader } from 'three';
 import { useWindowSize } from '../../hooks/useWindowSize';
 
-export interface EnemyProps {
+export interface FriendProps {
   index: number;
 }
 
-export function Enemy(props: EnemyProps) {
-  const textureURL = 'src/assets/images/people/enemy-a.png';
+export function Friend(props: FriendProps) {
+  const textureURL = 'src/assets/images/people/friend-a.png';
   const texture = useLoader(TextureLoader, textureURL);
   const windowSize = useWindowSize();
   const faceWidth = texture.image.width / windowSize.width / 2;
