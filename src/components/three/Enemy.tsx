@@ -12,7 +12,7 @@ export function Enemy(props: EnemyProps) {
 
   // Return the view, these are regular Threejs elements expressed in JSX
   return (
-    <Box position={[props.index * faceWidth, 0, 0]} args={[faceWidth, faceHeight, 1]}>
+    <Box position={[props.index * faceWidth, 0, 0.1]} args={[faceWidth, faceHeight, 1]}>
       <meshBasicMaterial color="blue" />
     </Box>
   );
