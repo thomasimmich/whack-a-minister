@@ -14,10 +14,10 @@ const ScaledScene: React.FC<PropsWithChildren<{}>> = (props: PropsWithChildren<{
 
   return (
     <group ref={sceneRef}>
-      <Box args={[1, 1, 1]}>
+      {props.children}
+      <Box position={[0, 0, -0.1]} args={[1, 1, 1]}>
         <meshBasicMaterial color="blue" />
       </Box>
-      {props.children}
     </group>
   );
 };
