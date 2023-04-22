@@ -12,7 +12,7 @@ function App() {
         <Box args={[1, 1, 1]}>
           <meshBasicMaterial color="red" />
         </Box>
-        <Train />
+        <Train coachCode="avz" />
       </FullScreenCanvas>
     </div>
   );

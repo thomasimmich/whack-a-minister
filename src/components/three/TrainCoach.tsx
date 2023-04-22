@@ -17,7 +17,7 @@ export function TrainCoach(
     type: TrainCoachType.WAGON,
   },
 ) {
-  const textureURL = 'src/assets/images/train/train-a.png';
+  const textureURL = 'src/assets/images/train/train-' + props.type + '.png';
   const texture = useLoader(TextureLoader, textureURL);
   const windowSize = useWindowSize();
   const boxWidth = texture.image.width / windowSize.width;
@@ -26,7 +26,7 @@ export function TrainCoach(
   // Return the view, these are regular Threejs elements expressed in JSX
   return (
     <Box position={[props.index * boxWidth, 0, 0]} args={[boxWidth, boxHeight, 1]}>
-      <meshStandardMaterial map={texture} />
+      <meshStandardMaterial map={texture} transparent />
     </Box>
   );
 }

@@ -6,7 +6,7 @@ export interface TrainProps {
 }
 export function Train(
   props: TrainProps = {
-    coachCode: 'aaa',
+    coachCode: '',
     timeliness: 1,
   },
 ) {
@@ -15,10 +15,5 @@ export function Train(
     .map((char, index) => <TrainCoach key={index} index={index} type={char} />);
 
   // Return the view, these are regular Threejs elements expressed in JSX
-  return (
-    <group>
-      <TrainCoach index={0} type={'a'} />
-      <TrainCoach index={1} type={'a'} />
-    </group>
-  );
+  return <group>{coachComponents}</group>;
 }
