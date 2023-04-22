@@ -1,22 +1,24 @@
-import { Box } from '@react-three/drei';
-import { useLoader } from '@react-three/fiber';
-import { TextureLoader } from 'three';
-import { useWindowSize } from '../../hooks/useWindowSize';
+import { TrainCoach } from './TrainCoach';
 export interface TrainProps {
-  position?: [number, number, number];
-  length?: number;
+  coachCode?: string;
+
+  timeliness?: number;
 }
-export function Train(props: TrainProps) {
-  const textureURL = 'src/assets/images/train/train-a.png';
-  const texture = useLoader(TextureLoader, textureURL);
-  const windowSize = useWindowSize();
+export function Train(
+  props: TrainProps = {
+    coachCode: 'aaa',
+    timeliness: 1,
+  },
+) {
+  const coachComponents = props.coachCode
+    ?.split('')
+    .map((char, index) => <TrainCoach key={index} index={index} type={char} />);
 
   // Return the view, these are regular Threejs elements expressed in JSX
   return (
-    <Box
-      args={[texture.image.width / windowSize.width, texture.image.height / windowSize.width, 1]}
-    >
-      <meshStandardMaterial map={texture} />
-    </Box>
+    <group>
+      <TrainCoach index={0} type={'a'} />
+      <TrainCoach index={1} type={'a'} />
+    </group>
   );
 }
