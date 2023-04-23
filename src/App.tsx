@@ -97,13 +97,13 @@ function App() {
               <Box position={[0, 0, 0]} args={[windowSize.width, windowSize.height, 0]}>
                 <meshBasicMaterial color="#AEFFF1" />
               </Box>
-              <StaticBoxContainer speed={0.00} imageUrl={BGLayer4} x={0} y={0} z={0}  />
-              <StaticBoxContainer speed={0.01}  imageUrl={BGLayer3} x={0} y={0} z={0}  />
-              <StaticBoxContainer speed={0.02}  imageUrl={BGLayer2}  x={0} y={0} z={0}  />
-              <StaticBoxContainer speed={0.03}  imageUrl={BGLayer1}  x={0} y={0} z={0}  />
-              <StaticBoxContainer speed={0.06}  imageUrl={MGLayer1}  x={0} y={0} z={0}  />
+              <StaticBoxContainer speed={0.00} imageUrl={BGLayer4} y={0} z={0}  />
+              <StaticBoxContainer speed={0.01}  imageUrl={BGLayer3} y={0} z={0}  />
+              <StaticBoxContainer speed={0.02}  imageUrl={BGLayer2}  y={0} z={0}  />
+              <StaticBoxContainer speed={0.03}  imageUrl={BGLayer1}   y={0} z={0}  />
+              <StaticBoxContainer speed={0.06}  imageUrl={MGLayer1}   y={0} z={0}  />
               <TrainWithPeople />
-              <StaticBoxContainer speed={0.09}  imageUrl={FGLayer1}  x={0} y={0} z={0}  />
+              <StaticBoxContainer speed={0.09}  imageUrl={FGLayer1}  y={0} z={0}  />
              
          
 
