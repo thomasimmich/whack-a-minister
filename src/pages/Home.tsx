@@ -1,7 +1,7 @@
 import { BASE_ASSET_URL } from '../base/Constants';
-import { HomeProps } from '../base/types';
+import { PropsWithFunction } from '../base/types';
 
-const Home = ({ playFunction }: HomeProps) => {
+const Home = ({ playFunction }: PropsWithFunction) => {
   const Card = BASE_ASSET_URL + '/images/menu/card-1.png';
 
   return (

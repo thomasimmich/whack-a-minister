@@ -1,18 +1,10 @@
 export interface Highscore {
   id: number;
-  user: string;
+  player: string;
   score: number;
-  date: string;
+  created_at: string;
 }
 
-export interface MenuProps {
-  highscores: Highscore[];
+export interface PropsWithFunction {
   playFunction: () => void;
-}
-export interface HomeProps {
-  playFunction: () => void;
-}
-
-export interface ScoreboardProps {
-  highscores: Highscore[];
 }

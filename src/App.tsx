@@ -10,11 +10,9 @@ import { FullScreenCanvas } from './components/three/FullScreenCanvas';
 
 import { useFrame } from '@react-three/fiber';
 import { System } from 'tick-knock';
-import { Highscore } from './base/types';
 import { Scores } from './components/three/Score';
 import { TrainWithPeople } from './components/three/TrainWithPeople';
 import Menu from './pages/Menu';
-import { HighscoreLoadingSystem } from './systems/HighscoreLoadingSystem';
 
 const TriggerRenderAppSystems = () => {
   const ecs = useContext(ECSContext);
@@ -63,16 +61,6 @@ function App() {
     setPlay(!play);
   };
 
-  const currentDate = new Date().toLocaleDateString();
-  const fakeData: Highscore[] = [
-    { id: 1, user: 'asd', score: 0, date: currentDate },
-    { id: 2, user: 'qwe', score: 10, date: currentDate },
-    { id: 3, user: 'sdf', score: 20, date: currentDate },
-    { id: 4, user: 'wer', score: 30, date: currentDate },
-    { id: 5, user: 'dgf', score: 40, date: currentDate },
-    { id: 6, user: 'dfg', score: 50, date: currentDate },
-  ];
-
   return (
     <div className="w-screen m-0 p-0 h-screen ">
       {play ? (
@@ -87,13 +75,11 @@ function App() {
               <Scores />
             </FullScreenCanvas>
 
-            <HighscoreLoadingSystem />
-
             {/* <UpdateOnRenderAppSystems /> */}
           </ECSContext.Provider>
         </>
       ) : (
-        <Menu highscores={fakeData} playFunction={() => togglePlay()} />
+        <Menu playFunction={() => togglePlay()} />
       )}
     </div>
   );

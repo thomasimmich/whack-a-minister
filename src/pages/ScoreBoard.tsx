@@ -1,10 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BASE_ASSET_URL } from '../base/Constants';
-import { ScoreboardProps } from '../base/types';
+import { Highscore } from '../base/types';
 
-const ScoreBoard = ({ highscores }: ScoreboardProps) => {
+const ScoreBoard = () => {
   const ScoreIlustration = BASE_ASSET_URL + '/images/menu/ScoreView.png';
+  const [highscores, setHighscores] = useState<Highscore[]>([]);
 
   useEffect(() => {
     const supabaseUrl = 'https://aejmdyaibrekeusxjtjc.supabase.co';
@@ -27,10 +28,10 @@ const ScoreBoard = ({ highscores }: ScoreboardProps) => {
         console.error(error);
       } else {
         console.log(data);
+        setHighscores(data);
       }
     }
-
-    const highscores = fetchHighscore();
+    fetchHighscore();
   }, []);
 
   return (
@@ -47,9 +48,9 @@ const ScoreBoard = ({ highscores }: ScoreboardProps) => {
         <tbody>
           {highscores?.map((highscore) => (
             <tr key={highscore.id}>
-              <td>{highscore.user}</td>
+              <td>{highscore.player}</td>
               <td>{highscore.score}</td>
-              <td>{highscore.date}</td>
+              <td>{highscore.created_at}</td>
             </tr>
           ))}
         </tbody>
