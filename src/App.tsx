@@ -103,7 +103,7 @@ function App() {
               <StaticBoxContainer speed={0.03}  imageUrl={BGLayer1}   y={0} z={0}  />
               <StaticBoxContainer speed={0.06}  imageUrl={MGLayer1}   y={0} z={0}  />
               <TrainWithPeople />
-              <StaticBoxContainer speed={0.09}  imageUrl={FGLayer1}  y={0} z={0}  />
+              <StaticBoxContainer speed={0.09}  imageUrl={FGLayer1}  y={0} z={0.11}  />
              
          
 
