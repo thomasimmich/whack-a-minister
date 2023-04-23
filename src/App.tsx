@@ -21,7 +21,6 @@ import { BASE_ASSET_URL } from './base/Constants';
 import { TrainWithPeople } from './components/three/TrainWithPeople';
 
 import { StaticBoxContainer } from './components/three/StaticBoxContainer';
-import { useRenderSystemEntities } from './hooks/useRenderSystemEntities';
 import { useWindowSize } from './hooks/useWindowSize';
 import Menu from './pages/Menu';
 import { ScoreEvaluationSystem } from './systems/ScoreEvaluationSystem';
@@ -101,12 +100,19 @@ function App() {
 
   const mainTuneSoundRef = useRef<any>(null);
 
-  const [gameStates] = useRenderSystemEntities((e) => e.has(GameStateFacet));
+  //const [gameStates] = useRenderSystemEntities((e) => e.has(GameStateFacet));
+  const [activeScore, setActiveScore] = useState(false);
+  const ScoreIlustration = BASE_ASSET_URL + '/images/menu/ScoreView.png';
+  const Card = BASE_ASSET_URL + '/images/menu/card-1.png';
 
-  const [isWelcomeVisible, setWelcomeVisible] = useState(true);
+  function toggleActiveScore() {
+    setActiveScore(!activeScore);
+  }
+
   const [isPlayingVisible, setPlayingVisible] = useState(false);
-  const [isHighscoreVisible, setHighscoreVisible] = useState(false);
 
+  {
+    /*
   useEffect(() => {
     const gameStateEntity = gameStates[0];
     const gameState = gameStateEntity?.get(GameStateFacet)?.props.gameState;
@@ -123,16 +129,15 @@ function App() {
       setPlayingVisible(false);
       setHighscoreVisible(true);
     }
-  }, [gameStates]);
+  }, [gameStates]); */
+  }
 
   return (
     <div className="w-screen m-0 p-0 h-screen ">
       <ECSContext.Provider value={ecs}>
-        {isWelcomeVisible ? (
-          <>
-            <Menu playFunction={() => togglePlay()} />
-          </>
-        ) : isPlayingVisible ? (
+        {!isPlayingVisible ? (
+          <Menu playFunction={() => togglePlay()} />
+        ) : (
           <>
             <FullScreenCanvas>
               <TriggerRenderAppSystems />
@@ -155,15 +160,8 @@ function App() {
                 loop={true}
               />
             </FullScreenCanvas>
-
             <ScoreEvaluationSystem />
-
-            {/* <UpdateOnRenderAppSystems /> */}
           </>
-        ) : isHighscoreVisible ? (
-          <></>
-        ) : (
-          <></>
         )}
       </ECSContext.Provider>
     </div>
