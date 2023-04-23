@@ -19,7 +19,7 @@ export const Score: React.FC<ScoreProps> = (props: ScoreProps) => {
         font={BASE_ASSET_URL + '/fonts/ravie.ttf'} // URL to the font file (required)
         anchorX="center" // Horizontal anchor point (default is 'left')
         anchorY="middle" // Vertical anchor point (default is 'top')
-        position={[0, 0.15, 1]} // Position in the 3D space
+        position={[0, 0.05, 1]} // Position in the 3D space
       >
         {props?.scoreValue}
       </Text>
