@@ -12,11 +12,10 @@ import { useFrame } from '@react-three/fiber';
 import { System } from 'tick-knock';
 import { Scores } from './components/three/Score';
 import { TrainWithPeople } from './components/three/TrainWithPeople';
+import Menu from './pages/Menu.jsx';
 import { HighscoreLoadingSystem } from './systems/HighscoreLoadingSystem';
-import Menu from './pages/Menu.jsx'
 const TriggerRenderAppSystems = () => {
   const ecs = useContext(ECSContext);
-
 
   useEffect(() => {
     console.log('app start');
@@ -55,29 +54,31 @@ const TriggerRenderAppSystems = () => {
   return <></>;
 };
 
-function togglePlay() {setPlay(!play)}
 function App() {
   const [ecs] = useState(new ECS());
-  const [play, setPlay] = useState()
+  const [play, setPlay] = useState();
+  const togglePlay = () => {
+    setPlay(!play);
+  };
 
   return (
-    <div className='w-screen m-0 p-0 h-screen '>
-      {play ?(
+    <div className="w-screen m-0 p-0 h-screen ">
+      {play ? (
         <>
-        <ECSContext.Provider value={ecs}>
-        <FullScreenCanvas>
-          <TriggerRenderAppSystems />
-          <Box position={[0, 0, 0]} args={[1, 1, 1]}>
-            <meshBasicMaterial color="#AEFFF1" />
-          </Box>
-          <TrainWithPeople></TrainWithPeople>
-          <Scores />
-        </FullScreenCanvas>
+          <ECSContext.Provider value={ecs}>
+            <FullScreenCanvas>
+              <TriggerRenderAppSystems />
+              <Box position={[0, 0, 0]} args={[1, 1, 1]}>
+                <meshBasicMaterial color="#AEFFF1" />
+              </Box>
+              <TrainWithPeople></TrainWithPeople>
+              <Scores />
+            </FullScreenCanvas>
 
-        <HighscoreLoadingSystem />
+            <HighscoreLoadingSystem />
 
-        {/* <UpdateOnRenderAppSystems /> */}
-      </ECSContext.Provider>
+            {/* <UpdateOnRenderAppSystems /> */}
+          </ECSContext.Provider>
         </>
       ) : (
         <Menu playFunc={togglePlay} />
