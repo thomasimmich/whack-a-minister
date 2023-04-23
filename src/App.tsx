@@ -125,11 +125,12 @@ function App() {
 
   return (
     <div className="w-screen m-0 p-0 h-screen ">
+        <ECSContext.Provider value={ecs}>
       {isWelcomeVisible ? (<>
         <Menu />
       </>) : isPlayingVisible ? (
         <>
-          <ECSContext.Provider value={ecs}>
+        
             <FullScreenCanvas>
               <TriggerRenderAppSystems />
               <Box position={[0, 0, 0]} args={[windowSize.width, windowSize.height, 0]}>
@@ -160,13 +161,14 @@ function App() {
         
 
             {/* <UpdateOnRenderAppSystems /> */}
-          </ECSContext.Provider>
+
         </>
       ) : isHighscoreVisible ? (
         <></> 
       ) : (
         <>.</>
       )}
+      </ECSContext.Provider>
     </div>
   );
 }
