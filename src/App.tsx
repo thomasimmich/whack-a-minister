@@ -12,6 +12,7 @@ import { useFrame } from '@react-three/fiber';
 import { System } from 'tick-knock';
 import { Scores } from './components/three/Score';
 import { TrainWithPeople } from './components/three/TrainWithPeople';
+import { HighscoreLoadingSystem } from './systems/HighscoreLoadingSystem';
 import Menu from './pages/Menu.jsx'
 const TriggerRenderAppSystems = () => {
   const ecs = useContext(ECSContext);
@@ -72,6 +73,8 @@ function App() {
           <TrainWithPeople></TrainWithPeople>
           <Scores />
         </FullScreenCanvas>
+
+        <HighscoreLoadingSystem />
 
         {/* <UpdateOnRenderAppSystems /> */}
       </ECSContext.Provider>
