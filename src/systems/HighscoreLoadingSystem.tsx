@@ -18,7 +18,7 @@ export const HighscoreLoadingSystem = () => {
     async function fetchHighscore() {
       const { data, error } = await supabase
         .from('highscore')
-        .select('player, score, created_at')
+        .select('id, player, score, created_at')
         .order('score', { ascending: false } )
         .limit(10);
       if (error) {
