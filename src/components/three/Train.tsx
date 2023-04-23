@@ -8,6 +8,7 @@ export function Train(
     coachCode: '',
   },
 ) {
+  console.log(props.coachCode)
   const coachComponents = props.coachCode
     ?.split('')
     .map((char, index) => <TrainCoach key={index} index={index} type={char} />);

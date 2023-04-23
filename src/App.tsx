@@ -60,23 +60,29 @@ function App() {
   const [ecs] = useState(new ECS());
 
   return (
-    <div>
-      <ECSContext.Provider value={ecs}>
-        <TriggerRenderAppSystems />
-        <FullScreenCanvas>
-          <Box position={[0, 0, 0]} args={[1, 1, 1]}>
-            <meshBasicMaterial color="red" />
-          </Box>
-          <TrainWithPeople></TrainWithPeople>
-          <Scores />
-        </FullScreenCanvas>
+    <div className="w-screen m-0 p-0 h-screen ">
+      {true ? (
+        <>
+          <ECSContext.Provider value={ecs}>
+            <FullScreenCanvas>
+              <TriggerRenderAppSystems />
+              <Box position={[0, 0, 0]} args={[1, 1, 1]}>
+                <meshBasicMaterial color="red" />
+              </Box>
+              <TrainWithPeople />
+              <Scores />
+            </FullScreenCanvas>
 
-        <HighscoreLoadingSystem />
+            <HighscoreLoadingSystem />
 
-        <ScoreEvaluationSystem />
+            <ScoreEvaluationSystem />
 
-        {/* <UpdateOnRenderAppSystems /> */}
-      </ECSContext.Provider>
+            {/* <UpdateOnRenderAppSystems /> */}
+          </ECSContext.Provider>
+        </>
+      ) : (
+        <></> /* <Menu playFunc={togglePlay} /> */
+      )}
     </div>
   );
 }
