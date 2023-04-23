@@ -1,1 +1,1 @@
-export const BASE_ASSET_URL = 'public/assets';
+export const BASE_ASSET_URL = '/assets';
