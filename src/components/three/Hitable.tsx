@@ -9,13 +9,13 @@ import { BASE_ASSET_URL } from '../../base/Constants';
 import { useWindowSize } from '../../hooks/useWindowSize';
 
 export enum HitableType {
-  ENEMY,
-  FRIEND,
+  ENEMY = 'a',
+  FRIEND = 'b',
 }
 export interface HitableProps {
   index: number;
 
-  type: HitableType;
+  type: string;
 }
 
 export function Hitable(props: HitableProps) {
@@ -28,6 +28,8 @@ export function Hitable(props: HitableProps) {
     textureURL += 'enemy-';
   } else if (props.type === HitableType.FRIEND) {
     textureURL += 'friend-';
+  } else {
+    return <></>;
   }
 
   const normalTexture = useLoader(TextureLoader, textureURL + 'a.png');

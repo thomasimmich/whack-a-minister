@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from 'react';
 import { Entity } from 'tick-knock';
 
 import { ECS, ECSContext } from './app/ECSContext';
-import { ScoreFacet } from './app/GameFacets';
+import { ActivationFacet, HitableFacet, ScoreFacet } from './app/GameFacets';
 import { FullScreenCanvas } from './components/three/FullScreenCanvas';
 
 import { useAnimationFrame } from 'framer-motion';
@@ -13,6 +13,7 @@ import { System } from 'tick-knock';
 import { Scores } from './components/three/Score';
 import { TrainWithPeople } from './components/three/TrainWithPeople';
 import { HighscoreLoadingSystem } from './systems/HighscoreLoadingSystem';
+import { HitableActivationSystem } from './systems/HitableActivationSystem';
 import { ScoreEvaluationSystem } from './systems/ScoreEvaluationSystem';
 
 const TriggerRenderAppSystems = () => {
@@ -26,8 +27,14 @@ const TriggerRenderAppSystems = () => {
     ecs.engine.addEntity(scoreEntity);
     scoreEntity.addComponent(new ScoreFacet({ scoreValue: 1000 }));
 
+    const enemyEntity = new Entity();
+    ecs.engine.addEntity(enemyEntity);
+    enemyEntity.addComponent(new HitableFacet({ hitCount: 0 }));
+    enemyEntity.addComponent(new ActivationFacet({ activatedIndexes: [] }));
+
     () => {
       ecs.engine.removeEntity(scoreEntity);
+      ecs.engine.removeEntity(enemyEntity);
     };
   }, []);
 
@@ -76,6 +83,7 @@ function App() {
             <HighscoreLoadingSystem />
 
             <ScoreEvaluationSystem />
+            <HitableActivationSystem />
 
             {/* <UpdateOnRenderAppSystems /> */}
           </ECSContext.Provider>
