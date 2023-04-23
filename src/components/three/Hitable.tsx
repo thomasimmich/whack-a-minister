@@ -46,7 +46,7 @@ export function Hitable(props: HitableProps) {
   const faceWidth = normalEnemyTexture.image.width / 2 / windowSize.width / 2;
   const faceHeight = normalEnemyTexture.image.height / 2 / windowSize.width / 2;
 
-  const gridWidth = 375 / 2 / windowSize.width / 2;
+  const gridWidth = 375 / windowSize.width / 2;
 
   const onPointerDown = () => {
     const playerOneScore = ecs.engine.entities.find((e) => e.has(ScoreFacet));
@@ -102,7 +102,7 @@ export function Hitable(props: HitableProps) {
   return (
     <Box
       onPointerDown={onPointerDown}
-      position={[props.index * gridWidth, 0, 0.01 - props.index * 0.0001]}
+      position={[props.index * gridWidth - gridWidth / 2, 0.015, 0.01 - props.index * 0.0001]}
       args={[faceWidth, faceHeight, 1]}
     >
       {currentTexture ? (

@@ -28,7 +28,7 @@ const TriggerRenderAppSystems = () => {
 
     const scoreEntity = new Entity();
     ecs.engine.addEntity(scoreEntity);
-    scoreEntity.addComponent(new ScoreFacet({ scoreValue: 1000 }));
+    scoreEntity.addComponent(new ScoreFacet({ scoreValue: 0 }));
 
     const levelEntity = new Entity();
     ecs.engine.addEntity(levelEntity);
@@ -74,16 +74,14 @@ const TriggerRenderAppSystems = () => {
 function App() {
   const [ecs] = useState(new ECS());
   const windowSize = useWindowSize();
-  const BGLayer4 =  BASE_ASSET_URL + '/images/background/backgroundLayer4.png';
-  const BGLayer3 =  BASE_ASSET_URL + '/images/background/backgroundLayer3.png';
-  const BGLayer2 =  BASE_ASSET_URL + '/images/background/backgroundLayer2.png';
-  const BGLayer1 =  BASE_ASSET_URL + '/images/background/backgroundLayer1.png';
+  const BGLayer4 = BASE_ASSET_URL + '/images/background/backgroundLayer4.png';
+  const BGLayer3 = BASE_ASSET_URL + '/images/background/backgroundLayer3.png';
+  const BGLayer2 = BASE_ASSET_URL + '/images/background/backgroundLayer2.png';
+  const BGLayer1 = BASE_ASSET_URL + '/images/background/backgroundLayer1.png';
 
-  const MGLayer1 =  BASE_ASSET_URL + '/images/middleground/middleGround.png';
+  const MGLayer1 = BASE_ASSET_URL + '/images/middleground/middleGround.png';
 
-
-  const FGLayer1 =  BASE_ASSET_URL + '/images/foreground/foreground.png';
-
+  const FGLayer1 = BASE_ASSET_URL + '/images/foreground/foreground.png';
 
   const mainTuneSoundRef = useRef<any>(null);
 
@@ -97,15 +95,13 @@ function App() {
               <Box position={[0, 0, 0]} args={[windowSize.width, windowSize.height, 0]}>
                 <meshBasicMaterial color="#AEFFF1" />
               </Box>
-              <StaticBoxContainer speed={0.00} imageUrl={BGLayer4} y={0} z={0}  />
-              <StaticBoxContainer speed={0.01}  imageUrl={BGLayer3} y={0} z={0}  />
-              <StaticBoxContainer speed={0.02}  imageUrl={BGLayer2}  y={0} z={0}  />
-              <StaticBoxContainer speed={0.03}  imageUrl={BGLayer1}   y={0} z={0}  />
-              <StaticBoxContainer speed={0.06}  imageUrl={MGLayer1}   y={0} z={0}  />
+              <StaticBoxContainer speed={0.0} imageUrl={BGLayer4} y={0} z={0} />
+              <StaticBoxContainer speed={0.01} imageUrl={BGLayer3} y={0} z={0} />
+              <StaticBoxContainer speed={0.02} imageUrl={BGLayer2} y={0} z={0} />
+              <StaticBoxContainer speed={0.03} imageUrl={BGLayer1} y={0} z={0} />
+              <StaticBoxContainer speed={0.06} imageUrl={MGLayer1} y={0} z={0} />
               <TrainWithPeople />
-              <StaticBoxContainer speed={0.09}  imageUrl={FGLayer1}  y={0} z={0.11}  />
-             
-         
+              <StaticBoxContainer speed={0.09} imageUrl={FGLayer1} y={0} z={0.11} />
 
               <Scores />
 
