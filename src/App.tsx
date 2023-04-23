@@ -5,7 +5,14 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { Entity } from 'tick-knock';
 
 import { ECS, ECSContext } from './app/ECSContext';
-import { ActivationFacet, HitableFacet, LevelFacet, ScoreFacet } from './app/GameFacets';
+import {
+  ActivationFacet,
+  GameStateFacet,
+  GameStates,
+  HitableFacet,
+  LevelFacet,
+  ScoreFacet,
+} from './app/GameFacets';
 import { FullScreenCanvas } from './components/three/FullScreenCanvas';
 
 import { useAnimationFrame } from 'framer-motion';
@@ -18,6 +25,7 @@ import { HighscoreLoadingSystem } from './systems/HighscoreLoadingSystem';
 import { ScoreEvaluationSystem } from './systems/ScoreEvaluationSystem';
 
 import { StaticBoxContainer } from './components/three/StaticBoxContainer';
+import { useRenderSystemEntities } from './hooks/useRenderSystemEntities';
 
 const TriggerRenderAppSystems = () => {
   const ecs = useContext(ECSContext);
@@ -39,10 +47,15 @@ const TriggerRenderAppSystems = () => {
     ecs.engine.addEntity(enemyEntity);
     enemyEntity.addComponent(new HitableFacet({ hitCount: 0 }));
 
+    const gameStateEntity = new Entity();
+    ecs.engine.addEntity(gameStateEntity);
+    gameStateEntity.addComponent(new GameStateFacet({ gameState: GameStates.WELCOME }));
+
     () => {
       ecs.engine.removeEntity(scoreEntity);
       ecs.engine.removeEntity(levelEntity);
       ecs.engine.removeEntity(enemyEntity);
+      ecs.engine.removeEntity(gameStateEntity);
     };
   }, []);
 
@@ -85,6 +98,30 @@ function App() {
 
   const mainTuneSoundRef = useRef<any>(null);
 
+  const [gameStates] = useRenderSystemEntities((e) => e.has(GameStateFacet));
+
+  const [isWelcomeVisible, setWelcomeVisible] = useState(false);
+  const [isPlayingVisible, setPlayingVisible] = useState(false);
+  const [isHighscoreVisible, setHighscoreVisible] = useState(false);
+
+  useEffect(() => {
+    const gameStateEntity = gameStates[0];
+    const gameState = gameStateEntity?.get(GameStateFacet)?.props.gameState;
+    if (gameState === GameStates.WELCOME) {
+      setWelcomeVisible(true);
+      setPlayingVisible(false);
+      setHighscoreVisible(false);
+    } else if (gameState === GameStates.PLAYING) {
+      setWelcomeVisible(false);
+      setPlayingVisible(true);
+      setHighscoreVisible(false);
+    } else if (gameState === GameStates.HIGH_SCORES) {
+      setWelcomeVisible(false);
+      setPlayingVisible(false);
+      setHighscoreVisible(true);
+    }
+  }, [gameStates]);
+
   return (
     <div className="w-screen m-0 p-0 h-screen ">
       {true ? (
@@ -117,6 +154,11 @@ function App() {
             <HighscoreLoadingSystem />
 
             <ScoreEvaluationSystem />
+            <div>
+              {isWelcomeVisible}
+              {isPlayingVisible}
+              {isHighscoreVisible}
+            </div>
 
             {/* <UpdateOnRenderAppSystems /> */}
           </ECSContext.Provider>
