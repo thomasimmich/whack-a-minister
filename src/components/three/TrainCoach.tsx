@@ -1,6 +1,7 @@
 import { Box } from '@react-three/drei';
 import { useLoader } from '@react-three/fiber';
 import { TextureLoader } from 'three';
+import { BASE_ASSET_URL } from '../../base/Constants';
 import { useWindowSize } from '../../hooks/useWindowSize';
 
 export enum TrainCoachType {
@@ -18,7 +19,7 @@ export function TrainCoach(
     type: TrainCoachType.WAGON,
   },
 ) {
-  const textureURL = 'src/assets/images/train/train-' + props.type + '.png';
+  const textureURL = BASE_ASSET_URL + '/images/train/train-' + props.type + '.png';
   const texture = useLoader(TextureLoader, textureURL);
   const windowSize = useWindowSize();
   const coachWidth = texture.image.width / windowSize.width;

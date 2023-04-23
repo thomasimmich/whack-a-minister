@@ -5,6 +5,7 @@ import { TextureLoader } from 'three';
 
 import { ECSContext } from '../../app/ECSContext';
 import { ScoreFacet } from '../../app/GameFacets';
+import { BASE_ASSET_URL } from '../../base/Constants';
 import { useWindowSize } from '../../hooks/useWindowSize';
 
 export enum HitableType {
@@ -22,7 +23,7 @@ export function Hitable(props: HitableProps) {
 
   const hitSoundRef = useRef<any>(null);
   //const hitSoundBuffer = useLoader(AudioLoader, '/sound.mp3');
-  let textureURL = 'src/assets/images/people/';
+  let textureURL = BASE_ASSET_URL + '/images/people/';
   if (props.type === HitableType.ENEMY) {
     textureURL += 'enemy-';
   } else if (props.type === HitableType.FRIEND) {
@@ -71,7 +72,7 @@ export function Hitable(props: HitableProps) {
       <meshBasicMaterial map={currentTexture} transparent />
       <PositionalAudio
         ref={hitSoundRef}
-        url="src/assets/sounds/hammer0.mp3"
+        url={BASE_ASSET_URL + '/sounds/hammer0.mp3'}
         load={undefined}
         autoplay={false}
         loop={false}
