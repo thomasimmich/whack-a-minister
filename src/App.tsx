@@ -1,7 +1,7 @@
-import { Box } from '@react-three/drei';
+import { Box, PositionalAudio } from '@react-three/drei';
 import './App.css';
 
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Entity } from 'tick-knock';
 
 import { ECS, ECSContext } from './app/ECSContext';
@@ -10,14 +10,13 @@ import { FullScreenCanvas } from './components/three/FullScreenCanvas';
 
 import { useAnimationFrame } from 'framer-motion';
 import { System } from 'tick-knock';
+import { BASE_ASSET_URL } from './base/Constants';
 import { Scores } from './components/three/Score';
+import { StaticBox } from './components/three/StaticBox';
 import { TrainWithPeople } from './components/three/TrainWithPeople';
+import { useWindowSize } from './hooks/useWindowSize';
 import { HighscoreLoadingSystem } from './systems/HighscoreLoadingSystem';
 import { ScoreEvaluationSystem } from './systems/ScoreEvaluationSystem';
-import { BASE_ASSET_URL } from './base/Constants';
-import { StaticBox } from './components/three/StaticBox';
-import { useWindowSize } from './hooks/useWindowSize';
-
 
 const TriggerRenderAppSystems = () => {
   const ecs = useContext(ECSContext);
@@ -74,12 +73,12 @@ const TriggerRenderAppSystems = () => {
 function App() {
   const [ecs] = useState(new ECS());
   const windowSize = useWindowSize();
-  const BGLayer4 =  BASE_ASSET_URL + '/images/background/backgroundLayer4.png';
-  const BGLayer3 =  BASE_ASSET_URL + '/images/background/backgroundLayer3.png';
-  const BGLayer2 =  BASE_ASSET_URL + '/images/background/backgroundLayer2.png';
-  const BGLayer1 =  BASE_ASSET_URL + '/images/background/backgroundLayer1.png';
+  const BGLayer4 = BASE_ASSET_URL + '/images/background/backgroundLayer4.png';
+  const BGLayer3 = BASE_ASSET_URL + '/images/background/backgroundLayer3.png';
+  const BGLayer2 = BASE_ASSET_URL + '/images/background/backgroundLayer2.png';
+  const BGLayer1 = BASE_ASSET_URL + '/images/background/backgroundLayer1.png';
 
-
+  const mainTuneSoundRef = useRef<any>(null);
 
   return (
     <div className="w-screen m-0 p-0 h-screen ">
@@ -91,13 +90,21 @@ function App() {
               <Box position={[0, 0, 0]} args={[windowSize.width, windowSize.height, 0]}>
                 <meshBasicMaterial color="#AEFFF1" />
               </Box>
-              <StaticBox speed={0.00} imageUrl={BGLayer4} x={0} y={0} z={0}  />
-              <StaticBox speed={0.01}  imageUrl={BGLayer3} x={0} y={0} z={0}  />
-              <StaticBox speed={0.02}  imageUrl={BGLayer2}  x={0} y={0} z={0}  />
-              <StaticBox speed={0.03}  imageUrl={BGLayer1}  x={0} y={0} z={0}  />
+              <StaticBox speed={0.0} imageUrl={BGLayer4} x={0} y={0} z={0} />
+              <StaticBox speed={0.01} imageUrl={BGLayer3} x={0} y={0} z={0} />
+              <StaticBox speed={0.02} imageUrl={BGLayer2} x={0} y={0} z={0} />
+              <StaticBox speed={0.03} imageUrl={BGLayer1} x={0} y={0} z={0} />
               <TrainWithPeople />
-             
+
               <Scores />
+
+              <PositionalAudio
+                ref={mainTuneSoundRef}
+                url={BASE_ASSET_URL + '/sounds/scheuertrack1.mp3'}
+                load={undefined}
+                autoplay={true}
+                loop={true}
+              />
             </FullScreenCanvas>
 
             <HighscoreLoadingSystem />
