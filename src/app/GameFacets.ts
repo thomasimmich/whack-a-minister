@@ -8,3 +8,20 @@ export class ScoreFacet extends Facet<ScoreProps> {
     super(props);
   }
 }
+
+export enum GameStates {
+  WELCOME,
+  PLAYING,
+
+  GAME_OVER,
+
+  HIGH_SCORES,
+}
+export interface GameStateProps {
+  gameState: number;
+}
+export class GameStateFacet extends Facet<GameStateProps> {
+  constructor(props: GameStateProps) {
+    super(props);
+  }
+}

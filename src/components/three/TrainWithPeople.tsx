@@ -6,12 +6,14 @@ export const TrainWithPeople: React.FC<{}> = () => {
   const coachCode = 'avz';
   const coachWidth = useCoachWidth();
   const trainPosition = useTrainPosition(coachCode);
-  const peoplePosition = trainPosition % 2;
+  const peoplePosition = trainPosition;
   console.log('trainPosition', trainPosition);
   console.log('coachWidth', coachWidth);
   return (
     <group>
+
       <Train coachCode={coachCode} />
+   
       <group position={[peoplePosition, 0, 0.1]}>
         <Hitable index={0} type={HitableType.ENEMY} />
         <Hitable index={1} type={HitableType.FRIEND} />

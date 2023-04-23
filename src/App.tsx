@@ -8,15 +8,15 @@ import { ECS, ECSContext } from './app/ECSContext';
 import { ScoreFacet } from './app/GameFacets';
 import { FullScreenCanvas } from './components/three/FullScreenCanvas';
 
-import { useFrame } from '@react-three/fiber';
+import { useAnimationFrame } from 'framer-motion';
 import { System } from 'tick-knock';
 import { Scores } from './components/three/Score';
 import { TrainWithPeople } from './components/three/TrainWithPeople';
 import { HighscoreLoadingSystem } from './systems/HighscoreLoadingSystem';
-import Menu from './pages/Menu.jsx'
+import { ScoreEvaluationSystem } from './systems/ScoreEvaluationSystem';
+
 const TriggerRenderAppSystems = () => {
   const ecs = useContext(ECSContext);
-
 
   useEffect(() => {
     console.log('app start');
@@ -33,12 +33,13 @@ const TriggerRenderAppSystems = () => {
 
   const [blacklistedIdentifiableSystems] = useState(new Set<System>());
 
-  useFrame((_state, dt) => {
+  useAnimationFrame((_state, dt) => {
     const systems = ecs.engine.systems;
 
     systems.forEach((system) => {
       try {
         if (!blacklistedIdentifiableSystems.has(system)) {
+          console.log('update system', system);
           system.update(dt);
         }
       } catch (e) {
@@ -55,32 +56,32 @@ const TriggerRenderAppSystems = () => {
   return <></>;
 };
 
-function togglePlay() {setPlay(!play)}
 function App() {
   const [ecs] = useState(new ECS());
-  const [play, setPlay] = useState()
 
   return (
-    <div className='w-screen m-0 p-0 h-screen '>
-      {play ?(
+    <div className="w-screen m-0 p-0 h-screen ">
+      {true ? (
         <>
-        <ECSContext.Provider value={ecs}>
-        <FullScreenCanvas>
-          <TriggerRenderAppSystems />
-          <Box position={[0, 0, 0]} args={[1, 1, 1]}>
-            <meshBasicMaterial color="#AEFFF1" />
-          </Box>
-          <TrainWithPeople></TrainWithPeople>
-          <Scores />
-        </FullScreenCanvas>
+          <ECSContext.Provider value={ecs}>
+            <FullScreenCanvas>
+              <TriggerRenderAppSystems />
+              <Box position={[0, 0, 0]} args={[1, 1, 1]}>
+                <meshBasicMaterial color="red" />
+              </Box>
+              <TrainWithPeople />
+              <Scores />
+            </FullScreenCanvas>
 
-        <HighscoreLoadingSystem />
+            <HighscoreLoadingSystem />
 
-        {/* <UpdateOnRenderAppSystems /> */}
-      </ECSContext.Provider>
+            <ScoreEvaluationSystem />
+
+            {/* <UpdateOnRenderAppSystems /> */}
+          </ECSContext.Provider>
         </>
       ) : (
-        <Menu playFunc={togglePlay} />
+        <></> /* <Menu playFunc={togglePlay} /> */
       )}
     </div>
   );
