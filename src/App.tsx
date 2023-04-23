@@ -84,10 +84,6 @@ const TriggerRenderAppSystems = () => {
 
 function App() {
   const [ecs] = useState(new ECS());
-  const [play, setPlay] = useState(false);
-  const togglePlay = () => {
-    setPlay(!play);
-  };
   const windowSize = useWindowSize();
   const BGLayer4 = BASE_ASSET_URL + '/images/background/backgroundLayer4.png';
   const BGLayer3 = BASE_ASSET_URL + '/images/background/backgroundLayer3.png';
@@ -101,15 +97,11 @@ function App() {
   const mainTuneSoundRef = useRef<any>(null);
 
   //const [gameStates] = useRenderSystemEntities((e) => e.has(GameStateFacet));
-  const [activeScore, setActiveScore] = useState(false);
-  const ScoreIlustration = BASE_ASSET_URL + '/images/menu/ScoreView.png';
-  const Card = BASE_ASSET_URL + '/images/menu/card-1.png';
-
-  function toggleActiveScore() {
-    setActiveScore(!activeScore);
-  }
-
   const [isPlayingVisible, setPlayingVisible] = useState(false);
+
+  function togglePlay() {
+    setPlayingVisible(!isPlayingVisible);
+  }
 
   {
     /*
