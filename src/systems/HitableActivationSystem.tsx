@@ -1,19 +1,19 @@
 import { useAnimationFrame } from 'framer-motion';
 import { useEffect } from 'react';
-import { ActivationFacet, HitableFacet } from '../app/GameFacets';
+import { ActivationFacet, LevelFacet } from '../app/GameFacets';
 import { useRenderSystemEntities } from '../hooks/useRenderSystemEntities';
 
 export const HitableActivationSystem = () => {
   //const ecs = useContext(ECSContext);
-  const [hitableEntities] = useRenderSystemEntities((e) => e.hasAll(HitableFacet, ActivationFacet));
+  const [levelEntities] = useRenderSystemEntities((e) => e.hasAll(LevelFacet, ActivationFacet));
 
   useEffect(() => {
-    console.log('HitableActivationSystem ', hitableEntities);
-  }, [hitableEntities]);
+    console.log('HitableActivationSystem ', levelEntities);
+  }, [levelEntities]);
 
   useAnimationFrame((_state, _dt) => {
-    hitableEntities.forEach((hitableEntity) => {
-      hitableEntity.add(new ActivationFacet({ activatedIndexes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] }));
+    levelEntities.forEach((levelEntity) => {
+      levelEntity.add(new ActivationFacet({ activationCode: 'aaaabbbbb' }));
     });
   });
 

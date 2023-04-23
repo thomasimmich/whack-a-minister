@@ -19,10 +19,19 @@ export class HitableFacet extends Facet<HitableProps> {
 }
 
 export interface ActivationProps {
-  activatedIndexes: number[];
+  activationCode: string;
 }
 export class ActivationFacet extends Facet<ActivationProps> {
   constructor(props: ActivationProps) {
+    super(props);
+  }
+}
+
+export interface LevelProps {
+  levelValue: number;
+}
+export class LevelFacet extends Facet<LevelProps> {
+  constructor(props: LevelProps) {
     super(props);
   }
 }
