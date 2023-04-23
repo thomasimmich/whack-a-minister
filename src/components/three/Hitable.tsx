@@ -50,9 +50,15 @@ export function Hitable(props: HitableProps) {
 
   const onPointerDown = () => {
     const playerOneScore = ecs.engine.entities.find((e) => e.has(ScoreFacet));
-    playerOneScore?.add(
-      new ScoreFacet({ scoreValue: playerOneScore.get(ScoreFacet)?.props.scoreValue! + 100 }),
-    );
+    if (props.type === HitableType.ENEMY) {
+      playerOneScore?.add(
+        new ScoreFacet({ scoreValue: playerOneScore.get(ScoreFacet)?.props.scoreValue! + 100 }),
+      );
+    } else if (props.type === HitableType.FRIEND) {
+      playerOneScore?.add(
+        new ScoreFacet({ scoreValue: playerOneScore.get(ScoreFacet)?.props.scoreValue! - 500 }),
+      );
+    }
 
     if (props.type === HitableType.ENEMY) {
       setCurrentTexture(hitEnemyTexture);
@@ -96,7 +102,7 @@ export function Hitable(props: HitableProps) {
   return (
     <Box
       onPointerDown={onPointerDown}
-      position={[props.index * gridWidth, 0, 0.0]}
+      position={[props.index * gridWidth, 0, 0.01 - props.index * 0.0001]}
       args={[faceWidth, faceHeight, 1]}
     >
       {currentTexture ? (
