@@ -13,7 +13,7 @@ import { System } from 'tick-knock';
 import { Scores } from './components/three/Score';
 import { TrainWithPeople } from './components/three/TrainWithPeople';
 import { HighscoreLoadingSystem } from './systems/HighscoreLoadingSystem';
-import Menu from './pages/Menu.jsx'
+
 const TriggerRenderAppSystems = () => {
   const ecs = useContext(ECSContext);
 
@@ -55,22 +55,22 @@ const TriggerRenderAppSystems = () => {
   return <></>;
 };
 
-function togglePlay() {setPlay(!play)}
 function App() {
   const [ecs] = useState(new ECS());
-  const [play, setPlay] = useState()
+
+  
 
   return (
     <div className='w-screen m-0 p-0 h-screen '>
-      {play ?(
+      {true ?(
         <>
         <ECSContext.Provider value={ecs}>
         <FullScreenCanvas>
           <TriggerRenderAppSystems />
-          <Box position={[0, 0, 0]} args={[1, 1, 1]}>
+          <Box position={[0, 0, 0]} args={[4, 4, 1]}>
             <meshBasicMaterial color="#AEFFF1" />
           </Box>
-          <TrainWithPeople></TrainWithPeople>
+          <TrainWithPeople />
           <Scores />
         </FullScreenCanvas>
 
@@ -80,7 +80,7 @@ function App() {
       </ECSContext.Provider>
         </>
       ) : (
-        <Menu playFunc={togglePlay} />
+     <></>  /* <Menu playFunc={togglePlay} /> */
       )}
     </div>
   );
