@@ -10,7 +10,7 @@ export class RenderSystem extends IterativeSystem {
     super(queryPredicate);
   }
 
-  protected updateEntity(entity: Entity, dt: number): void {}
+  protected updateEntity(_entity: Entity, _dt: number): void {}
 
   protected updateEntities(dt: number): void {
     super.updateEntities(dt);
@@ -24,14 +24,14 @@ export class RenderSystem extends IterativeSystem {
     }
   }
 
-  protected entityAdded = ({ current }: EntitySnapshot) => {
+  protected entityAdded = ({}: EntitySnapshot) => {
     // Also, if any additional Regeneration buff will appear in the entity, we will handle
     // them as well and instantly heal the hero
     //current.onComponentAdded.connect(this.rerender);
     this.shouldUpdate = true;
   };
 
-  protected entityRemoved = ({ current }: EntitySnapshot) => {
+  protected entityRemoved = ({}: EntitySnapshot) => {
     // We don't want to know if any new components were added to the entity when it left
     // the queue already.
     //current.onComponentAdded.disconnect(this.rerender);

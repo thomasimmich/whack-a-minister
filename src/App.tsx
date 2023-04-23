@@ -13,7 +13,7 @@ import { System } from 'tick-knock';
 import { Scores } from './components/three/Score';
 import { TrainWithPeople } from './components/three/TrainWithPeople';
 
-const AppSystems = () => {
+const TriggerRenderAppSystems = () => {
   const ecs = useContext(ECSContext);
 
   useEffect(() => {
@@ -60,13 +60,15 @@ function App() {
     <div>
       <ECSContext.Provider value={ecs}>
         <FullScreenCanvas>
-          <AppSystems />
+          <TriggerRenderAppSystems />
           <Box position={[0, 0, 0]} args={[1, 1, 1]}>
             <meshBasicMaterial color="red" />
           </Box>
           <TrainWithPeople></TrainWithPeople>
           <Scores />
         </FullScreenCanvas>
+
+        {/* <UpdateOnRenderAppSystems /> */}
       </ECSContext.Provider>
     </div>
   );

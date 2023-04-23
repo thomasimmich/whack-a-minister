@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 export function useWindowSize() {
-  return useWindowSizeEffect((width, height) => {});
+  return useWindowSizeEffect((_width, _height) => {});
 }
 
 export function useWindowSizeEffect(callback: (width: number, height: number) => void) {
