@@ -1,6 +1,6 @@
 import { Box, PositionalAudio } from '@react-three/drei';
 import { useLoader } from '@react-three/fiber';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { TextureLoader } from 'three';
 
 import { ECSContext } from '../../app/ECSContext';
@@ -100,30 +100,32 @@ export function Hitable(props: HitableProps) {
   console.log('gridwidth ', gridWidth);
   // Return the view, these are regular Threejs elements expressed in JSX
   return (
-    <Box
-      onPointerDown={onPointerDown}
-      position={[props.index * gridWidth - gridWidth / 2, 0.015, 0.01 - props.index * 0.0001]}
-      args={[faceWidth, faceHeight, 1]}
-    >
-      {currentTexture ? (
-        <meshBasicMaterial map={currentTexture} transparent />
-      ) : (
-        <meshBasicMaterial transparent opacity={0} />
-      )}
-      <PositionalAudio
-        ref={hitFriendSoundRef}
-        url={BASE_ASSET_URL + '/sounds/hammer0.mp3'}
-        load={undefined}
-        autoplay={false}
-        loop={false}
-      />
-      <PositionalAudio
-        ref={hitEnemySoundRef}
-        url={BASE_ASSET_URL + '/sounds/hammer1.mp3'}
-        load={undefined}
-        autoplay={false}
-        loop={false}
-      />
-    </Box>
+    <Suspense fallback={null}>
+      <Box
+        onPointerDown={onPointerDown}
+        position={[props.index * gridWidth - gridWidth / 2, 0.015, 0.01 - props.index * 0.0001]}
+        args={[faceWidth, faceHeight, 1]}
+      >
+        {currentTexture ? (
+          <meshBasicMaterial map={currentTexture} transparent />
+        ) : (
+          <meshBasicMaterial transparent opacity={0} />
+        )}
+        <PositionalAudio
+          ref={hitFriendSoundRef}
+          url={BASE_ASSET_URL + '/sounds/hammer0.mp3'}
+          load={undefined}
+          autoplay={false}
+          loop={false}
+        />
+        <PositionalAudio
+          ref={hitEnemySoundRef}
+          url={BASE_ASSET_URL + '/sounds/hammer1.mp3'}
+          load={undefined}
+          autoplay={false}
+          loop={false}
+        />
+      </Box>
+    </Suspense>
   );
 }
