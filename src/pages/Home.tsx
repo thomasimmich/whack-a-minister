@@ -1,13 +1,14 @@
 import { BASE_ASSET_URL } from '../base/Constants';
+import { HomeProps } from '../base/types';
 
-const Home = ({ play }) => {
+const Home = ({ playFunction }: HomeProps) => {
   const Card = BASE_ASSET_URL + '/images/menu/card-1.png';
 
   return (
-    <div className="w-full h-full p-8   text-black">
+    <div className="w-full h-full p-8">
       <div className="mt-6">
         <div
-          onClick={play}
+          onClick={playFunction}
           className="w-full h-40 rounded-xl p-5 flex items-end"
           style={{ backgroundImage: `url(${Card})` }}
         >

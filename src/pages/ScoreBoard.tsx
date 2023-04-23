@@ -1,16 +1,10 @@
 import { BASE_ASSET_URL } from '../base/Constants';
+import { ScoreboardProps } from '../base/types';
 
-const ScoreBoard = () => {
+const ScoreBoard = ({ highscores }: ScoreboardProps) => {
   const ScoreIlustration = BASE_ASSET_URL + '/images/menu/ScoreView.png';
-  const currentDate = new Date().toLocaleDateString();
-  const fakeData: any = [
-    { id: 1, user: 'asd', score: 0, date: currentDate },
-    { id: 2, user: 'qwe', score: 10, date: currentDate },
-    { id: 3, user: 'sdf', score: 20, date: currentDate },
-    { id: 4, user: 'wer', score: 30, date: currentDate },
-    { id: 5, user: 'dgf', score: 40, date: currentDate },
-    { id: 6, user: 'dfg', score: 50, date: currentDate },
-  ];
+
+  const data = highscores;
 
   return (
     <>
@@ -24,7 +18,7 @@ const ScoreBoard = () => {
           </tr>
         </thead>
         <tbody>
-          {fakeData.map((highscore) => (
+          {data.map((highscore) => (
             <tr key={highscore.id}>
               <td>{highscore.user}</td>
               <td>{highscore.score}</td>

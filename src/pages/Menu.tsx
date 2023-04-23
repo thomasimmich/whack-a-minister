@@ -1,10 +1,11 @@
 import { useState } from 'react';
 
+import { MenuProps } from '../base/types';
 import Navbar from '../components/dom/Navbar';
 import Home from './Home';
 import ScoreBoard from './ScoreBoard';
 
-const Menu = ({ playFunc }) => {
+const Menu = ({ highscores, playFunction }: MenuProps) => {
   const [activeScore, setActiveScore] = useState(false);
 
   const toggleActiveScore = () => {
@@ -15,7 +16,11 @@ const Menu = ({ playFunc }) => {
     <>
       <div className="w-full h-full p-8   text-black">
         <Navbar togglePage={() => toggleActiveScore()}></Navbar>
-        {!activeScore ? <Home play={playFunc}></Home> : <ScoreBoard></ScoreBoard>}
+        {!activeScore ? (
+          <Home playFunction={playFunction}></Home>
+        ) : (
+          <ScoreBoard highscores={highscores}></ScoreBoard>
+        )}
       </div>
     </>
   );
