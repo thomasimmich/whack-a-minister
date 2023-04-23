@@ -9,17 +9,17 @@ export function useCoachWidth() {
   const texture = useLoader(TextureLoader, textureURL);
   const windowSize = useWindowSize();
   // if the coach is exactly as wide as the window, it will be 1
-  return texture.image.width / windowSize.width;
+  return texture.image.width / windowSize.width / 2;
 }
 
 export function useTrainPosition(coachCode: string) {
   const [currentTimeliness, setCurrentTimeliness] = useState(1);
 
   const coachWidth = useCoachWidth();
-  const trainCenterPosition = -(coachWidth * coachCode.length) / 2;
+  const trainCenterPosition = -(coachWidth / 2 * coachCode.length) / 2;
 
   useFrame((_state, delta) => {
-    const newTimeliness = currentTimeliness! - delta * 0.01;
+    const newTimeliness = currentTimeliness! - delta * 0.1;
     setCurrentTimeliness(newTimeliness);
   });
 
