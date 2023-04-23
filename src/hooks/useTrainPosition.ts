@@ -19,7 +19,7 @@ export function useTrainPosition(coachCode: string) {
   const trainCenterPosition = -(coachWidth / 2 * coachCode.length) / 2;
 
   useFrame((_state, delta) => {
-    const newTimeliness = currentTimeliness! - delta * 0.01;
+    const newTimeliness = currentTimeliness! - delta * 0.1;
     setCurrentTimeliness(newTimeliness);
   });
 
