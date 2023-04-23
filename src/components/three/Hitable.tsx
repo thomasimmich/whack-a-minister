@@ -35,8 +35,8 @@ export function Hitable(props: HitableProps) {
   const [currentTexture, setCurrentTexture] = useState(normalTexture);
 
   const windowSize = useWindowSize();
-  const faceWidth = normalTexture.image.width / windowSize.width / 2;
-  const faceHeight = normalTexture.image.height / windowSize.width / 2;
+  const faceWidth = normalTexture.image.width / 2 / windowSize.width / 2;
+  const faceHeight = normalTexture.image.height / 2 / windowSize.width / 2;
 
   const onPointerDown = () => {
     const playerOneScore = ecs.engine.entities.find((e) => e.has(ScoreFacet));

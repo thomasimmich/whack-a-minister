@@ -27,7 +27,7 @@ export function TrainCoach(
 
   // Return the view, these are regular Threejs elements expressed in JSX
   return (
-    <Box position={[props.index * coachWidth, 0, 0]} args={[coachWidth, coachHeight, 1]}>
+    <Box position={[props.index * coachWidth / 2, 0, 0]} args={[coachWidth / 2, coachHeight / 2,  1]}>
       <meshStandardMaterial map={texture} transparent />
     </Box>
   );
