@@ -15,7 +15,7 @@ import { TrainWithPeople } from './components/three/TrainWithPeople';
 import { HighscoreLoadingSystem } from './systems/HighscoreLoadingSystem';
 import { ScoreEvaluationSystem } from './systems/ScoreEvaluationSystem';
 import { BASE_ASSET_URL } from './base/Constants';
-import { StaticBox } from './components/three/StaticBox';
+import { StaticBoxContainer } from './components/three/StaticBoxContainer';
 import { useWindowSize } from './hooks/useWindowSize';
 
 
@@ -79,6 +79,9 @@ function App() {
   const BGLayer2 =  BASE_ASSET_URL + '/images/background/backgroundLayer2.png';
   const BGLayer1 =  BASE_ASSET_URL + '/images/background/backgroundLayer1.png';
 
+  const MGLayer1 =  BASE_ASSET_URL + '/images/middleground/middleGround.png';
+
+  const FGLayer1 =  BASE_ASSET_URL + '/images/foreground/foreground.png';
 
 
   return (
@@ -91,11 +94,13 @@ function App() {
               <Box position={[0, 0, 0]} args={[windowSize.width, windowSize.height, 0]}>
                 <meshBasicMaterial color="#AEFFF1" />
               </Box>
-              <StaticBox speed={0.00} imageUrl={BGLayer4} x={0} y={0} z={0}  />
-              <StaticBox speed={0.01}  imageUrl={BGLayer3} x={0} y={0} z={0}  />
-              <StaticBox speed={0.02}  imageUrl={BGLayer2}  x={0} y={0} z={0}  />
-              <StaticBox speed={0.03}  imageUrl={BGLayer1}  x={0} y={0} z={0}  />
+              <StaticBoxContainer speed={0.00} imageUrl={BGLayer4} x={0} y={0} z={0}  />
+              <StaticBoxContainer speed={0.01}  imageUrl={BGLayer3} x={0} y={0} z={0}  />
+              <StaticBoxContainer speed={0.02}  imageUrl={BGLayer2}  x={0} y={0} z={0}  />
+              <StaticBoxContainer speed={0.03}  imageUrl={BGLayer1}  x={0} y={0} z={0}  />
+              <StaticBoxContainer speed={0.06}  imageUrl={MGLayer1}  x={0} y={0} z={0}  />
               <TrainWithPeople />
+              <StaticBoxContainer speed={0.07}  imageUrl={FGLayer1}  x={0} y={0} z={0}  />
              
               <Scores />
             </FullScreenCanvas>
