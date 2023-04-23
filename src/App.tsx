@@ -14,6 +14,10 @@ import { Scores } from './components/three/Score';
 import { TrainWithPeople } from './components/three/TrainWithPeople';
 import { HighscoreLoadingSystem } from './systems/HighscoreLoadingSystem';
 import { ScoreEvaluationSystem } from './systems/ScoreEvaluationSystem';
+import { BASE_ASSET_URL } from './base/Constants';
+import { StaticBox } from './components/three/StaticBox';
+import { useWindowSize } from './hooks/useWindowSize';
+
 
 const TriggerRenderAppSystems = () => {
   const ecs = useContext(ECSContext);
@@ -58,6 +62,13 @@ const TriggerRenderAppSystems = () => {
 
 function App() {
   const [ecs] = useState(new ECS());
+  const windowSize = useWindowSize();
+  const BGLayer4 =  BASE_ASSET_URL + '/images/background/backgroundLayer4.png';
+  const BGLayer3 =  BASE_ASSET_URL + '/images/background/backgroundLayer3.png';
+  const BGLayer2 =  BASE_ASSET_URL + '/images/background/backgroundLayer2.png';
+  const BGLayer1 =  BASE_ASSET_URL + '/images/background/backgroundLayer1.png';
+
+
 
   return (
     <div className="w-screen m-0 p-0 h-screen ">
@@ -66,10 +77,15 @@ function App() {
           <ECSContext.Provider value={ecs}>
             <FullScreenCanvas>
               <TriggerRenderAppSystems />
-              <Box position={[0, 0, 0]} args={[1, 1, 1]}>
-                <meshBasicMaterial color="red" />
+              <Box position={[0, 0, 0]} args={[windowSize.width, windowSize.height, 0]}>
+                <meshBasicMaterial color="#AEFFF1" />
               </Box>
+              <StaticBox speed={0.00} imageUrl={BGLayer4} x={0} y={0} z={0}  />
+              <StaticBox speed={0.01}  imageUrl={BGLayer3} x={0} y={0} z={0}  />
+              <StaticBox speed={0.02}  imageUrl={BGLayer2}  x={0} y={0} z={0}  />
+              <StaticBox speed={0.03}  imageUrl={BGLayer1}  x={0} y={0} z={0}  />
               <TrainWithPeople />
+             
               <Scores />
             </FullScreenCanvas>
 
