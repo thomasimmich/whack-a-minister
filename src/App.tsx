@@ -1,7 +1,7 @@
-import { Box } from '@react-three/drei';
+import { Box, PositionalAudio } from '@react-three/drei';
 import './App.css';
 
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Entity } from 'tick-knock';
 
 import { ECS, ECSContext } from './app/ECSContext';
@@ -10,14 +10,14 @@ import { FullScreenCanvas } from './components/three/FullScreenCanvas';
 
 import { useAnimationFrame } from 'framer-motion';
 import { System } from 'tick-knock';
+import { BASE_ASSET_URL } from './base/Constants';
 import { Scores } from './components/three/Score';
 import { TrainWithPeople } from './components/three/TrainWithPeople';
+import { useWindowSize } from './hooks/useWindowSize';
 import { HighscoreLoadingSystem } from './systems/HighscoreLoadingSystem';
 import { ScoreEvaluationSystem } from './systems/ScoreEvaluationSystem';
-import { BASE_ASSET_URL } from './base/Constants';
-import { StaticBoxContainer } from './components/three/StaticBoxContainer';
-import { useWindowSize } from './hooks/useWindowSize';
 
+import { StaticBoxContainer } from './components/three/StaticBoxContainer';
 
 const TriggerRenderAppSystems = () => {
   const ecs = useContext(ECSContext);
@@ -81,8 +81,11 @@ function App() {
 
   const MGLayer1 =  BASE_ASSET_URL + '/images/middleground/middleGround.png';
 
+
   const FGLayer1 =  BASE_ASSET_URL + '/images/foreground/foreground.png';
 
+
+  const mainTuneSoundRef = useRef<any>(null);
 
   return (
     <div className="w-screen m-0 p-0 h-screen ">
@@ -100,9 +103,19 @@ function App() {
               <StaticBoxContainer speed={0.03}  imageUrl={BGLayer1}  x={0} y={0} z={0}  />
               <StaticBoxContainer speed={0.06}  imageUrl={MGLayer1}  x={0} y={0} z={0}  />
               <TrainWithPeople />
-              <StaticBoxContainer speed={0.07}  imageUrl={FGLayer1}  x={0} y={0} z={0}  />
+              <StaticBoxContainer speed={0.09}  imageUrl={FGLayer1}  x={0} y={0} z={0}  />
              
+         
+
               <Scores />
+
+              <PositionalAudio
+                ref={mainTuneSoundRef}
+                url={BASE_ASSET_URL + '/sounds/scheuertrack1.mp3'}
+                load={undefined}
+                autoplay={true}
+                loop={true}
+              />
             </FullScreenCanvas>
 
             <HighscoreLoadingSystem />

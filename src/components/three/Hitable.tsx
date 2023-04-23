@@ -21,15 +21,16 @@ export interface HitableProps {
 export function Hitable(props: HitableProps) {
   const ecs = useContext(ECSContext);
 
-  const hitSoundRef = useRef<any>(null);
+  const hitFriendSoundRef = useRef<any>(null);
+  const hitEnemySoundRef = useRef<any>(null);
   const baseURL = BASE_ASSET_URL + '/images/people/';
   const normalEnemyTexture = useLoader(TextureLoader, baseURL + 'enemy-a.png');
   const hitEnemyTexture = useLoader(TextureLoader, baseURL + 'enemy-c.png');
 
   const normalFriendTexture = useLoader(TextureLoader, baseURL + 'friend-a.png');
-  const hitFriendTexture = useLoader(TextureLoader, baseURL + 'friend-c.png');
+  const hitFriendTexture = useLoader(TextureLoader, baseURL + 'friend-d.png');
 
-  const [currentTexture, setCurrentTexture] = useState(normalEnemyTexture);
+  const [currentTexture, setCurrentTexture] = useState(undefined);
 
   useEffect(() => {
     if (props.type === HitableType.ENEMY) {
@@ -53,23 +54,34 @@ export function Hitable(props: HitableProps) {
       new ScoreFacet({ scoreValue: playerOneScore.get(ScoreFacet)?.props.scoreValue! + 100 }),
     );
 
-    if (hitSoundRef.current) {
-      if (!hitSoundRef.current.isPlaying) {
-        hitSoundRef.current?.play();
-        console.log('play');
-      }
-    }
-
     if (props.type === HitableType.ENEMY) {
       setCurrentTexture(hitEnemyTexture);
+
+      if (hitFriendSoundRef.current) {
+        if (!hitFriendSoundRef.current.isPlaying) {
+          hitFriendSoundRef.current?.play();
+          console.log('play');
+        }
+      }
     } else if (props.type === HitableType.FRIEND) {
       setCurrentTexture(hitFriendTexture);
+
+      if (hitEnemySoundRef.current) {
+        if (!hitEnemySoundRef.current.isPlaying) {
+          hitEnemySoundRef.current?.play();
+          console.log('play');
+        }
+      }
+    } else {
+      setCurrentTexture(undefined);
     }
     const timeoutId = setTimeout(() => {
       if (props.type === HitableType.ENEMY) {
         setCurrentTexture(normalEnemyTexture);
       } else if (props.type === HitableType.FRIEND) {
         setCurrentTexture(normalFriendTexture);
+      } else {
+        setCurrentTexture(undefined);
       }
     }, 200);
 
@@ -87,10 +99,21 @@ export function Hitable(props: HitableProps) {
       position={[props.index * gridWidth, 0, 0.0]}
       args={[faceWidth, faceHeight, 1]}
     >
-      <meshBasicMaterial map={currentTexture} transparent />
+      {currentTexture ? (
+        <meshBasicMaterial map={currentTexture} transparent />
+      ) : (
+        <meshBasicMaterial transparent opacity={0} />
+      )}
       <PositionalAudio
-        ref={hitSoundRef}
+        ref={hitFriendSoundRef}
         url={BASE_ASSET_URL + '/sounds/hammer0.mp3'}
+        load={undefined}
+        autoplay={false}
+        loop={false}
+      />
+      <PositionalAudio
+        ref={hitEnemySoundRef}
+        url={BASE_ASSET_URL + '/sounds/hammer1.mp3'}
         load={undefined}
         autoplay={false}
         loop={false}
