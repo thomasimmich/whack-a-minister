@@ -26,6 +26,7 @@ import { ScoreEvaluationSystem } from './systems/ScoreEvaluationSystem';
 
 import { StaticBoxContainer } from './components/three/StaticBoxContainer';
 import { useRenderSystemEntities } from './hooks/useRenderSystemEntities';
+import Menu from './pages/Menu';
 
 const TriggerRenderAppSystems = () => {
   const ecs = useContext(ECSContext);
@@ -100,7 +101,7 @@ function App() {
 
   const [gameStates] = useRenderSystemEntities((e) => e.has(GameStateFacet));
 
-  const [isWelcomeVisible, setWelcomeVisible] = useState(false);
+  const [isWelcomeVisible, setWelcomeVisible] = useState(true);
   const [isPlayingVisible, setPlayingVisible] = useState(false);
   const [isHighscoreVisible, setHighscoreVisible] = useState(false);
 
@@ -124,7 +125,9 @@ function App() {
 
   return (
     <div className="w-screen m-0 p-0 h-screen ">
-      {true ? (
+      {isWelcomeVisible ? (<>
+        <Menu />
+      </>) : isPlayingVisible ? (
         <>
           <ECSContext.Provider value={ecs}>
             <FullScreenCanvas>
@@ -154,17 +157,15 @@ function App() {
             <HighscoreLoadingSystem />
 
             <ScoreEvaluationSystem />
-            <div>
-              {isWelcomeVisible}
-              {isPlayingVisible}
-              {isHighscoreVisible}
-            </div>
+        
 
             {/* <UpdateOnRenderAppSystems /> */}
           </ECSContext.Provider>
         </>
+      ) : isHighscoreVisible ? (
+        <></> 
       ) : (
-        <></> /* <Menu playFunc={togglePlay} /> */
+        <>.</>
       )}
     </div>
   );
