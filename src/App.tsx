@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from 'react';
 import { Entity } from 'tick-knock';
 
 import { ECS, ECSContext } from './app/ECSContext';
-import { ScoreFacet } from './app/GameFacets';
+import { ActivationFacet, HitableFacet, LevelFacet, ScoreFacet } from './app/GameFacets';
 import { FullScreenCanvas } from './components/three/FullScreenCanvas';
 
 import { useAnimationFrame } from 'framer-motion';
@@ -30,8 +30,19 @@ const TriggerRenderAppSystems = () => {
     ecs.engine.addEntity(scoreEntity);
     scoreEntity.addComponent(new ScoreFacet({ scoreValue: 1000 }));
 
+    const levelEntity = new Entity();
+    ecs.engine.addEntity(levelEntity);
+    levelEntity.addComponent(new LevelFacet({ levelValue: 1 }));
+    levelEntity.addComponent(new ActivationFacet({ activationCode: 'aaaabbbbb' }));
+
+    const enemyEntity = new Entity();
+    ecs.engine.addEntity(enemyEntity);
+    enemyEntity.addComponent(new HitableFacet({ hitCount: 0 }));
+
     () => {
       ecs.engine.removeEntity(scoreEntity);
+      ecs.engine.removeEntity(levelEntity);
+      ecs.engine.removeEntity(enemyEntity);
     };
   }, []);
 
