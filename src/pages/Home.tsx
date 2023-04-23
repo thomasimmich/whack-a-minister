@@ -1,6 +1,6 @@
 import { BASE_ASSET_URL } from '../base/Constants';
 
-const Home = (play) => {
+const Home = ({ play }) => {
   const Card = BASE_ASSET_URL + '/images/menu/card-1.png';
 
   return (
