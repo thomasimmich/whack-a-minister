@@ -1,6 +1,5 @@
 import { Box, PositionalAudio } from '@react-three/drei';
 import './App.css';
-
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Entity } from 'tick-knock';
 import { IoHome, IoStatsChart, IoCaretForward } from "react-icons/io5"
@@ -27,6 +26,7 @@ import { ScoreEvaluationSystem } from './systems/ScoreEvaluationSystem';
 import { StaticBoxContainer } from './components/three/StaticBoxContainer';
 //import { useRenderSystemEntities } from './hooks/useRenderSystemEntities';
 import { BASE_ASSET_URL } from './base/Constants';
+import TypingAnimation from './components/dom/TypingAnimation';
 
 
 
@@ -71,7 +71,7 @@ const TriggerRenderAppSystems = () => {
     systems.forEach((system) => {
       try {
         if (!blacklistedIdentifiableSystems.has(system)) {
-          console.log('update system', system);
+          //console.log('update system', system);
           system.update(dt);
         }
       } catch (e) {
@@ -104,16 +104,30 @@ function App() {
 
   //const [gameStates] = useRenderSystemEntities((e) => e.has(GameStateFacet));
   const [activeScore, setActiveScore] = useState(false)
+  const [activeLoad, setActiveLoad] = useState(false)
   const ScoreIlustration = BASE_ASSET_URL + '/images/menu/ScoreView.png'
   const Card =  BASE_ASSET_URL + '/images/menu/card-1.png';
+  const [currentLevel, setCurrentLevel] = useState(0)
+  // const Milk =  BASE_ASSET_URL + '/images/menu/milk.png';
+  const delay =(ms: number) => new Promise(res => setTimeout(res, ms));
 
-
+  function completeLevel() {setCurrentLevel(currentLevel)}
+  
   function toggleActiveScore() {setActiveScore(!activeScore)}
-  function play() {setPlayingVisible(true)}
+
+  async function play() {
+    setPlayingVisible(true)
+    setActiveLoad(true)
+    await delay(500);
+    setActiveLoad(false)
+  
+  }
 
 
 
   const [isPlayingVisible, setPlayingVisible] = useState(false);
+
+  useEffect(() => {completeLevel()}, [])
 
 {/*
   useEffect(() => {
@@ -139,7 +153,7 @@ function App() {
         <ECSContext.Provider value={ecs}>
       {!isPlayingVisible ? (<>
         <>
-      {!activeScore ? (
+      {!activeScore && !activeLoad ? (
         /* Home Ansicht */
         <div  className='w-full h-full p-8   text-black'>
         <div className='flex justify-between w-full'>
@@ -168,7 +182,7 @@ function App() {
       ) : (<>
         {/* Score Ansicht */}
         <div  className='w-full h-full  text-black'>
-          <div className='flex p-8 h-2/4 justify-between w-full'>
+          <div className='flex p-8 h-1/3 justify-between w-full'>
             <div>
               <p className=' text-On-Surface-Variant '>SAMSTAG, 11. FEBRUAR</p>
               <p className='text-3xl font-bold'>Score</p>
@@ -187,27 +201,38 @@ function App() {
           </div>
 
         
-          <div className='h-2/4  w-full justify-end flex items-end'>
-            <img className='w-96 ' src={ScoreIlustration} />
+          <div className='h-2/3  w-full justify-end flex items-end'>
+            <img className='w-2/3' src={ScoreIlustration} />
           </div>
         </div>
-      </>)}
+      </>) 
+       
+    }
     </>
       </>) : isPlayingVisible ? (
         <>
-        
-            <FullScreenCanvas>
+      
+
+        <FullScreenCanvas   >
               <TriggerRenderAppSystems />
-              <Box position={[0, 0, 0]} args={[windowSize.width, windowSize.height, 0]}>
-                <meshBasicMaterial color="#AEFFF1" />
+              <Box   position={[0, 0, 0]} args={[windowSize.width, windowSize.height, 0]}>
+                <meshBasicMaterial color={currentLevel == 0 ?"#AEFFF1" : ""} />
               </Box>
-              <StaticBoxContainer speed={0.0} imageUrl={BGLayer4} y={0} z={0} />
-              <StaticBoxContainer speed={0.01} imageUrl={BGLayer3} y={0} z={0} />
-              <StaticBoxContainer speed={0.02} imageUrl={BGLayer2} y={0} z={0} />
-              <StaticBoxContainer speed={0.03} imageUrl={BGLayer1} y={0} z={0} />
-              <StaticBoxContainer speed={0.06} imageUrl={MGLayer1} y={0} z={0} />
-              <TrainWithPeople />
-              <StaticBoxContainer speed={0.09} imageUrl={FGLayer1} y={0} z={0.11} />
+              {currentLevel == 0 ? (
+                <>
+                  <StaticBoxContainer speed={0.0} imageUrl={BGLayer4} y={0} z={0} />
+                  <StaticBoxContainer speed={0.01} imageUrl={BGLayer3} y={0} z={0} />
+                  <StaticBoxContainer speed={0.02} imageUrl={BGLayer2} y={0} z={0} />
+                  <StaticBoxContainer speed={0.03} imageUrl={BGLayer1} y={0} z={0} />
+                  <StaticBoxContainer speed={0.06} imageUrl={MGLayer1} y={0} z={0} />
+                  <TrainWithPeople />
+                  <StaticBoxContainer speed={0.09} imageUrl={FGLayer1} y={0} z={0.11} />
+                </>
+              ) : (
+                <>
+                
+                </>
+              )}
 
               <Scores />
 
@@ -227,7 +252,19 @@ function App() {
 
             {/* <UpdateOnRenderAppSystems /> */}
 
+            {activeLoad &&(<div className='w-screen h-screen fixed bg-white top-0 left-0'>
+                <div className='w-full pt-32 h-1/2'>
+                  <p className='text-On-Surface-Variant w-full text-xl  text-center uppercase '>Watsch den Wissing</p>
+                  <p className='text-5xl text-black font-bold text-center '><TypingAnimation s='Lädt ...' /></p>
+                </div>
+                <div className='w-full h-1/2 flex justify-end items-end '>
+                { /* <img className=' w-1/3 h-fit' src={Milk} /> */}
+                  <img className='w-2/3 h-fit ' src={ScoreIlustration} />
+                </div>
+            </div>)}
+
         </>
+
       ) : (
         <>.</>
       )}

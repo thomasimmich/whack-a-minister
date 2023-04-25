@@ -44,7 +44,7 @@ export const TrainWithPeople: React.FC<{}> = () => {
 
   useAnimationFrame((_state, _dt) => {
     setElapsedTime((elapsedTime) => elapsedTime + _dt);
-    console.log('elapsedTime', elapsedTime);
+    //console.log('elapsedTime', elapsedTime);
 
     if (elapsedTime > 1000) {
       const activationCode = generateRandomString(coachCode.length * 8, allowedCharacters);
@@ -57,7 +57,7 @@ export const TrainWithPeople: React.FC<{}> = () => {
   const coachWidth = useCoachWidth();
   const trainPosition = useTrainPosition(coachCode);
   const peoplePosition = trainPosition;
-  console.log('trainPosition', trainPosition);
+  //console.log('trainPosition', trainPosition);
   console.log('coachWidth', coachWidth);
 
   const hitableComponents = activationCode
@@ -70,4 +70,4 @@ export const TrainWithPeople: React.FC<{}> = () => {
       <group position={[peoplePosition, -0.047, 0.1]}>{hitableComponents}</group>
     </group>
   );
-};
+}

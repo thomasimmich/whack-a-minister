@@ -2,6 +2,7 @@
 import { TextureLoader } from 'three';
 import { useLoader, useFrame } from '@react-three/fiber';
 import { useWindowSize } from '../../hooks/useWindowSize';
+import * as THREE from 'three';
 import { useRef } from 'react';
 
 interface StaticBoxProps {
@@ -38,10 +39,10 @@ export const StaticBox = ({ imageUrl,  x, y, z, speed }: StaticBoxProps) => {
   return (
     <>
      <Box ref={meshRef} position={[x, y, z]} args={[coachWidth / 2, coachHeight / 2, 1]}>
-      <meshStandardMaterial map={texture} transparent />
+      <meshStandardMaterial  map={texture} transparent />
     </Box>
     <Box ref={meshRef2} position={[x, y, z]} args={[coachWidth / 2, coachHeight / 2, 1]}>
-      <meshStandardMaterial map={texture} transparent />
+      <meshStandardMaterial  map={texture} transparent />
     </Box>
     </>
    

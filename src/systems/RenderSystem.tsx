@@ -16,7 +16,7 @@ export class RenderSystem extends IterativeSystem {
     super.updateEntities(dt);
 
     if (this.shouldUpdate) {
-      console.log(this.emoji + ' Render should re-render due to changed entities.');
+      //(this.emoji + ' Render should re-render due to changed entities.');
       if (this.shouldUpdateCallback) {
         this.shouldUpdateCallback(Date.now());
       }

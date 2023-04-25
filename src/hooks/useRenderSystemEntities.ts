@@ -9,7 +9,7 @@ export function useRenderSystemEntities(predicate: QueryPredicate): [readonly En
   const [timeStamp, setTimeStamp] = useState(0);
 
   const renderCallback = useCallback((dt: any) => {
-    console.log('Render system callback', renderSystem);
+    //console.log('Render system callback', renderSystem);
     setTimeStamp(dt);
   }, []);
 
@@ -17,7 +17,7 @@ export function useRenderSystemEntities(predicate: QueryPredicate): [readonly En
 
   useEffect(() => {
     ecs.engine.addSystem(renderSystem);
-    console.log('Adding render system', renderSystem);
+    //console.log('Adding render system', renderSystem);
     return () => {
       ecs.engine.removeSystem(renderSystem);
     };

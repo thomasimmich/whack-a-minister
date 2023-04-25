@@ -66,7 +66,7 @@ export function Hitable(props: HitableProps) {
       if (hitFriendSoundRef.current) {
         if (!hitFriendSoundRef.current.isPlaying) {
           hitFriendSoundRef.current?.play();
-          console.log('play');
+          //console.log('play');
         }
       }
     } else if (props.type === HitableType.FRIEND) {
@@ -75,7 +75,7 @@ export function Hitable(props: HitableProps) {
       if (hitEnemySoundRef.current) {
         if (!hitEnemySoundRef.current.isPlaying) {
           hitEnemySoundRef.current?.play();
-          console.log('play');
+          //console.log('play');
         }
       }
     } else {
@@ -97,7 +97,7 @@ export function Hitable(props: HitableProps) {
     };
   };
 
-  console.log('gridwidth ', gridWidth);
+  //console.log('gridwidth ', gridWidth);
   // Return the view, these are regular Threejs elements expressed in JSX
   return (
     <Suspense fallback={null}>

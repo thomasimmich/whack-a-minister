@@ -8,15 +8,15 @@ export const ScoreEvaluationSystem = () => {
   const [gameEntities] = useRenderSystemEntities((e) => e.has(ScoreFacet));
 
   useEffect(() => {
-    console.log('ScoreEvaluationSystem ', gameEntities);
+    //console.log('ScoreEvaluationSystem ', gameEntities);
     function onScoreChanged(e: Entity, c: unknown) {
       if (c instanceof ScoreFacet && (e?.get(ScoreFacet)?.props.scoreValue ?? 0) > 1400) {
         e?.addComponent(new GameStateFacet({ gameState: GameStates.GAME_OVER }));
-        console.log('GAME OVER');
+        //console.log('GAME OVER');
       }
     }
 
-    console.log('ScoreEvaluationSystem useEffect');
+    //console.log('ScoreEvaluationSystem useEffect');
     const gameEntity = gameEntities[0];
 
     gameEntity?.onComponentAdded.connect(onScoreChanged);

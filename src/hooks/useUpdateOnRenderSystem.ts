@@ -37,7 +37,7 @@ export function useUpdateOnRenderSystem<T extends UpdateOnRenderSystem>(
 
   useAnimationFrame((dt: number) => {
     if (shouldUpdateOnRender) {
-      console.log(emoji + ' update(dt)');
+      //console.log(emoji + ' update(dt)');
       uorSystem?.update(dt);
     }
   });

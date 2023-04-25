@@ -42,7 +42,7 @@ export class ScoreSystem extends UpdateOnRenderSystem {
   onComponentAdded(_e: Entity, c: unknown) {
     if (c instanceof ScoreFacet) {
       if (c.props.scoreValue > 1200) {
-        console.log(this.emoji + 'Score > 1200');
+        //console.log(this.emoji + 'Score > 1200');
       }
     }
   }
