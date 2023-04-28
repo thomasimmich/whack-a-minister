@@ -1,0 +1,24 @@
+{
+    "typescriptreact": {
+      "prefix": "rafcee",
+      "body": [
+        "import React from 'react';",
+        "",
+        "interface Props {",
+        "  // Define props here",
+        "}",
+        "",
+        "const ${1:ComponentName}: React.FC<Props> = ({ }) => {",
+        "  return (",
+        "    <div>",
+        "      ",
+        "    </div>",
+        "  );",
+        "};",
+        "",
+        "export default ${1:ComponentName};"
+      ],
+      "description": "React Arrow Function Component with Export"
+    }
+  }
+  

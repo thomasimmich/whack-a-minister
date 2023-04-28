@@ -1,5 +1,5 @@
  import { Box } from '@react-three/drei';
-import { TextureLoader } from 'three';
+import { MeshBasicMaterial, TextureLoader } from 'three';
 import { useLoader, useFrame } from '@react-three/fiber';
 import { useWindowSize } from '../../hooks/useWindowSize';
 import * as THREE from 'three';
@@ -36,13 +36,14 @@ export const StaticBox = ({ imageUrl,  x, y, z, speed }: StaticBoxProps) => {
     }
   });
 
+ 
   return (
     <>
      <Box ref={meshRef} position={[x, y, z]} args={[coachWidth / 2, coachHeight / 2, 1]}>
-      <meshStandardMaterial  map={texture} transparent />
+      <meshBasicMaterial  map={texture} transparent />
     </Box>
     <Box ref={meshRef2} position={[x, y, z]} args={[coachWidth / 2, coachHeight / 2, 1]}>
-      <meshStandardMaterial  map={texture} transparent />
+      <meshBasicMaterial  map={texture} transparent />
     </Box>
     </>
    

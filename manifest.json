@@ -3,7 +3,7 @@
     "name": "Watsch den Wissing",
     "icons": [
         {
-            "src": "/assets/images/app/appIcon.png",
+            "src": "./public/assets/images/app/appIcon.png",
             "type": "image/png",
             "sizes": "199x199"
             
