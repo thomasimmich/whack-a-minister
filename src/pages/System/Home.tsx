@@ -7,7 +7,7 @@ interface HomeProps {
   play: () => void;
 }
   
-  const Home = ({  play,  }: HomeProps) => {
+const Home = ({  play,  }: HomeProps) => {
   const [activeScore, setActiveScore] = useState(false)
 
   function toggleActiveScore() {setActiveScore(!activeScore)}

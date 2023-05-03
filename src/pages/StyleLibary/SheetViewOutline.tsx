@@ -10,9 +10,8 @@ interface SheetViewOutlineProps {
   small: boolean;
   clickOutside: boolean;
   save: boolean;
+  customText: string;
   saveFunc: () => void;
-  activateDarkBG: () => void;
-  activateLightBG: () => void;
 }
 
 const SheetViewOutline = ({
@@ -23,14 +22,13 @@ const SheetViewOutline = ({
   clickOutside,
   save,
   saveFunc,
-  activateDarkBG,
-  activateLightBG,
 }: SheetViewOutlineProps) => {
+  
   const [back, setBack] = useState<boolean>(false);
   const refOne = useRef<HTMLDivElement>(null);
   const delay =(ms: number) => new Promise(res => setTimeout(res, ms));
 
-  useEffect(() => {activateDarkBG();}, []);
+  // useEffect(() => {activateDarkBG();}, []);
 
   useEffect(() => {if (backClick === true) {handleBackClick();}}, [backClick]);
 
@@ -50,7 +48,7 @@ const SheetViewOutline = ({
 
   const handleBackClick = async () => {
     setBack(true);
-    activateLightBG();
+    // activateLightBG();
     await delay(100);
     backfunc();
   };

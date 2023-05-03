@@ -1,9 +1,9 @@
 
 interface Level002Props {
-    stoppPlaying: () => void;
+  
 }
 
-const Level002 = ({stoppPlaying}: Level002Props) => {
+const Level002 = ({}: Level002Props) => {
   return (
     <div>Level001</div>
   )

@@ -1,5 +1,5 @@
 import { BASE_ASSET_URL } from '../../base/Constants';
-import TypingAnimation from '../../components/dom/TypingAnimation';
+import TypingAnimation from '../StyleLibary/TypingAnimation';
   
 const LoadingScreen = () => {
   const ScoreIlustration = BASE_ASSET_URL + '/images/menu/ScoreView.png';

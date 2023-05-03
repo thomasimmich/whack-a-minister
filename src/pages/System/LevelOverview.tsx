@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import { IoHome, IoStatsChart } from 'react-icons/io5';
 
 import LevelCard from './LevelCard';
-import { BASE_ASSET_URL } from '../../base/Constants';
+import { levels } from '../levels';
+import { useRenderSystemEntities } from '../../hooks/useRenderSystemEntities';
 
 interface LevelOverviewProps {
   play: () => void;
@@ -10,11 +10,6 @@ interface LevelOverviewProps {
 }
   
 const LevelOverview = ({play, toggleActiveScore}: LevelOverviewProps) => {
- 
-  const [levels, setLevels] = useState([
-    {name: "Level 001", src:  BASE_ASSET_URL + '/images/menu/card-1.png', locked: false, id: 1 },
-    {name: "Level 001", src:  BASE_ASSET_URL + '/images/menu/card-1.png', locked: true, id: 2 }
-  ])
 
   return (
     <div  className='w-full h-full p-8   text-black'>

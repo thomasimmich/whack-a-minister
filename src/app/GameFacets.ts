@@ -9,6 +9,15 @@ export class ScoreFacet extends Facet<ScoreProps> {
   }
 }
 
+export interface CoinsProps {
+  coinsValue: number;
+}
+export class CoinsFacet extends Facet<CoinsProps> {
+  constructor(props: CoinsProps) {
+    super(props);
+  }
+}
+
 export interface HitableProps {
   hitCount: number;
 }
@@ -39,13 +48,12 @@ export class LevelFacet extends Facet<LevelProps> {
 export enum GameStates {
   WELCOME,
   PLAYING,
-
+  PAUSE,
   GAME_OVER,
-
   HIGH_SCORES,
 }
 export interface GameStateProps {
-  gameState: number;
+  gameState: GameStates;
 }
 export class GameStateFacet extends Facet<GameStateProps> {
   constructor(props: GameStateProps) {

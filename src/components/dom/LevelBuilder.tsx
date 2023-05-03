@@ -5,17 +5,21 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { Entity } from 'tick-knock';
 
 import {  ECSContext } from '../../app/ECSContext';
-import {ActivationFacet,GameStateFacet,GameStates,HitableFacet,LevelFacet,ScoreFacet,} from '../../app/GameFacets';
+import {ActivationFacet,CoinsFacet,GameStateFacet,GameStates,HitableFacet,LevelFacet,ScoreFacet,} from '../../app/GameFacets';
 import { BASE_ASSET_URL } from '../../base/Constants';
 import { FullScreenCanvas } from "../three/FullScreenCanvas"
 import { Scores } from "../three/Score"
 import { useWindowSize } from '../../hooks/useWindowSize';
+import LevelStatus from './LevelStatus';
+import PauseMenu from './PauseMenu';
+import GameOverMenu from './GameOverMenu';
+import { DeCoder } from './DeCoder';
+import { useRenderSystemEntities } from '../../hooks/useRenderSystemEntities';
 
 
 
 interface LevelBuilderProps {
   backgroundColor: string;
-  stoppPlaying: () => void;
 }
   
 
@@ -27,19 +31,29 @@ const TriggerRenderAppSystems = () => {
     console.log('app start');
     ecs.engine.clear();
 
+    // Level System
+
+    // Coins
+    const coinsEntity = new Entity();
+    ecs.engine.addEntity(coinsEntity);
+    coinsEntity.addComponent(new CoinsFacet({ coinsValue: 0 }));
+
+    // Score
     const scoreEntity = new Entity();
     ecs.engine.addEntity(scoreEntity);
     scoreEntity.addComponent(new ScoreFacet({ scoreValue: 0 }));
 
+    // current Level
     const levelEntity = new Entity();
     ecs.engine.addEntity(levelEntity);
     levelEntity.addComponent(new LevelFacet({ levelValue: 1 }));
-    levelEntity.addComponent(new ActivationFacet({ activationCode: 'aaaabbbbb' }));
-
+    
+    // Hitable
     const enemyEntity = new Entity();
     ecs.engine.addEntity(enemyEntity);
     enemyEntity.addComponent(new HitableFacet({ hitCount: 0 }));
 
+    // Gamestate
     const gameStateEntity = new Entity();
     ecs.engine.addEntity(gameStateEntity);
     gameStateEntity.addComponent(new GameStateFacet({ gameState: GameStates.WELCOME }));
@@ -49,6 +63,7 @@ const TriggerRenderAppSystems = () => {
       ecs.engine.removeEntity(levelEntity);
       ecs.engine.removeEntity(enemyEntity);
       ecs.engine.removeEntity(gameStateEntity);
+      ecs.engine.removeEntity(coinsEntity);
     };
 
   
@@ -83,36 +98,39 @@ const TriggerRenderAppSystems = () => {
 const LevelBuilder = ({backgroundColor}: LevelBuilderProps) => {
   const mainTuneSoundRef = useRef<any>(null);
   const windowSize = useWindowSize();
+  const [gameStateEntity] = useRenderSystemEntities((e) => e.has(GameStateFacet))
+
+
+
+
+  // Test
 
 
   return (
-    <FullScreenCanvas   >
-    <TriggerRenderAppSystems />
-    <Box position={[0, 0, 0]} args={[windowSize.width, windowSize.height, 0]}>
-      <meshBasicMaterial color={backgroundColor} />
-    </Box>
-    {/*
-      <>
-        <StaticBoxContainer speed={0.0} imageUrl={BGLayer4} y={0} z={0} />
-        <StaticBoxContainer speed={0.01} imageUrl={BGLayer3} y={0} z={0} />
-        <StaticBoxContainer speed={0.02} imageUrl={BGLayer2} y={0} z={0} />
-        <StaticBoxContainer speed={0.03} imageUrl={BGLayer1} y={0} z={0} />
-        <StaticBoxContainer speed={0.06} imageUrl={MGLayer1} y={0} z={0} />
-        <TrainWithPeople />
-        <StaticBoxContainer speed={0.09} imageUrl={FGLayer1} y={0} z={0.11} />
-      </>
-  */}
+    <>
+      {gameStateEntity[0].get(GameStateFacet)?.props.gameState === GameStates.PLAYING &&(
+        <FullScreenCanvas   >
+          <TriggerRenderAppSystems />
+          <Box position={[0, 0, 0]} args={[windowSize.width, windowSize.height, 0]}>
+            <meshBasicMaterial color={backgroundColor} />
+          </Box>
 
-    <Scores />
+          <DeCoder />
 
-    <PositionalAudio
-      ref={mainTuneSoundRef}
-      url={BASE_ASSET_URL + '/sounds/scheuertrack1.mp3'}
-      load={undefined}
-      autoplay={true}
-      loop={true}
-    />
-  </FullScreenCanvas>
+          {/*  <Scores />  */}
+          <PositionalAudio
+            ref={mainTuneSoundRef}
+            url={BASE_ASSET_URL + '/sounds/scheuertrack1.mp3'}
+            load={undefined}
+            autoplay={true}
+            loop={true}
+          />
+        </FullScreenCanvas>
+     )}
+      <LevelStatus />
+      {gameStateEntity[0].get(GameStateFacet)?.props.gameState === GameStates.PAUSE &&(<PauseMenu  />)}
+      {gameStateEntity[0].get(GameStateFacet)?.props.gameState === GameStates.GAME_OVER &&(<GameOverMenu />)}
+    </>
   )
 }
 

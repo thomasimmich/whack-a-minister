@@ -4,17 +4,16 @@ import ErrorScreen from "./ErrorScreen";
 
 interface LevelRendererProps {
   currentLevel: number;
-  stoppPlaying: () => void;
 }
   
 
-const LevelRenderer = ({currentLevel, stoppPlaying}: LevelRendererProps) => {
+const LevelRenderer = ({currentLevel}: LevelRendererProps) => {
   return (
     <>
       {currentLevel == 1 ? (
-        <Level001 stoppPlaying={stoppPlaying} />
+        <Level001 />
       ) : currentLevel ==  2 ? (
-        <Level002 stoppPlaying={stoppPlaying}/>
+        <Level002 />
       ) : (
         <ErrorScreen />
       )}

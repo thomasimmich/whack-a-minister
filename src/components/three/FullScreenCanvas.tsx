@@ -1,6 +1,7 @@
 import { Box } from '@react-three/drei';
 import { Canvas, useThree } from '@react-three/fiber';
 import { PropsWithChildren, useEffect, useRef } from 'react';
+import { MeshBasicMaterial } from 'three';
 
 const ScaledScene: React.FC<PropsWithChildren<{}>> = (props: PropsWithChildren<{}>) => {
   const sceneRef = useRef<any>(null);
@@ -16,7 +17,7 @@ const ScaledScene: React.FC<PropsWithChildren<{}>> = (props: PropsWithChildren<{
     <group ref={sceneRef}>
       {props.children}
       <Box position={[0, 0, -0.1]} args={[1, 1, 1]}>
-        <meshBasicMaterial color="blue" />
+        <meshBasicMaterial color="#ffffff" />
       </Box>
     </group>
   );

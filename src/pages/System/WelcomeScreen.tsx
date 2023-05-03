@@ -1,29 +1,21 @@
-import SheetViewOutline from '../../components/dom/SheetViewOutline';
+import SheetViewOutline from '../StyleLibary/SheetViewOutline';
 import { BASE_ASSET_URL } from '../../base/Constants';
 
 interface WelcomeScreenProps {
-  activateDarkBG: () => void;
   toggleNewUser: () => void;  
-  activateLightBG: () => void;
 }
 
-const WelcomeScreen = ({ activateDarkBG, toggleNewUser, activateLightBG }: WelcomeScreenProps) => {
+const WelcomeScreen = ({ toggleNewUser }: WelcomeScreenProps) => {
   const WelcomeImage = BASE_ASSET_URL + '/images/menu/image.png'
 
   return (
     <SheetViewOutline 
-      activateDarkBG={() => {
-        activateDarkBG(); 
-        return {};
-      }}
       backfunc={() => {
         toggleNewUser();
         return {}; 
       }}
-      activateLightBG={() => {
-        activateLightBG();
-        return {}; 
-      }}
+    
+      customText=''
       backClick={false}
       small={false}
       clickOutside={false}

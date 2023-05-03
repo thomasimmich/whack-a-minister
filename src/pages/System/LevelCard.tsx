@@ -8,8 +8,8 @@ interface LevelCardProps {
   id: number;
 }
 
-const LevelCard = ({play, src, name, locked, id}: LevelCardProps ) => {
-  function handleClick() {play(id)}
+const LevelCard = ({play, src, name, locked, }: LevelCardProps ) => {
+  function handleClick() {play()}
 
   return (
     <>
