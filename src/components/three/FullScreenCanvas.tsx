@@ -10,7 +10,7 @@ const ScaledScene: React.FC<PropsWithChildren<{}>> = (props: PropsWithChildren<{
   useEffect(() => {
     const aspectX = size.width / viewport.width;
     const aspectY = size.height / viewport.height;
-    sceneRef.current.scale.set(aspectX * 0.2, aspectY * 0.2, 1.0);
+    sceneRef.current.scale.set(aspectX * 0.1, aspectY * 0.1, 1.0);
   }, [size, viewport]);
 
   return (

@@ -1,15 +1,19 @@
 import { IoHome, IoStatsChart } from 'react-icons/io5';
 
 import LevelCard from './LevelCard';
-import { levels } from '../levels';
+
 import { useRenderSystemEntities } from '../../hooks/useRenderSystemEntities';
+import { useEntities, useEntity } from '../../hooks/useEntity';
+import { ImageFacet, LevelFacet, NameFacet } from '../../app/GameFacets';
+import { Tags } from '../../base/Constants';
 
 interface LevelOverviewProps {
-  play: () => void;
   toggleActiveScore: () => void;
 }
   
-const LevelOverview = ({play, toggleActiveScore}: LevelOverviewProps) => {
+const LevelOverview = ({ toggleActiveScore}: LevelOverviewProps) => {
+ const levelEntities = useEntities((e) => e.has(LevelFacet));
+
 
   return (
     <div  className='w-full h-full p-8   text-black'>
@@ -30,8 +34,9 @@ const LevelOverview = ({play, toggleActiveScore}: LevelOverviewProps) => {
           </div>
         </div>
       </div>
-    
-      {levels.map((level) => (<LevelCard id={level.id} play={play} src={level.src} name={level.name} locked={level.locked} />))}
+
+      {levelEntities.map((e, index) => (<LevelCard  key={index} src={e.get(ImageFacet)?.props.src ?? 'myplaceholde.png'}  name={e.get(NameFacet)?.props.name ?? 'Untitled'} isLocked={e.hasTag(Tags.LOCKED)} />))}
+      
     </div>
   )
 }

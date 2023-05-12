@@ -1,5 +1,5 @@
 import { useWindowSize } from '../../hooks/useWindowSize';
-import { StaticBox } from './StaticBox';
+import { MovingImage } from './MovingImage';
 import { TextureLoader } from 'three';
 import { useLoader } from '@react-three/fiber';
 
@@ -17,7 +17,7 @@ export const StaticBoxContainer = ({ imageUrl, y, z, speed }: StaticBoxContainer
   const coachWidth = texture.image.width / windowSize.width;
 
   const boxes = Array(10).fill(0).map((_, index) => (
-    <StaticBox
+    <MovingImage
       key={index}
       imageUrl={imageUrl}
       x={index * coachWidth}

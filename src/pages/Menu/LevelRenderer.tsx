@@ -8,6 +8,7 @@ interface LevelRendererProps {
   
 
 const LevelRenderer = ({currentLevel}: LevelRendererProps) => {
+  
   return (
     <>
       {currentLevel == 1 ? (
