@@ -28,7 +28,7 @@ export const MovingImage = ({ imageUrl, x, y, z, speed, isMoving }: StaticBoxPro
       meshRef.current.position.x = x - clock.elapsedTime * currentSpeed;
 
       if (!isMoving && currentSpeed > 0) {
-        setCurrentSpeed(currentSpeed - 0.000 1)
+        setCurrentSpeed(currentSpeed - 0.000)
       }
     }
   });
