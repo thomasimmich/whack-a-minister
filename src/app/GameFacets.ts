@@ -1,5 +1,41 @@
 import { Facet } from '../base/Facet';
 
+export interface  IsActiveProps {
+  isActive: boolean;
+}
+export class IsActiveFacet extends Facet<IsActiveProps> {
+  constructor(props: IsActiveProps) {
+    super(props);
+  }
+}
+
+export interface  BuildCodeProps {
+  buildCode: string;
+}
+export class BuildCodeFacet extends Facet<BuildCodeProps> {
+  constructor(props: BuildCodeProps) {
+    super(props);
+  }
+}
+
+export interface  ImageProps {
+  src: string;
+}
+export class ImageFacet extends Facet<ImageProps> {
+  constructor(props: ImageProps) {
+    super(props);
+  }
+}
+
+export interface NameProps {
+  name: string;
+}
+export class NameFacet extends Facet<NameProps> {
+  constructor(props: NameProps) {
+    super(props);
+  }
+}
+
 export interface ScoreProps {
   scoreValue: number;
 }
