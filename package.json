@@ -15,6 +15,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@leanscope/ecs-engine": "^0.1.57",
     "@leanscope/ecs-models": "^0.1.79",
     "@react-three/drei": "^9.65.5",
     "@react-three/fiber": "^8.12.2",
@@ -23,8 +24,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.8.0",
-    "three": "^0.151.3",
-    "tick-knock": "^4.2.0"
+    "three": "^0.151.3"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",

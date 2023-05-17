@@ -3,10 +3,11 @@ import { useLoader } from '@react-three/fiber';
 import { Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { TextureLoader } from 'three';
 
-import { ECSContext } from '../../app/ECSContext';
+
 import { ScoreFacet } from '../../app/GameFacets';
 import { BASE_ASSET_URL } from '../../base/Constants';
 import { useWindowSize } from '../../hooks/useWindowSize';
+import { ECSContext } from '@leanscope/ecs-engine';
 
 export enum HitableType {
   ENEMY = 'a',
@@ -27,8 +28,8 @@ export function Hitable(props: HitableProps) {
   const normalEnemyTexture = useLoader(TextureLoader, baseURL + 'enemy-a.png');
   const hitEnemyTexture = useLoader(TextureLoader, baseURL + 'enemy-c.png');
 
-  const normalFriendTexture = useLoader(TextureLoader, baseURL + 'friend-a.png');
-  const hitFriendTexture = useLoader(TextureLoader, baseURL + 'friend-d.png');
+  const normalFriendTexture = useLoader(TextureLoader, baseURL + 'enemy-c.png'); // friend-a.png
+  const hitFriendTexture = useLoader(TextureLoader, baseURL + 'enemy-c.png');
 
   const [currentTexture, setCurrentTexture] = useState(undefined);
 
@@ -103,8 +104,8 @@ export function Hitable(props: HitableProps) {
     <Suspense fallback={null}>
       <Box
         onPointerDown={onPointerDown}
-        position={[props.index * gridWidth - gridWidth / 2, 0.015, 0.01 - props.index * 0.0001]}
-        args={[faceWidth, faceHeight, 1]}
+        position={[props.index * gridWidth - gridWidth / 2, 0.015, 0.001 - props.index * 0.0001]}
+        args={[faceWidth / 1.5, faceHeight / 1.5, 1]}
       >
         {currentTexture ? (
           <meshBasicMaterial map={currentTexture} transparent />

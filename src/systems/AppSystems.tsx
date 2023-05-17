@@ -1,9 +1,7 @@
-import { useAnimationFrame } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
-import { Entity, System } from "tick-knock";
-import { ECSContext } from "../app/ECSContext";
 import { CoinsFacet, ScoreFacet, LevelFacet, HitableFacet, GameStateFacet, GameStates, NameFacet, ImageFacet } from "../app/GameFacets";
 import { BASE_ASSET_URL, Tags } from "../base/Constants";
+import { ECSContext, Entity, System } from "@leanscope/ecs-engine";
 
 export const InitSystem = () => {
     const ecs = useContext(ECSContext);
@@ -66,27 +64,7 @@ export const InitSystem = () => {
     }, []);
   
     const [blacklistedIdentifiableSystems] = useState(new Set<System>());
-  
-    // useAnimationFrame((_state, dt) => {
-    //   const systems = ecs.engine.systems;
-     
-  
-    //   systems.forEach((system) => {
-    //     try {
-    //       if (!blacklistedIdentifiableSystems.has(system)) {
-    //         //console.log('update system', system);
-    //         system.update(dt);
-    //       }
-    //     } catch (e) {
-    //       blacklistedIdentifiableSystems.add(system);
-  
-    //       console.error(e);
-    //       console.warn(
-    //         'Added system to blacklist, so that it is no longer executed in the systems pipeline.',
-    //       );
-    //     }
-    //   });
-    // });
+
   
     return <></>;
   };

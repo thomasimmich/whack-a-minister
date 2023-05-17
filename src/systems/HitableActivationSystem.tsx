@@ -1,11 +1,12 @@
 import { useAnimationFrame } from 'framer-motion';
 import { useEffect } from 'react';
 import { ActivationFacet, LevelFacet } from '../app/GameFacets';
-import { useRenderSystemEntities } from '../hooks/useRenderSystemEntities';
+import { useEntities } from '@leanscope/ecs-engine';
+
 
 export const HitableActivationSystem = () => {
   //const ecs = useContext(ECSContext);
-  const [levelEntities] = useRenderSystemEntities((e) => e.hasAll(LevelFacet, ActivationFacet));
+  const [levelEntities] = useEntities((e) => e.hasAll(LevelFacet, ActivationFacet));
 
   useEffect(() => {
     console.log('HitableActivationSystem ', levelEntities);

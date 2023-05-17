@@ -1,15 +1,15 @@
 import './App.css';
 import { useContext, useEffect, useState } from 'react';
 
-import { ECS, ECSContext } from './app/ECSContext';
+
 import { HighscoreLoadingSystem } from './systems/HighscoreLoadingSystem';
 import { ScoreEvaluationSystem } from './systems/ScoreEvaluationSystem';
 import { Home, WelcomeScreen, LevelRenderer, LoadingScreen, ErrorScreen } from './pages/Menu';
 import { GameStateFacet, GameStates } from './app/GameFacets';
-import { useRenderSystemEntities } from './hooks/useRenderSystemEntities';
-import { Entity, Query, QueryPredicate } from 'tick-knock';
+
 import { InitSystem } from './systems/AppSystems';
 import UI from './pages/Menu/UI';
+import { ECS, ECSContext } from '@leanscope/ecs-engine';
 
 
 

@@ -5,40 +5,31 @@ import { useWindowSize } from '../../hooks/useWindowSize';
 import * as THREE from 'three';
 import { useEffect, useRef, useState } from 'react';
 
-interface MovingImageProps {
+interface AlwaysMovingImage {
   imageUrl: string;
   x: number;
   y: number;
   z: number;
   speed: number;
-  isMoving: boolean;
-  IsAlwaysMoving: boolean;
-  idx: number;
-  isLastImage: boolean;
+  isMoving: boolean
 }
 
-export const MovingImage = ({ imageUrl, isLastImage, x, y, z, speed, isMoving, IsAlwaysMoving, idx} : MovingImageProps) => {
+export const AlwaysMovingImage = ({ imageUrl, x, y, z, speed, isMoving}: AlwaysMovingImage) => {
   const textureURL = imageUrl;
   const texture = useLoader(TextureLoader, textureURL);
   const windowSize = useWindowSize();
   const coachHeight = texture.image.height / windowSize.width;
   const coachWidth = texture.image.width / windowSize.width;
   const meshRef = useRef<THREE.Mesh>(null);
-  const [currentSpeed, setCurrentSpeed] = useState(0); // Aktuelle Geschwindigkeit
-  const [pauseElapsedTime, setPauseElapsedTime] = useState(0)
+  const [currentSpeed, setCurrentSpeed] = useState(speed * 0.5); // Aktuelle Geschwindigkeit
 
-
+  useEffect(() => {
+    if (isMoving == true) {setCurrentSpeed(speed)}
+    if(isMoving == false) {setCurrentSpeed(speed * 0.5)}
+  }, [isMoving])
   useFrame(({ clock }: any) => {
-    if (isLastImage == true && meshRef.current)  {
-      if (meshRef.current) {}
-      console.log(meshRef.current.position.x )
-    }
-    if (isMoving == true && currentSpeed <= speed)  {setCurrentSpeed(currentSpeed + (idx * 0.0001))}
-    if (isMoving == false) {setPauseElapsedTime(clock.elapsedTime)}
     if (meshRef.current ) {
-      if (isMoving == true || IsAlwaysMoving == true) {
-        meshRef.current.position.x = x - (clock.elapsedTime - pauseElapsedTime) * currentSpeed ;
-      }
+     meshRef.current.position.x = x - clock.elapsedTime * currentSpeed ;
     }
   })
 

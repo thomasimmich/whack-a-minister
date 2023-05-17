@@ -1,11 +1,10 @@
 import { useContext, useState, useEffect } from 'react';
-import { QueryPredicate, Entity, Query } from 'tick-knock';
 import { LoadingScreen, LevelRenderer, Home, WelcomeScreen } from '.';
-import { ECSContext } from '../../app/ECSContext';
+
 import { GameStateFacet, GameStates } from '../../app/GameFacets';
 import { HighscoreLoadingSystem } from '../../systems/HighscoreLoadingSystem';
 import { ScoreEvaluationSystem } from '../../systems/ScoreEvaluationSystem';
-import { useEntity } from '../../hooks/useEntity';
+import { useEntity } from '@leanscope/ecs-engine';
 
 const UI = () => {
   //  const [gameStates] = useRenderSystemEntities((e) => e.has(GameStateFacet));

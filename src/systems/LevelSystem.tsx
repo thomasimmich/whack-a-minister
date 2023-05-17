@@ -1,8 +1,7 @@
-import { ECSContext } from "../app/ECSContext";
-import { Entity } from 'tick-knock';
-import { BuildCodeFacet, CoinsFacet, IsActiveFacet, LevelScoreFacet, LockedFacet, NameFacet, ImageFacet } from "../app/GameFacets";
+import { BuildCodeFacet, CoinsFacet, IsActiveFacet,  NameFacet, ImageFacet } from "../app/GameFacets";
 import { useContext, useEffect } from "react";
 import { BASE_ASSET_URL } from "../base/Constants";
+import { ECSContext, Entity } from "@leanscope/ecs-engine";
 
 const LevelSystem = () => {
     const ecs = useContext(ECSContext);
@@ -26,29 +25,27 @@ const LevelSystem = () => {
       ecs.engine.addEntity(buildCodeEntity);
       buildCodeEntity.addComponent(new BuildCodeFacet({ buildCode: "abc"}));
   
-      // locked
-      const lockedEntity = new Entity();
-      ecs.engine.addEntity(lockedEntity);
-      lockedEntity.addComponent(new LockedFacet({ locked: false}));
+      // // locked
+      // const lockedEntity = new Entity();
+      // ecs.engine.addEntity(lockedEntity);
+      // lockedEntity.addComponent(new LockedFacet({ locked: false}));
   
       // isActive
       const isActiveEntity = new Entity();
       ecs.engine.addEntity(isActiveEntity);
       isActiveEntity.addComponent(new IsActiveFacet({ isActive: false}));
    
-      // score    
-      const levelScoreEntity = new Entity();
-      ecs.engine.addEntity(levelScoreEntity);
-      levelScoreEntity.addComponent(new LevelScoreFacet({ score: 0}));
+      // // score    
+      // const levelScoreEntity = new Entity();
+      // ecs.engine.addEntity(levelScoreEntity);
+      // levelScoreEntity.addComponent(new LevelScoreFacet({ score: 0}));
    
   
       return () => {
         ecs.engine.removeEntity(nameEntity);
         ecs.engine.removeEntity(srcEntity);
         ecs.engine.removeEntity(buildCodeEntity);
-        ecs.engine.removeEntity(lockedEntity);
         ecs.engine.removeEntity(isActiveEntity);
-        ecs.engine.removeEntity(levelScoreEntity);
   
       };
     

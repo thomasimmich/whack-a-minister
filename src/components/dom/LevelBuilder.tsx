@@ -1,10 +1,6 @@
 import { Box, PositionalAudio } from '@react-three/drei';
-import { useAnimationFrame } from 'framer-motion';
-import { System } from 'tick-knock';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { Entity } from 'tick-knock';
 
-import { ECSContext } from '../../app/ECSContext';
 import {
   ActivationFacet,
   CoinsFacet,
@@ -16,60 +12,71 @@ import {
 } from '../../app/GameFacets';
 import { BASE_ASSET_URL } from '../../base/Constants';
 import { FullScreenCanvas } from '../three/FullScreenCanvas';
-import { Scores } from '../three/Score';
-import { useWindowSize } from '../../hooks/useWindowSize';
 import LevelStatus from './LevelStatus';
 import PauseMenu from './PauseMenu';
 import GameOverMenu from './GameOverMenu';
 import { DeCoder } from './DeCoder';
-import { useRenderSystemEntities } from '../../hooks/useRenderSystemEntities';
-import { useEntity } from '../../hooks/useEntity';
+import LevelDoneMenu from './LevelDoneMenu';
+import Dialouge from './Dialouge';
+import { ECSContext, Entity, useEntities } from "@leanscope/ecs-engine/"
 
-interface LevelBuilderProps {
-  backgroundColor: string;
-}
-
-const LevelBuilder = ({ backgroundColor }: LevelBuilderProps) => {
+const LevelBuilder = () => {
+  const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
   const ecs = useContext(ECSContext);
   const mainTuneSoundRef = useRef<any>(null);
-  const windowSize = useWindowSize();
-  //const [gameStateEntity, setGameStateEntity] = useState<Entity>()
   const [level1Entity, setLevel1Entity] = useState<Entity>();
   const [gameStateEntity, setGameStateEntity] = useState('PLAYING');
+  const [isTrainVisible, setIsTrainVisible] = useState(false);
+  const [isMoving, setIsMoving] = useState(false);
+  const [dialougeText, setDialougeText] = useState([
+    ' Hallo Paul! bieb Es ist nun an der Zeit, dass unsere Reise beginnt. buub Der Zug wird in Kürze eintreffen, um die Milchtüte sicher zum König zu bringen. Doch wir sollten uns vor den Plastik Jägern in Acht nehmen. bieb bieb Sie sind darauf aus, uns die Tüte zu entreißen. buub buub Wir müssen wachsam sein und uns gegenseitig unterstützen, um unser Ziel zu erreichen.',
+    'Also lass uns bereit sein, Paul! buub buub Der Zug wird jeden Moment ankommen, und wir werden diese aufregende Reise antreten. bieb Zusammen können wir Hindernisse überwinden und eine positive Veränderung bewirken. buub buub Auf geht`s!',
+  ]);
 
+  async function startGame() {
+    await delay(200)
+    setIsMoving(true)
+  }
   useEffect(() => {
     const level1Entity = ecs.engine.entities.find((e) => e.has(LevelFacet));
     setLevel1Entity(level1Entity);
-
-    const gameStateEntityEntity = ecs.engine.entities.find((e) => e.has(LevelFacet));
-    //setGameStateEntity(gameStateEntityEntity);
-
-    console.log('level 1', level1Entity);
-    console.log('GameState', gameStateEntity);
   }, []);
-  
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsTrainVisible(true);
+    }, 4900);
+  }, []);
+
   return (
     <>
-      {gameStateEntity === "PLAYING" && ( //gameStateEntity?.get(GameStateFacet)?.props.gameState  GameStates.PLAYING
-        <FullScreenCanvas>
-          
-          <DeCoder buildCode='yzgabcdefg' />
+      {gameStateEntity === 'LEVEL_DONE' ||
+        gameStateEntity === 'PAUSE' ||
+        (gameStateEntity === 'PLAYING' && ( //gameStateEntity?.get(GameStateFacet)?.props.gameState  GameStates.PLAYING
+          <>
+            <FullScreenCanvas>
+              <DeCoder
+                isMoving={isMoving}
+                isTrainVisible={isTrainVisible}
+                buildCode="yzgabcdefgbyzhfgabc"
+              />
 
-          {/*  <Scores />  */}
-          <PositionalAudio
-            ref={mainTuneSoundRef}
-            url={BASE_ASSET_URL + '/sounds/scheuertrack1.mp3'}
-            load={undefined}
-            autoplay={true}
-            loop={true}
-          />
-        </FullScreenCanvas>
-      )}
+              {/*  <Scores />  */}
+              <PositionalAudio
+                ref={mainTuneSoundRef}
+                url={BASE_ASSET_URL + '/sounds/scheuertrack2.ogg'}
+                load={undefined}
+                autoplay={true}
+                loop={true}
+              />
+            </FullScreenCanvas>
+            <Dialouge startGame={startGame} text={dialougeText} />
+          </>
+        ))}
       <LevelStatus />
-      {gameStateEntity === "PAUSE" && <PauseMenu />}
-      {gameStateEntity === "GAME_OVER" && (
-        <GameOverMenu />
-      )}
+      {gameStateEntity === 'LEVEL_DONE' && <LevelDoneMenu />}
+      {gameStateEntity === 'PAUSE' && <PauseMenu />}
+      {gameStateEntity === 'GAME_OVER' && <GameOverMenu />}
     </>
   );
 };

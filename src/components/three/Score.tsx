@@ -3,8 +3,8 @@ import React from 'react';
 
 import { ScoreFacet } from '../../app/GameFacets';
 import { BASE_ASSET_URL } from '../../base/Constants';
-import { useRenderSystemEntities } from '../../hooks/useRenderSystemEntities';
 import { ScoreProps } from '../dom/Score';
+import { useEntities } from '@leanscope/ecs-engine';
 export const Score: React.FC<ScoreProps> = (props: ScoreProps) => {
 
   return (
@@ -27,7 +27,7 @@ export const Score: React.FC<ScoreProps> = (props: ScoreProps) => {
   );
 };
 export const Scores: React.FC = () => {
-  const [scores] = useRenderSystemEntities((e) => e.has(ScoreFacet));
+  const [scores] = useEntities((e) => e.has(ScoreFacet));
 
   return (
     <group>

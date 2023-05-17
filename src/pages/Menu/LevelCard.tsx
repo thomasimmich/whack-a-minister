@@ -2,8 +2,7 @@
 import { IoCaretForward, IoLockClosed} from 'react-icons/io5';
 import { GameStateFacet, GameStates, ImageProps, NameProps } from '../../app/GameFacets';
 import { useContext } from 'react';
-import { ECSContext } from '../../app/ECSContext';
-import { useEntity } from '../../hooks/useEntity';
+import { ECSContext, useEntity } from '@leanscope/ecs-engine';
 
 interface LevelCardProps extends ImageProps, NameProps {
 

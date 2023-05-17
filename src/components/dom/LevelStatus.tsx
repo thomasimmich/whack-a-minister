@@ -1,9 +1,9 @@
-import { Entity, System } from 'tick-knock';
+
 import { useContext, useEffect, useState } from 'react';
 
-import {  ECSContext } from '../../app/ECSContext';
 import {CoinsFacet,GameStateFacet,GameStates,LevelFacet,ScoreFacet,} from '../../app/GameFacets';
 import { IoPause, IoSparkles } from 'react-icons/io5';
+import { ECSContext } from '@leanscope/ecs-engine';
 
 
 interface LevelStatusProps {

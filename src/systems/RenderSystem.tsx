@@ -1,4 +1,5 @@
-import { Entity, EntitySnapshot, IterativeSystem, QueryPredicate } from 'tick-knock';
+import { IterativeSystem, QueryPredicate, Entity, EntitySnapshot } from "@leanscope/ecs-engine";
+
 
 export class RenderSystem extends IterativeSystem {
   private shouldUpdate = true;

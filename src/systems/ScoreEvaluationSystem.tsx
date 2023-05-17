@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
-import { Entity } from 'tick-knock';
+
 import { GameStateFacet, GameStates, ScoreFacet } from '../app/GameFacets';
-import { useRenderSystemEntities } from '../hooks/useRenderSystemEntities';
+import { Entity, useEntities } from '@leanscope/ecs-engine';
 
 export const ScoreEvaluationSystem = () => {
   //const ecs = useContext(ECSContext);
-  const [gameEntities] = useRenderSystemEntities((e) => e.has(ScoreFacet));
+  const [gameEntities] = useEntities((e) => e.has(ScoreFacet));
 
   useEffect(() => {
     //console.log('ScoreEvaluationSystem ', gameEntities);

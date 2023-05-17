@@ -2,10 +2,10 @@ import { IoHome, IoStatsChart } from 'react-icons/io5';
 
 import LevelCard from './LevelCard';
 
-import { useRenderSystemEntities } from '../../hooks/useRenderSystemEntities';
-import { useEntities, useEntity } from '../../hooks/useEntity';
+
 import { ImageFacet, LevelFacet, NameFacet } from '../../app/GameFacets';
 import { Tags } from '../../base/Constants';
+import { useEntities } from '@leanscope/ecs-engine';
 
 interface LevelOverviewProps {
   toggleActiveScore: () => void;
@@ -35,8 +35,8 @@ const LevelOverview = ({ toggleActiveScore}: LevelOverviewProps) => {
         </div>
       </div>
 
-      {levelEntities.map((e, index) => (<LevelCard  key={index} src={e.get(ImageFacet)?.props.src ?? 'myplaceholde.png'}  name={e.get(NameFacet)?.props.name ?? 'Untitled'} isLocked={e.hasTag(Tags.LOCKED)} />))}
-      
+      {/* {levelEntities.map((e, index) => (<LevelCard  key={index} src={e.get(ImageFacet)?.props.src ?? 'myplaceholde.png'}  name={e.get(NameFacet)?.props.name ?? 'Untitled'} isLocked={e.hasTag(Tags.LOCKED)} />))}
+       */}
     </div>
   )
 }

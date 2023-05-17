@@ -7,7 +7,7 @@ interface Level001Props {
 const Level001 = ({}: Level001Props) => {
 
   return (
-    <LevelBuilder backgroundColor="#AEFFF1" />
+    <LevelBuilder />
   )
 }
 

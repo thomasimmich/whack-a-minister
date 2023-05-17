@@ -1,11 +1,11 @@
-import { Entity } from 'tick-knock';
+import { Entity, UpdateOnRenderSystem } from '@leanscope/ecs-engine';
 import { ScoreFacet } from '../app/GameFacets';
-import { UpdateOnRenderSystem } from './UpdateOnRenderSystem';
+
 
 export class ScoreSystem extends UpdateOnRenderSystem {
   constructor() {
     super('🥇', (e) => e.has(ScoreFacet));
-    console.log(this.emoji + 'ScoreSystem constructor invoked', this);
+    console.log(this.identifier + 'ScoreSystem constructor invoked', this);
   }
 
   // onAddedToEngine(): void {
@@ -36,7 +36,7 @@ export class ScoreSystem extends UpdateOnRenderSystem {
   // }
 
   protected updateEntity(entity: Entity, dt: number): void {
-    console.log(this.emoji + 'updateEntity_', entity, dt);
+    console.log(this.identifier + 'updateEntity_', entity, dt);
   }
 
   onComponentAdded(_e: Entity, c: unknown) {

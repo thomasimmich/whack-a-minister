@@ -48,17 +48,17 @@ export const TrainWithPeople: React.FC<{}> = () => {
 
     if (elapsedTime > 1000) {
       const activationCode = generateRandomString(coachCode.length * 8, allowedCharacters);
-      console.log('activationCode', activationCode);
+      //console.log('activationCode', activationCode);
       setActivationCode(activationCode);
       setElapsedTime(0);
     }
   });
 
   const coachWidth = useCoachWidth();
-  const trainPosition = useTrainPosition(coachCode);
+  const trainPosition = useTrainPosition();
   const peoplePosition = trainPosition;
   //console.log('trainPosition', trainPosition);
-  console.log('coachWidth', coachWidth);
+  //console.log('coachWidth', coachWidth);
 
   const hitableComponents = activationCode
     ?.split('')
@@ -67,7 +67,7 @@ export const TrainWithPeople: React.FC<{}> = () => {
     <group>
       <Train coachCode={coachCode} />
 
-      <group position={[peoplePosition, -0.047, 0.1]}>{hitableComponents}</group>
+        <group position={[peoplePosition, -0.047, 0.001]}>{hitableComponents}</group>  
     </group>
   );
 }
