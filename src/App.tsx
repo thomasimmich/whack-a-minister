@@ -1,11 +1,5 @@
 import './App.css';
-import { useContext, useEffect, useState } from 'react';
-
-
-import { HighscoreLoadingSystem } from './systems/HighscoreLoadingSystem';
-import { ScoreEvaluationSystem } from './systems/ScoreEvaluationSystem';
-import { Home, WelcomeScreen, LevelRenderer, LoadingScreen, ErrorScreen } from './pages/Menu';
-import { GameStateFacet, GameStates } from './app/GameFacets';
+import {  useState } from 'react';
 
 import { InitSystem } from './systems/AppSystems';
 import UI from './pages/Menu/UI';

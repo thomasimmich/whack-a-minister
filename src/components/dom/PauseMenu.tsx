@@ -12,19 +12,19 @@ const PauseMenu = ({}: PauseMenuProps) => {
 
   function handleBackClick() {
     const gameStateEntity = ecs.engine.entities.find((e) => e.has(GameStateFacet));
-    gameStateEntity?.addComponent(new GameStateFacet({ gameState: GameStates.PAUSE }));
+    gameStateEntity?.addComponent(new GameStateFacet({ gameState: GameStates.PLAYING }));
   }
   const LevelDoneIlustration = BASE_ASSET_URL + '/images/background/backgroundLayer0A.png';
 
   return (
     <div className="fixed">
       <SheetViewOutline
-        backfunc={() => {}}
-        backClick={false}
+        backfunc={handleBackClick}
+        customText={""}
         small={false}
+        backClick={false}
         clickOutside={false}
         save={false}
-        customText={""}
         saveFunc={() => {}}
         content={
           <div className="h-full ">

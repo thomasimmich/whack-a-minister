@@ -1,10 +1,7 @@
 import LevelBuilder from "../../components/dom/LevelBuilder";
 
-interface Level001Props {
 
-}
-
-const Level001 = ({}: Level001Props) => {
+const Level001 = () => {
 
   return (
     <LevelBuilder />

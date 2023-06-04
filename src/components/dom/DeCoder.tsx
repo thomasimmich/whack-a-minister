@@ -60,6 +60,7 @@ export const DeCoder = ({ buildCode, isMoving, }: DeCoderProps) => {
         y={0}
         z={0}
         isMoving={isMoving}
+        isMovingDown={false}
       />
     ));
   });
@@ -114,7 +115,7 @@ export const DeCoder = ({ buildCode, isMoving, }: DeCoderProps) => {
       {backgroundGroup.map((group, index) => (
         <group key={`group_${index}`}>{group}</group>
       ))}
-      <TrainWithPeople/>
+       <TrainWithPeople/> 
       {foregroundGroup.map((group, index) => (
         <group position={[0 ,0, 0.002]} key={`group_${index}`}>{group}</group>
       ))}

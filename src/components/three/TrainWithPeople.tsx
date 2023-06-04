@@ -66,8 +66,8 @@ export const TrainWithPeople: React.FC<{}> = () => {
   return (
     <group>
       <Train coachCode={coachCode} />
-
-        <group position={[peoplePosition, -0.047, 0.001]}>{hitableComponents}</group>  
+{/* 
+        <group position={[peoplePosition, -0.047, 0.001]}>{hitableComponents}</group>   */}
     </group>
   );
 }

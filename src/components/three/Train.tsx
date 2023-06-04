@@ -21,11 +21,11 @@ export function Train(
     const gameStateEntity = ecs.engine.entities.find((e) => e.has(GameStateFacet));
     if (
       trainPosition > 1.0 &&
-      gameStateEntity?.get(GameStateFacet)?.props.gameState !== GameStates.HIGH_SCORES
+      gameStateEntity?.get(GameStateFacet)?.props.gameState !== GameStates.DIALOUGE
     ) {
       console.log('GAME OVER');
 
-      gameStateEntity?.addComponent(new GameStateFacet({ gameState: GameStates.HIGH_SCORES }));
+      gameStateEntity?.addComponent(new GameStateFacet({ gameState: GameStates.DIALOUGE }));
     }
   });
 

@@ -11,10 +11,11 @@ interface AlwaysMovingImage {
   y: number;
   z: number;
   speed: number;
-  isMoving: boolean
+  isMoving: boolean;
+  isMovingDown: boolean;
 }
 
-export const AlwaysMovingImage = ({ imageUrl, x, y, z, speed, isMoving}: AlwaysMovingImage) => {
+export const AlwaysMovingImage = ({ imageUrl, x, y, z, speed, isMoving, isMovingDown}: AlwaysMovingImage) => {
   const textureURL = imageUrl;
   const texture = useLoader(TextureLoader, textureURL);
   const windowSize = useWindowSize();
@@ -30,6 +31,9 @@ export const AlwaysMovingImage = ({ imageUrl, x, y, z, speed, isMoving}: AlwaysM
   useFrame(({ clock }: any) => {
     if (meshRef.current ) {
      meshRef.current.position.x = x - clock.elapsedTime * currentSpeed ;
+    }
+    if(meshRef.current &&isMovingDown ) {
+      meshRef.current.position.y = y - clock.elapsedTime * 0.001 ;
     }
   })
 

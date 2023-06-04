@@ -3,5 +3,5 @@ export interface Class<T> {
 }
 
 export class Facet<T> {
-  constructor(public props: T) {}
+  constructor(public props: T ) {}
 }

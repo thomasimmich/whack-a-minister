@@ -1,3 +1,4 @@
+import LevelBuilder from "../../components/dom/LevelBuilder"
 
 interface Level002Props {
   
@@ -5,7 +6,7 @@ interface Level002Props {
 
 const Level002 = ({}: Level002Props) => {
   return (
-    <div>Level001</div>
+    <LevelBuilder />
   )
 }
 

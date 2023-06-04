@@ -1,5 +1,22 @@
 import { Facet } from '../base/Facet';
 
+export interface CurrentDialougeProps {
+  currentDialougeArray: string[];
+}
+export class CurrentDialougeFacet extends Facet<CurrentDialougeProps> {
+  constructor(props: CurrentDialougeProps) {
+    super(props);
+  }
+}
+
+export interface CurrentLevelProps {
+  currentLevelValue: number;
+}
+export class CurrentLevelFacet extends Facet<CurrentLevelProps> {
+  constructor(props: CurrentLevelProps) {
+    super(props);
+  }
+}
 export interface  IsActiveProps {
   isActive: boolean;
 }
@@ -22,7 +39,7 @@ export interface  ImageProps {
   src: string;
 }
 export class ImageFacet extends Facet<ImageProps> {
-  constructor(props: ImageProps) {
+  constructor(props: ImageProps = {src: "/untiteld.png"}) {
     super(props);
   }
 }
@@ -31,7 +48,7 @@ export interface NameProps {
   name: string;
 }
 export class NameFacet extends Facet<NameProps> {
-  constructor(props: NameProps) {
+  constructor(props: NameProps = {name: "untiteld"}) {
     super(props);
   }
 }
@@ -87,6 +104,8 @@ export enum GameStates {
   PAUSE,
   GAME_OVER,
   HIGH_SCORES,
+  LEVEL_DONE,
+  DIALOUGE,
 }
 export interface GameStateProps {
   gameState: GameStates;

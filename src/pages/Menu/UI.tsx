@@ -4,46 +4,55 @@ import { LoadingScreen, LevelRenderer, Home, WelcomeScreen } from '.';
 import { GameStateFacet, GameStates } from '../../app/GameFacets';
 import { HighscoreLoadingSystem } from '../../systems/HighscoreLoadingSystem';
 import { ScoreEvaluationSystem } from '../../systems/ScoreEvaluationSystem';
-import { useEntity } from '@leanscope/ecs-engine';
+import { ECSContext, useAnimationFrame, useEntity, useEntityHasTag } from '@leanscope/ecs-engine';
 
 const UI = () => {
-  //  const [gameStates] = useRenderSystemEntities((e) => e.has(GameStateFacet));
+  const ecs = useContext(ECSContext);
+  const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
   const [gameStateEntity] = useEntity((e) => e.has(GameStateFacet));
+  const [activeLoad, setActiveLoad] = useState(true);
+  const [newUser, setNewUser] = useState(true);
+
+  useAnimationFrame((dt: number) => {
+    ecs.engine.update(dt);
+  });
+ 
+  useEffect(() => {
+    if (
+      gameStateEntity?.get(GameStateFacet)?.props.gameState === GameStates.DIALOUGE &&
+      activeLoad == true
+    ) {
+      deaktivateLoadingScreen();
+    }
+  }, [gameStateEntity?.get(GameStateFacet)?.props.gameState]);
 
   function toggleNewUser() {
     setNewUser(!newUser);
   }
+  async function deaktivateLoadingScreen() {
+    await delay(400);
+    setActiveLoad(false);
+  }
 
-
-  // Test
-
-  const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-  const [activeLoad, setActiveLoad] = useState(false);
-  const [currentLevel, setCurrentLevel] = useState(1);
-  const [newUser, setNewUser] = useState(true);
-
-  console.log('Game State', gameStateEntity);
   return (
     <>
-
-    {gameStateEntity?.get(GameStateFacet)?.props.gameState == GameStates.PLAYING && activeLoad  ? (
-        <LoadingScreen />
-      ) : true && // gameStateEntity?.get(GameStateFacet)?.props.gameState == GameStates.PLAYING
-        activeLoad == false ? (
+      { gameStateEntity?.get(GameStateFacet)?.props.gameState == GameStates.PLAYING ||
+        gameStateEntity?.get(GameStateFacet)?.props.gameState == GameStates.PAUSE ||
+        gameStateEntity?.get(GameStateFacet)?.props.gameState == GameStates.DIALOUGE ||
+        (gameStateEntity?.get(GameStateFacet)?.props.gameState == GameStates.LEVEL_DONE && // gameStateEntity?.get(GameStateFacet)?.props.gameState == GameStates.PLAYING
+          activeLoad == false) ? (
         <>
-
-          <LevelRenderer currentLevel={currentLevel} />
+          <LevelRenderer />
           <HighscoreLoadingSystem />
           <ScoreEvaluationSystem />
+          {activeLoad &&(<LoadingScreen/>)}
         </>
       ) : (
         <></>
       )}
 
-      { gameStateEntity?.get(GameStateFacet)?.props.gameState == GameStates.WELCOME  && ( 
-        <Home  />
-      )}
+      {gameStateEntity?.get(GameStateFacet)?.props.gameState === GameStates.WELCOME && <Home />}
       {false && <WelcomeScreen toggleNewUser={toggleNewUser} />}
     </>
   );
