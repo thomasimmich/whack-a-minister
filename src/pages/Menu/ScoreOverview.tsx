@@ -5,14 +5,29 @@ interface ScoreOverviewProps {
   toggleActiveScore: () => void;
 }
 
+
+const getCurrentDate = (): string => {
+  const daysOfWeek = ['SONNTAG', 'MONTAG', 'DIENSTAG', 'MITTWOCH', 'DONNERSTAG', 'FREITAG', 'SAMSTAG'];
+  const months = ['JANUAR', 'FEBRUAR', 'MÄRZ', 'APRIL', 'MAI', 'JUNI', 'JULI', 'AUGUST', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DEZEMBER'];
+
+  const currentDate = new Date();
+  const dayOfWeek = daysOfWeek[currentDate.getDay()];
+  const dayOfMonth = currentDate.getDate();
+  const month = months[currentDate.getMonth()];
+
+  return `${dayOfWeek}, ${dayOfMonth}. ${month}`;
+};
+
+
 const ScoreOverview = ({toggleActiveScore}: ScoreOverviewProps ) => {
   const ScoreIlustration = BASE_ASSET_URL + '/images/menu/ScoreView.png';
+  const currentDate = getCurrentDate();
 
   return (
     <div  className='w-full h-full  text-black'>
       <div className='flex p-8 h-1/3 justify-between w-full'>
         <div>
-          <p className=' text-On-Surface-Variant '>SAMSTAG, 11. FEBRUAR</p>
+          <p className=' text-On-Surface-Variant '>{currentDate.toUpperCase()}</p>
           <p className='text-3xl font-bold'>Score</p>
         </div>
         <div className=' flex text-3xl  text-system-blue'>

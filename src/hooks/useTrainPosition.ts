@@ -18,10 +18,10 @@ export function useTrainPosition() {
   const [currentTimeliness, setCurrentTimeliness] = useState(1);
   const [gameStateEntity] = useEntity((e) => e.has(GameStateFacet));
 
-  const trainStartPosition =  -3
+  const trainStartPosition =  -2
   useFrame((_state, delta) => {
     if (gameStateEntity?.get(GameStateFacet)?.props.gameState === GameStates.DIALOUGE) {delta = 0}
-    const newTimeliness = currentTimeliness! - delta * 0.1;
+    const newTimeliness = currentTimeliness! - delta * 0.05;
     setCurrentTimeliness(newTimeliness);
   });
 

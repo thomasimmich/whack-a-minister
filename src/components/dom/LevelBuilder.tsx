@@ -5,6 +5,7 @@ import {
   GameStateFacet,
   GameStates,
   LevelFacet,
+  ScoreFacet,
 } from '../../app/GameFacets';
 import { BASE_ASSET_URL, Tags } from '../../base/Constants';
 import { FullScreenCanvas } from '../three/FullScreenCanvas';
@@ -15,11 +16,13 @@ import LevelDoneMenu from './LevelDoneMenu';
 import Dialouge from './Dialouge';
 import { ECSContext, Entity, useEntities, useEntity } from '@leanscope/ecs-engine/';
 import { DeCoder002 } from './DeCoderLevel002';
+import { ScoreEvaluationSystem } from '../../systems/ScoreEvaluationSystem';
 
 const LevelBuilder = () => {
   const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
   const mainTuneSoundRef = useRef<any>(null);
   const [gameStateEntity] = useEntity((e) => e.has(GameStateFacet));
+  const [scoreEntity] = useEntity((e) => e.has(ScoreFacet));
   const [currentLevelEntity] = useEntity((e) => e.has(Tags.CURRENT));
   const [isTrainVisible, setIsTrainVisible] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
@@ -57,7 +60,7 @@ const LevelBuilder = () => {
           <DeCoder
             isMoving={isMoving}
             isTrainVisible={isTrainVisible}
-            buildCode="yzgabcdefgbyzhfgabc"
+            buildCode="yzgabcdefgbyzhfgbcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefgabcdefg"
           />
         ) : currentLevelEntity?.get(LevelFacet)?.props.levelValue == 2 ? (
           <DeCoder002
@@ -86,7 +89,7 @@ const LevelBuilder = () => {
       </FullScreenCanvas>
       <Dialouge startGame={startGame} text={dialougeText} />
 
-      <LevelStatus />
+      <LevelStatus scoreValue={scoreEntity?.get(ScoreFacet)?.props.scoreValue || 0 } />
       {gameStateEntity?.get(GameStateFacet)?.props.gameState === GameStates.LEVEL_DONE && (
         <LevelDoneMenu />
       )}

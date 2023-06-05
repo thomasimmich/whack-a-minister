@@ -38,8 +38,8 @@ export const AlwaysMovingImage = ({ imageUrl, x, y, z, speed, isMoving, isMoving
   })
 
   return (
-    <Box ref={meshRef} position={[x, y, z]} args={[coachWidth / 2, coachHeight / 2, 1]}>
-      <meshBasicMaterial map={texture} transparent premultipliedAlpha={false}  />
+    <Box  ref={meshRef} position={[x, y, z]} args={[coachWidth / 2, coachHeight / 2, 1]}>
+         <meshBasicMaterial  map={texture} transparent premultipliedAlpha={false}  />
     </Box>
   );
 };

@@ -47,7 +47,7 @@ const ScaledScene: React.FC<PropsWithChildren<{}>> = (props: PropsWithChildren<{
 
 export const FullScreenCanvas: React.FC<PropsWithChildren<{}>> = (props: PropsWithChildren<{}>) => {
   return (
-    <Canvas style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }}>
+    <Canvas  style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }} >
       <ambientLight />
       <pointLight position={[10, 10, 10]} />
       <ScaledScene>{props.children}</ScaledScene>

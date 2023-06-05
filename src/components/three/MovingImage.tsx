@@ -30,19 +30,6 @@ export const MovingImage = ({ imageUrl, isLastImage, x, y, z, speed, isMoving, I
   const [currentSpeed, setCurrentSpeed] = useState(0); // Aktuelle Geschwindigkeit
   const [pauseElapsedTime, setPauseElapsedTime] = useState(0);
   const [gameStateEntity] = useEntity((e) => e.has(GameStateFacet));
-  const [end, setEnd] = useState(false)
-  const [slower, setSlower] = useState(1)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setEnd(true);
-    }, 10000);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, []);
-  
 
 
   useFrame(({ clock }: any) => {
@@ -53,7 +40,7 @@ export const MovingImage = ({ imageUrl, isLastImage, x, y, z, speed, isMoving, I
     }
 
     // Zug wird schneller
-    if (isMoving && end == false && currentSpeed <= speed) {
+    if (isMoving &&  currentSpeed <= speed) {
       setCurrentSpeed(currentSpeed + (idx * 0.0001));
     }
 
@@ -72,7 +59,8 @@ export const MovingImage = ({ imageUrl, isLastImage, x, y, z, speed, isMoving, I
 
   return (
     <Box ref={meshRef} position={[x, y, z]} args={[coachWidth / 2, coachHeight / 2, 1]}>
-      <meshBasicMaterial map={texture} transparent premultipliedAlpha={false} />
+      <meshBasicMaterial map={texture} transparent premultipliedAlpha={false}  />
+
     </Box>
   );
 };

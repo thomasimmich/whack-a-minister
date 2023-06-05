@@ -10,11 +10,13 @@ import {
 import { IoPause, IoSparkles } from 'react-icons/io5';
 import { ECSContext } from '@leanscope/ecs-engine';
 
-interface LevelStatusProps {}
+interface LevelStatusProps {
+  scoreValue: number;
+}
 
-const LevelStatus = ({}: LevelStatusProps) => {
+const LevelStatus = ({scoreValue}: LevelStatusProps) => {
   const ecs = useContext(ECSContext);
-  const [scoreValue, setScoreValue] = useState(0);
+
   const [coinsValue, setCoinsValue] = useState(0);
 
   function onPauseClick() {

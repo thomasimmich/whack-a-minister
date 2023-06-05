@@ -26,7 +26,7 @@ export function Hitable(props: HitableProps) {
   const hitEnemySoundRef = useRef<any>(null);
   const baseURL = BASE_ASSET_URL + '/images/people/';
   const normalEnemyTexture = useLoader(TextureLoader, baseURL + 'enemy-a.png');
-  const hitEnemyTexture = useLoader(TextureLoader, baseURL + 'enemy-c.png');
+  const hitEnemyTexture = useLoader(TextureLoader, baseURL + 'enemy-b.png');
 
   const normalFriendTexture = useLoader(TextureLoader, baseURL + 'enemy-c.png'); // friend-a.png
   const hitFriendTexture = useLoader(TextureLoader, baseURL + 'enemy-c.png');
@@ -57,7 +57,7 @@ export function Hitable(props: HitableProps) {
       );
     } else if (props.type === HitableType.FRIEND) {
       playerOneScore?.add(
-        new ScoreFacet({ scoreValue: playerOneScore.get(ScoreFacet)?.props.scoreValue! - 500 }),
+        new ScoreFacet({ scoreValue: playerOneScore.get(ScoreFacet)?.props.scoreValue! - 100 }),
       );
     }
 

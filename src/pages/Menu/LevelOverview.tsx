@@ -17,8 +17,21 @@ interface LevelOverviewProps {
   toggleActiveScore: () => void;
 }
 
+const getCurrentDate = (): string => {
+  const daysOfWeek = ['SONNTAG', 'MONTAG', 'DIENSTAG', 'MITTWOCH', 'DONNERSTAG', 'FREITAG', 'SAMSTAG'];
+  const months = ['JANUAR', 'FEBRUAR', 'MÄRZ', 'APRIL', 'MAI', 'JUNI', 'JULI', 'AUGUST', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DEZEMBER'];
+
+  const currentDate = new Date();
+  const dayOfWeek = daysOfWeek[currentDate.getDay()];
+  const dayOfMonth = currentDate.getDate();
+  const month = months[currentDate.getMonth()];
+
+  return `${dayOfWeek}, ${dayOfMonth}. ${month}`;
+};
+
 const LevelOverview = ({ toggleActiveScore }: LevelOverviewProps) => {
   const [levelEntities] = useEntities((e) => e.has(LevelFacet));
+  const currentDate = getCurrentDate();
 
 
 
@@ -26,7 +39,7 @@ const LevelOverview = ({ toggleActiveScore }: LevelOverviewProps) => {
     <div className="w-full h-full p-8   text-black">
       <div className="flex justify-between pb-3  w-full">
         <div>
-          <p className=" text-On-Surface-Variant ">SAMSTAG, 11. FEBRUAR</p>
+          <p className=" text-On-Surface-Variant ">{currentDate.toUpperCase()}</p>
           <p className="text-3xl font-bold">Home</p>
         </div>
 
