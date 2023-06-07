@@ -18,12 +18,15 @@ interface AlwaysMovingImage {
 export const AlwaysMovingImage = ({ imageUrl, x, y, z, speed, isMoving, isMovingDown}: AlwaysMovingImage) => {
   const textureURL = imageUrl;
   const texture = useLoader(TextureLoader, textureURL);
+  
   const windowSize = useWindowSize();
   const coachHeight = texture.image.height / windowSize.width;
   const coachWidth = texture.image.width / windowSize.width;
   const meshRef = useRef<THREE.Mesh>(null);
   const [currentSpeed, setCurrentSpeed] = useState(speed * 0.5); // Aktuelle Geschwindigkeit
 
+  texture.minFilter = undefined
+  texture.maxFilter = undefined
   useEffect(() => {
     if (isMoving == true) {setCurrentSpeed(speed)}
     if(isMoving == false) {setCurrentSpeed(speed * 0.5)}
@@ -39,7 +42,7 @@ export const AlwaysMovingImage = ({ imageUrl, x, y, z, speed, isMoving, isMoving
 
   return (
     <Box  ref={meshRef} position={[x, y, z]} args={[coachWidth / 2, coachHeight / 2, 1]}>
-         <meshBasicMaterial  map={texture} transparent premultipliedAlpha={false}  />
+         <meshBasicMaterial  map={texture} transparent alphaTest={0.01} premultipliedAlpha={false}  />
     </Box>
   );
 };

@@ -3,13 +3,17 @@ import { useContext } from 'react';
 import { GameStateFacet, GameStates } from '../../app/GameFacets';
 import { useTrainPosition } from '../../hooks/useTrainPosition';
 import { TrainCoach } from './TrainCoach';
-import { ECSContext } from '@leanscope/ecs-engine';
+import { ECSContext,  } from '@leanscope/ecs-engine';
+
+
 export interface TrainProps {
   coachCode: string;
 }
 export function Train(
   props: TrainProps = {coachCode: ''},
 ) {
+
+
   const ecs = useContext(ECSContext);
   //console.log(props.coachCode);
   const coachComponents = props.coachCode

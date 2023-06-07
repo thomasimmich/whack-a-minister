@@ -1,7 +1,7 @@
 import { Box, PositionalAudio } from '@react-three/drei';
 import { useLoader } from '@react-three/fiber';
 import { Suspense, useContext, useEffect, useRef, useState } from 'react';
-import { TextureLoader } from 'three';
+import { TextureLoader, Texture} from 'three';
 
 
 import { ScoreFacet } from '../../app/GameFacets';
@@ -19,19 +19,74 @@ export interface HitableProps {
   type: string;
 }
 
+export async function loadTextures(): Promise<{ normalEnemyTexture: Texture; hitEnemyTexture: Texture; normalFriendTexture: Texture; hitFriendTexture: Texture; }> {
+  const baseURL = BASE_ASSET_URL + '/images/people/';
+
+  const normalEnemyTexturePromise = new Promise<Texture>((resolve, reject) => {
+    const loader = new TextureLoader();
+    loader.load(baseURL + 'enemy-a.png', resolve, undefined, reject);
+  });
+
+  const hitEnemyTexturePromise = new Promise<Texture>((resolve, reject) => {
+    const loader = new TextureLoader();
+    loader.load(baseURL + 'enemy-b.png', resolve, undefined, reject);
+  });
+
+  const normalFriendTexturePromise = new Promise<Texture>((resolve, reject) => {
+    const loader = new TextureLoader();
+    loader.load(baseURL + 'friend-e.png', resolve, undefined, reject);
+  });
+
+  const hitFriendTexturePromise = new Promise<Texture>((resolve, reject) => {
+    const loader = new TextureLoader();
+    loader.load(baseURL + 'friend-f.png', resolve, undefined, reject);
+  });
+
+  const [
+    normalEnemyTexture,
+    hitEnemyTexture,
+    normalFriendTexture,
+    hitFriendTexture,
+  ] = await Promise.all([
+    normalEnemyTexturePromise,
+    hitEnemyTexturePromise,
+    normalFriendTexturePromise,
+    hitFriendTexturePromise,
+  ]);
+
+  return {
+    normalEnemyTexture,
+    hitEnemyTexture,
+    normalFriendTexture,
+    hitFriendTexture,
+  };
+}
+
+
 export function Hitable(props: HitableProps) {
   const ecs = useContext(ECSContext);
+  const [normalEnemyTexture, setNormalEnemyTexture] = useState<Texture | undefined>(undefined);
+  const [hitEnemyTexture, setHitEnemyTexture] = useState<Texture | undefined>(undefined);
+  const [normalFriendTexture, setNormalFriendTexture] = useState<Texture | undefined>(undefined);
+  const [hitFriendTexture, setHitFriendTexture] = useState<Texture | undefined>(undefined);
 
   const hitFriendSoundRef = useRef<any>(null);
   const hitEnemySoundRef = useRef<any>(null);
-  const baseURL = BASE_ASSET_URL + '/images/people/';
-  const normalEnemyTexture = useLoader(TextureLoader, baseURL + 'enemy-a.png');
-  const hitEnemyTexture = useLoader(TextureLoader, baseURL + 'enemy-b.png');
+  useEffect(() => {
+    // Lade die Texturen asynchron und setze sie, wenn sie vollständig geladen sind
+    const loadAsyncTextures = async () => {
+      const textures = await loadTextures();
 
-  const normalFriendTexture = useLoader(TextureLoader, baseURL + 'enemy-c.png'); // friend-a.png
-  const hitFriendTexture = useLoader(TextureLoader, baseURL + 'enemy-c.png');
+      setNormalEnemyTexture(textures.normalEnemyTexture);
+      setHitEnemyTexture(textures.hitEnemyTexture);
+      setNormalFriendTexture(textures.normalFriendTexture);
+      setHitFriendTexture(textures.hitFriendTexture);
+    };
 
-  const [currentTexture, setCurrentTexture] = useState(undefined);
+    loadAsyncTextures();
+  }, []);
+
+  const [currentTexture, setCurrentTexture] = useState<Texture | undefined>(undefined);
 
   useEffect(() => {
     if (props.type === HitableType.ENEMY) {
@@ -41,11 +96,11 @@ export function Hitable(props: HitableProps) {
     } else {
       setCurrentTexture(undefined);
     }
-  }, [props.type]);
+  }, [props.type, normalEnemyTexture, normalFriendTexture]);
 
   const windowSize = useWindowSize();
-  const faceWidth = normalEnemyTexture.image.width / 2 / windowSize.width / 2;
-  const faceHeight = normalEnemyTexture.image.height / 2 / windowSize.width / 2;
+  const faceWidth = normalEnemyTexture?.image.width / 2 / windowSize.width / 2;
+  const faceHeight = normalEnemyTexture?.image.height / 2 / windowSize.width / 2;
 
   const gridWidth = 375 / windowSize.width / 2;
 
@@ -103,9 +158,10 @@ export function Hitable(props: HitableProps) {
   return (
     <Suspense fallback={null}>
       <Box
+        key={`${props.type}-${normalEnemyTexture}-${normalFriendTexture}`}
         onPointerDown={onPointerDown}
         position={[props.index * gridWidth - gridWidth / 2, 0.015, 0.001 - props.index * 0.0001]}
-        args={[faceWidth / 1.5, faceHeight / 1.5, 1]}
+        args={[faceWidth ? faceWidth / 1.5 : 0, faceHeight ? faceHeight / 1.5 : 0, 1]}
       >
         {currentTexture ? (
           <meshBasicMaterial map={currentTexture} transparent />

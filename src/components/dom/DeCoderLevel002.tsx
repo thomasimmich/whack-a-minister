@@ -128,7 +128,9 @@ export const DeCoder002 = ({ buildCode, isMoving, }: DeCoderProps) => {
       {backgroundGroup.map((group, index) => (
         <group key={`group_${index}`}>{group}</group>
       ))}
-      {/* <TrainWithPeople/> */}
+        <group position={[0, 0.107, 0]}  scale={[0.8, 0.8, 1]}>
+ <TrainWithPeople  /> 
+  </group>
       {foregroundGroup.map((group, index) => (
         <group position={[0 ,0, 0.002]} key={`group_${index}`}>{group}</group>
       ))}
