@@ -3,11 +3,13 @@ import * as PIXI from "pixi.js";
 import { useEffect, useRef, useState } from "react";
 import { useGame, useWindowDimensions } from "../hooks";
 import useCarStore from "../store/carStore";
+import { useGameStore } from "../store/gameStore";
 import SoundManager from "../utils/SoundManager";
 
 const Car = () => {
   const soundManager = SoundManager.getInstance();
   const { width, height } = useWindowDimensions();
+  const resetScoreRoll = useGameStore((state) => state.resetScoreRoll);
 
   const scaleFactor = width / 2732;
   const carAspectRatio = 2.5;
@@ -27,6 +29,7 @@ const Car = () => {
 
   const handleCarClick = () => {
     soundManager.playSound("horn");
+    resetScoreRoll();
   };
 
   return (

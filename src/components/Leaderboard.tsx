@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useGameStateStore, useGameStore } from "../store";
 import { useScoreStore } from "../store/scoreStore";
 import { GameState } from "../types/gameTypes";
+import SoundManager from "../utils/SoundManager";
 import { AddScoreModal } from "./leaderboard/AddScoreModal";
 import { CelebrationModal } from "./leaderboard/CelebrationModal";
 import { ScoreNotification } from "./leaderboard/ScoreNotification";
@@ -34,9 +35,16 @@ function Leaderboard() {
     initializeScores,
   } = useScoreStore();
 
-  const { score } = useGameStore();
+  const { score, resetScore, resetScoreRoll, setTimeLeft, startGame } =
+    useGameStore();
+  const showAddScoreModalOnLeaderboard = useGameStateStore(
+    (state) => state.showAddScoreModalOnLeaderboard
+  );
+  const setShowAddScoreModalOnLeaderboard = useGameStateStore(
+    (state) => state.setShowAddScoreModalOnLeaderboard
+  );
 
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationData, setCelebrationData] = useState<{
     rank: number;
@@ -44,10 +52,23 @@ function Leaderboard() {
   } | null>(null);
 
   const setGameState = useGameStateStore((state) => state.setGameState);
+  const soundManager = SoundManager.getInstance();
 
   useEffect(() => {
     initializeScores();
   }, [initializeScores]);
+
+  // Show modal if the flag is set (from Game Over screen)
+  useEffect(() => {
+    if (showAddScoreModalOnLeaderboard && score > 0) {
+      setIsModalOpen(true);
+      setShowAddScoreModalOnLeaderboard(false);
+    }
+  }, [
+    showAddScoreModalOnLeaderboard,
+    score,
+    setShowAddScoreModalOnLeaderboard,
+  ]);
 
   const handleAddScore = async (name: string, points: number) => {
     try {
@@ -61,14 +82,31 @@ function Leaderboard() {
         }, 5000);
       }
       setIsModalOpen(false);
+      // Reset score after adding to leaderboard
+      useGameStore.getState().resetScore();
     } catch (error) {
       console.error("Error adding score:", error);
       throw error;
     }
   };
 
-  const handlePlay = () => setGameState(GameState.IDLE);
-  const handleChangeCombination = () => setGameState(GameState.IDLE);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    // Reset score when modal is closed without submitting
+    useGameStore.getState().resetScore();
+  };
+
+  const handlePlay = () => {
+    // Stop any playing music and start background music
+    soundManager.stopBackgroundMusic();
+    soundManager.startBackgroundMusic();
+
+    // Start the game (this will reset all game state)
+    setGameState(GameState.IDLE);
+    startGame();
+  };
+
+  const handleChangeCombination = () => setGameState(GameState.SPLASH);
 
   return (
     <div className="w-screen h-screen fixed top-0 left-0 overflow-hidden">
@@ -172,7 +210,7 @@ function Leaderboard() {
 
       <AddScoreModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleCloseModal}
         onSubmit={handleAddScore}
         existingNames={existingNames}
         initialScore={score}

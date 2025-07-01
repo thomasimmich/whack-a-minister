@@ -22,9 +22,8 @@ const Level = () => {
         <Background />
         <Car />
         <CharacterSpawner />
+        {!isOverlayVisible && <GameUI />}
       </GameStage>
-
-      {!isOverlayVisible && <GameUI />}
 
       {/* <HammerCursor /> */}
     </div>

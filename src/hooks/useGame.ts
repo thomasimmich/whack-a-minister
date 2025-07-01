@@ -64,7 +64,6 @@ export const useGame = () => {
         const currentTime = timeLeft;
         if (currentTime <= 0) {
           setGameState(GameState.GAME_OVER);
-          soundManager.playSound("gameOver");
           setTimeLeft(0);
         } else {
           setTimeLeft(currentTime - 1);
@@ -82,17 +81,23 @@ export const useGame = () => {
     if (!selectedCombination) {
       return; // Don't start the game if no combination is selected
     }
-    setGameState(GameState.IDLE);
+
+    // Reset all game state
     resetScore();
+    resetScoreRoll();
     setTimeLeft(60);
+
+    // Stop any playing music and start background music
+    soundManager.stopBackgroundMusic();
     soundManager.startBackgroundMusic();
+
+    // Start the game
+    setGameState(GameState.IDLE);
     startGame();
   };
 
   const handleGameOver = () => {
     setGameState(GameState.GAME_OVER);
-    soundManager.stopBackgroundMusic();
-    soundManager.playGameOverMusic();
     stopGame();
   };
 
