@@ -29,7 +29,7 @@ function Leaderboard() {
     scores,
     existingNames,
     addScore,
-    getTodayPlayers,
+    getLastTwoDaysPlayers,
     notification,
     setNotification,
     initializeScores,
@@ -50,12 +50,17 @@ function Leaderboard() {
     rank: number;
     total: number;
   } | null>(null);
+  const [musicStarted, setMusicStarted] = useState(false);
 
   const setGameState = useGameStateStore((state) => state.setGameState);
   const soundManager = SoundManager.getInstance();
 
   useEffect(() => {
     initializeScores();
+
+    // Try to start background music when leaderboard loads
+    soundManager.startBackgroundMusic();
+    setMusicStarted(true);
   }, [initializeScores]);
 
   // Show modal if the flag is set (from Game Over screen)
@@ -97,16 +102,29 @@ function Leaderboard() {
   };
 
   const handlePlay = () => {
-    // Stop any playing music and start background music
-    soundManager.stopBackgroundMusic();
-    soundManager.startBackgroundMusic();
+    // Ensure music is started on user interaction
+    if (!musicStarted) {
+      soundManager.forceStartBackgroundMusic();
+      setMusicStarted(true);
+    } else {
+      // Stop any playing music and start background music
+      soundManager.stopBackgroundMusic();
+      soundManager.startBackgroundMusic();
+    }
 
     // Start the game (this will reset all game state)
     setGameState(GameState.IDLE);
     startGame();
   };
 
-  const handleChangeCombination = () => setGameState(GameState.SPLASH);
+  const handleChangeCombination = () => {
+    // Ensure music is started on user interaction
+    if (!musicStarted) {
+      soundManager.forceStartBackgroundMusic();
+      setMusicStarted(true);
+    }
+    setGameState(GameState.SPLASH);
+  };
 
   return (
     <div className="w-screen h-screen fixed top-0 left-0 overflow-hidden">
@@ -131,8 +149,8 @@ function Leaderboard() {
               Rangliste
             </h1>
             <div className="text-white/80 text-sm mt-1">
-              {existingNames.length} Spieler gesamt • {getTodayPlayers()} heute
-              aktiv
+              {existingNames.length} Spieler gesamt • {getLastTwoDaysPlayers()}{" "}
+              in den letzten 2 Tagen aktiv
             </div>
           </div>
           <div className="flex items-center space-x-4">

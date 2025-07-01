@@ -113,7 +113,7 @@ const GameUI: React.FC = () => {
       />
 
       {/* Combo - only show when scoreRoll > 0 */}
-      {scoreRoll > 0 && (
+      {scoreRoll > 1 && (
         <Text
           text={`Combo: x${scoreRoll}`}
           style={comboTextStyle}

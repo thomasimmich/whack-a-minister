@@ -12,7 +12,7 @@ interface ScoreState {
     name: string,
     points: number
   ) => Promise<{ rank: number; total: number } | null>;
-  getTodayPlayers: () => number;
+  getLastTwoDaysPlayers: () => number;
   initializeScores: () => Promise<void>;
 }
 
@@ -40,10 +40,15 @@ export const useScoreStore = create<ScoreState>((set, get) => ({
 
       if (error) throw error;
 
-      // Fetch latest scores immediately after adding
+      // Fetch latest scores from last two days immediately after adding
+      const twoDaysAgo = new Date();
+      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+      const twoDaysAgoISO = twoDaysAgo.toISOString();
+
       const { data: latestScores, error: fetchError } = await supabase
         .from("scores")
         .select("*")
+        .gte("date", twoDaysAgoISO)
         .order("points", { ascending: false })
         .order("date", { ascending: false });
 
@@ -70,15 +75,18 @@ export const useScoreStore = create<ScoreState>((set, get) => ({
     }
   },
 
-  getTodayPlayers: () => {
+  getLastTwoDaysPlayers: () => {
     const { scores } = get();
-    const today = new Date().toISOString().split("T")[0];
-    const todayPlayers = new Set(
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+    const twoDaysAgoISO = twoDaysAgo.toISOString();
+
+    const lastTwoDaysPlayers = new Set(
       scores
-        .filter((score: Score) => score.date.startsWith(today))
+        .filter((score: Score) => score.date >= twoDaysAgoISO)
         .map((score: Score) => score.name)
     );
-    return todayPlayers.size;
+    return lastTwoDaysPlayers.size;
   },
 
   initializeScores: async () => {
@@ -138,10 +146,15 @@ export const useScoreStore = create<ScoreState>((set, get) => ({
         localStorage.removeItem("scores");
       }
 
-      // Get all scores from Supabase (including newly synced ones)
+      // Get scores from last two days from Supabase (including newly synced ones)
+      const twoDaysAgo = new Date();
+      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+      const twoDaysAgoISO = twoDaysAgo.toISOString();
+
       const { data: supabaseScores, error } = await supabase
         .from("scores")
         .select("*")
+        .gte("date", twoDaysAgoISO)
         .order("points", { ascending: false })
         .order("date", { ascending: false });
 
@@ -166,10 +179,15 @@ export const useScoreStore = create<ScoreState>((set, get) => ({
             table: "scores",
           },
           async () => {
-            // Fetch the latest scores after any change
+            // Fetch the latest scores from last two days after any change
+            const twoDaysAgo = new Date();
+            twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+            const twoDaysAgoISO = twoDaysAgo.toISOString();
+
             const { data: latestScores, error } = await supabase
               .from("scores")
               .select("*")
+              .gte("date", twoDaysAgoISO)
               .order("points", { ascending: false })
               .order("date", { ascending: false });
 

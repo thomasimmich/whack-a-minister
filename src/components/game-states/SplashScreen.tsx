@@ -1,21 +1,45 @@
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCharacterStore } from "../../store/characterStore";
 import { useGameStateStore } from "../../store/gameStateStore";
 import { useScoreStore } from "../../store/scoreStore";
 import { GameState } from "../../types/gameTypes";
+import SoundManager from "../../utils/SoundManager";
 
 const SplashScreen = () => {
   const { selectedCombination } = useCharacterStore();
   const { scores, initializeScores } = useScoreStore();
   const setGameState = useGameStateStore((state) => state.setGameState);
+  const [musicStarted, setMusicStarted] = useState(false);
 
   useEffect(() => {
     initializeScores();
+
+    // Try to start background music when splash screen loads
+    const soundManager = SoundManager.getInstance();
+    soundManager.startBackgroundMusic();
+    setMusicStarted(true);
   }, [initializeScores]);
 
-  const handleStartGame = () => setGameState(GameState.IDLE);
-  const handleShowLeaderboard = () => setGameState(GameState.LEADERBOARD);
+  const handleStartGame = () => {
+    // Ensure music is started on user interaction
+    if (!musicStarted) {
+      const soundManager = SoundManager.getInstance();
+      soundManager.forceStartBackgroundMusic();
+      setMusicStarted(true);
+    }
+    setGameState(GameState.IDLE);
+  };
+
+  const handleShowLeaderboard = () => {
+    // Ensure music is started on user interaction
+    if (!musicStarted) {
+      const soundManager = SoundManager.getInstance();
+      soundManager.forceStartBackgroundMusic();
+      setMusicStarted(true);
+    }
+    setGameState(GameState.LEADERBOARD);
+  };
 
   const top3Scores = scores.slice(0, 3);
 
@@ -48,7 +72,7 @@ const SplashScreen = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Dump the Trump
+            Dump a Trump
           </motion.h1>
           <motion.p
             className="text-xl text-white/80"

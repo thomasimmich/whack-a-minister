@@ -3,7 +3,9 @@ import * as PIXI from "pixi.js";
 import { useEffect, useRef, useState } from "react";
 import { useGame, useWindowDimensions } from "../hooks";
 import useCarStore from "../store/carStore";
+import { useGameStateStore } from "../store/gameStateStore";
 import { useGameStore } from "../store/gameStore";
+import { GameState } from "../types/gameTypes";
 import SoundManager from "../utils/SoundManager";
 
 const Car = () => {
@@ -79,6 +81,10 @@ const useCarAnimation = (carX: number, carY: number) => {
   const [stateTime, setStateTime] = useState(0);
 
   const { speed } = useGame();
+  const gameTime = useGameStore((state) => state.gameTime);
+  const startTime = useGameStore((state) => state.startTime);
+  const { getSpeedMultiplier } = useGameStore();
+  const gameState = useGameStateStore((state) => state.gameState);
 
   // Car
   useEffect(() => {
@@ -106,11 +112,15 @@ const useCarAnimation = (carX: number, carY: number) => {
     wheelRef.current.anchor.set(0.5);
     wheel2Ref.current.anchor.set(0.5);
 
-    const animateWheels = (delta: number) => {
-      setStateTime((prev) => prev + delta);
-
+    const animateWheels = () => {
       if (wheelRef.current && wheel2Ref.current) {
-        const rotationSpeed = 0.05 + speed * 0.01;
+        // Use the same speed multiplier system as the parallax background
+        const speedMultiplier =
+          gameState === GameState.IDLE ? getSpeedMultiplier() : 1;
+        const cappedSpeedMultiplier = Math.min(speedMultiplier, 3);
+        const baseRotationSpeed = 0.04;
+        const rotationSpeed = baseRotationSpeed * cappedSpeedMultiplier;
+
         wheelRef.current.rotation += rotationSpeed;
         wheel2Ref.current.rotation += rotationSpeed;
       }
@@ -122,7 +132,7 @@ const useCarAnimation = (carX: number, carY: number) => {
     return () => {
       cancelAnimationFrame(animationFrameWheels);
     };
-  }, [speed, stateTime, carX, carY]);
+  }, [getSpeedMultiplier, gameState]);
 
   return { carRef, wheelRef, wheel2Ref, stateTime, setStateTime };
 };
