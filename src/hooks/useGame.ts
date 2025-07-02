@@ -68,8 +68,8 @@ export const useGame = () => {
           setGameState(GameState.GAME_OVER);
           setTimeLeft(0);
         } else {
-          // Play end-timer sound 6 seconds before game ends
-          if (currentTime === 6 && !endTimerSoundPlayed) {
+          // Play end-timer sound 5 seconds before game ends
+          if (currentTime === 5 && !endTimerSoundPlayed) {
             soundManager.playEndTimerSound();
             setEndTimerSoundPlayed(true);
           }

@@ -15,6 +15,7 @@ import { Ease } from "../utils/ease.class";
 
 // Sound management
 const SOUNDS = {
+  hit: "/assets/sounds/hit.mp3",
   punch: Array.from({ length: 9 }, (_, i) => `/assets/sounds/punch${i}.mp3`),
   failure: "/assets/sounds/failure.mp3",
   squeeze: "/assets/sounds/squeeze.mp3",
@@ -23,35 +24,49 @@ const SOUNDS = {
 
 let lastPunchSoundIndex = -1;
 
-const playSound = (type: CharacterType) => {
-  let soundPath: string;
+const playHitAndCharacterSound = (type: CharacterType) => {
+  // Play hit sound immediately
+  const hitAudio = new Audio(SOUNDS.hit);
+  hitAudio
+    .play()
+    .catch((error) => console.error("Error playing hit sound:", error));
 
-  switch (type) {
-    case CharacterType.ENEMY:
-      // Select a random punch sound, avoiding the last used one
-      let randomIndex;
-      do {
-        randomIndex = Math.floor(Math.random() * SOUNDS.punch.length);
-      } while (randomIndex === lastPunchSoundIndex && SOUNDS.punch.length > 1);
+  // Play character-specific sound with a delay
+  setTimeout(() => {
+    let soundPath: string;
 
-      lastPunchSoundIndex = randomIndex;
-      soundPath = SOUNDS.punch[randomIndex];
-      break;
+    switch (type) {
+      case CharacterType.ENEMY:
+        // Select a random punch sound, avoiding the last used one
+        let randomIndex;
+        do {
+          randomIndex = Math.floor(Math.random() * SOUNDS.punch.length);
+        } while (
+          randomIndex === lastPunchSoundIndex &&
+          SOUNDS.punch.length > 1
+        );
 
-    case CharacterType.FRIEND:
-      soundPath = SOUNDS.failure;
-      break;
+        lastPunchSoundIndex = randomIndex;
+        soundPath = SOUNDS.punch[randomIndex];
+        break;
 
-    case CharacterType.TIME_BONUS:
-      soundPath = SOUNDS.squeeze;
-      break;
+      case CharacterType.FRIEND:
+        soundPath = SOUNDS.failure;
+        break;
 
-    default:
-      return;
-  }
+      case CharacterType.TIME_BONUS:
+        soundPath = SOUNDS.squeeze;
+        break;
 
-  const audio = new Audio(soundPath);
-  audio.play().catch((error) => console.error("Error playing sound:", error));
+      default:
+        return;
+    }
+
+    const audio = new Audio(soundPath);
+    audio
+      .play()
+      .catch((error) => console.error("Error playing character sound:", error));
+  }, 80); // 80ms delay
 };
 
 const CHARACTER_POSITIONS: CharacterPosition[] = [
@@ -360,8 +375,8 @@ const GameCharacter: React.FC<GameCharacterProps> = ({
       setCurrentState("whacked");
       setShowPunchCorona(true);
 
-      // Play appropriate sound
-      playSound(type);
+      // Play hit sound immediately and character sound with delay
+      playHitAndCharacterSound(type);
 
       // Calculate and show score
       let newScore = 0;
