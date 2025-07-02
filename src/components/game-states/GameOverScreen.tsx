@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useGameStateStore, useGameStore } from "../../store";
 import { GameState } from "../../types/gameTypes";
 import SoundManager from "../../utils/SoundManager";
@@ -12,14 +12,24 @@ const GameOverScreen: React.FC = () => {
   );
   const soundManager = SoundManager.getInstance();
 
+  // Play game over sound when component mounts
+  useEffect(() => {
+    soundManager.playGameOverMusic();
+
+    // Cleanup function to stop game over music when component unmounts
+    return () => {
+      soundManager.stopGameOverMusic();
+    };
+  }, []);
+
   const handlePlayAgain = () => {
     // Reset all game state
     resetScore();
     resetScoreRoll();
     setTimeLeft(60);
 
-    // Stop any playing music and start background music
-    soundManager.stopBackgroundMusic();
+    // Stop game over music and start background music
+    soundManager.stopGameOverMusic();
     soundManager.startBackgroundMusic();
 
     // Start the game
@@ -28,6 +38,8 @@ const GameOverScreen: React.FC = () => {
   };
 
   const handleAddToLeaderboard = () => {
+    // Stop game over music when navigating to leaderboard
+    soundManager.stopGameOverMusic();
     setShowAddScoreModalOnLeaderboard(true);
     setGameState(GameState.LEADERBOARD);
   };

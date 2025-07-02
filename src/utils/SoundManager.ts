@@ -2,14 +2,12 @@ class SoundManager {
   private static instance: SoundManager;
   private sounds: Map<string, HTMLAudioElement>;
   private backgroundMusic: HTMLAudioElement | null;
-  private gameOverMusic: HTMLAudioElement | null;
   private isMuted: boolean;
   private volume: number;
 
   private constructor() {
     this.sounds = new Map();
     this.backgroundMusic = null;
-    this.gameOverMusic = null;
     this.isMuted = false;
     this.volume = 0.5; // Default volume at 50%
     this.loadSounds();
@@ -49,16 +47,6 @@ class SoundManager {
     } else {
       console.error("Failed to load background music");
     }
-
-    // Set up game over music
-    this.gameOverMusic = this.sounds.get("gameOverTrack") || null;
-    if (this.gameOverMusic) {
-      console.log("Game over music loaded successfully");
-      this.gameOverMusic.loop = false;
-      this.gameOverMusic.volume = this.volume;
-    } else {
-      console.error("Failed to load game over music");
-    }
   }
 
   public playSound(soundName: string) {
@@ -76,12 +64,6 @@ class SoundManager {
   public startBackgroundMusic() {
     if (this.isMuted || !this.backgroundMusic) return;
 
-    // Stop game over music if it's playing
-    if (this.gameOverMusic) {
-      this.gameOverMusic.pause();
-      this.gameOverMusic.currentTime = 0;
-    }
-
     // Try to play background music
     this.backgroundMusic.play().catch((error) => {
       console.log(
@@ -93,12 +75,6 @@ class SoundManager {
 
   public forceStartBackgroundMusic() {
     if (this.isMuted || !this.backgroundMusic) return;
-
-    // Stop game over music if it's playing
-    if (this.gameOverMusic) {
-      this.gameOverMusic.pause();
-      this.gameOverMusic.currentTime = 0;
-    }
 
     // Force start background music (should work after user interaction)
     this.backgroundMusic
@@ -116,16 +92,44 @@ class SoundManager {
   }
 
   public playGameOverMusic() {
-    if (this.isMuted || !this.gameOverMusic) return;
+    if (this.isMuted) return;
 
     // Stop background music
     this.stopBackgroundMusic();
 
-    // Play game over music
-    this.gameOverMusic.currentTime = 0;
-    this.gameOverMusic
-      .play()
-      .catch((error) => console.error("Error playing game over music:", error));
+    // Play the actual game over sound (not the end-timer sound)
+    const gameOverSound = this.sounds.get("gameOver");
+    if (gameOverSound) {
+      gameOverSound.currentTime = 0;
+      gameOverSound
+        .play()
+        .catch((error) =>
+          console.error("Error playing game over sound:", error)
+        );
+    }
+  }
+
+  public stopGameOverMusic() {
+    // Stop the game over sound
+    const gameOverSound = this.sounds.get("gameOver");
+    if (gameOverSound) {
+      gameOverSound.pause();
+      gameOverSound.currentTime = 0;
+    }
+  }
+
+  public playEndTimerSound() {
+    if (this.isMuted) return;
+
+    const endTimerSound = this.sounds.get("gameOverTrack");
+    if (endTimerSound) {
+      endTimerSound.currentTime = 0;
+      endTimerSound
+        .play()
+        .catch((error) =>
+          console.error("Error playing end timer sound:", error)
+        );
+    }
   }
 
   public setVolume(volume: number) {
@@ -140,18 +144,12 @@ class SoundManager {
     if (this.backgroundMusic) {
       this.backgroundMusic.volume = this.volume;
     }
-    if (this.gameOverMusic) {
-      this.gameOverMusic.volume = this.volume;
-    }
   }
 
   public toggleMute() {
     this.isMuted = !this.isMuted;
     if (this.isMuted) {
       this.stopBackgroundMusic();
-      if (this.gameOverMusic) {
-        this.gameOverMusic.pause();
-      }
     } else {
       this.startBackgroundMusic();
     }

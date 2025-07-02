@@ -38,6 +38,8 @@ export const useGame = () => {
     rotation: 0,
     position: { x: 0, y: 0 },
   });
+  const [endTimerSoundPlayed, setEndTimerSoundPlayed] =
+    useState<boolean>(false);
 
   const soundManager = SoundManager.getInstance();
 
@@ -66,13 +68,18 @@ export const useGame = () => {
           setGameState(GameState.GAME_OVER);
           setTimeLeft(0);
         } else {
+          // Play end-timer sound 6 seconds before game ends
+          if (currentTime === 6 && !endTimerSoundPlayed) {
+            soundManager.playEndTimerSound();
+            setEndTimerSoundPlayed(true);
+          }
           setTimeLeft(currentTime - 1);
         }
       }, 1000);
 
       return () => clearInterval(timer);
     }
-  }, [gameState, timeLeft]);
+  }, [gameState, timeLeft, endTimerSoundPlayed]);
 
   const handleCharacterClick = (character: Character) => {};
 
@@ -86,6 +93,7 @@ export const useGame = () => {
     resetScore();
     resetScoreRoll();
     setTimeLeft(60);
+    setEndTimerSoundPlayed(false);
 
     // Stop any playing music and start background music
     soundManager.stopBackgroundMusic();
