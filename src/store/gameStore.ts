@@ -59,7 +59,11 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   addScore: (points: number) => {
-    set((state) => ({ score: state.score + points }));
+    set((state) => {
+      const newScore = state.score + points;
+      // Prevent score from going below 0
+      return { score: Math.max(newScore, 0) };
+    });
   },
 
   resetScore: () => {

@@ -9,6 +9,7 @@ const SplashScreen = () => {
   const { initializeScores } = useScoreStore();
   const setGameState = useGameStateStore((state) => state.setGameState);
   const [musicStarted, setMusicStarted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     initializeScores();
@@ -17,6 +18,16 @@ const SplashScreen = () => {
     const soundManager = SoundManager.getInstance();
     soundManager.startBackgroundMusic();
     setMusicStarted(true);
+
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
   }, [initializeScores]);
 
   const handleStartGame = () => {
@@ -37,6 +48,27 @@ const SplashScreen = () => {
       setMusicStarted(true);
     }
     setGameState(GameState.LEADERBOARD);
+  };
+
+  const handleToggleFullscreen = () => {
+    if (typeof document === "undefined") return;
+
+    const doc: any = document;
+    const docEl: any = document.documentElement;
+
+    if (!document.fullscreenElement && !doc.webkitFullscreenElement) {
+      if (docEl.requestFullscreen) {
+        docEl.requestFullscreen();
+      } else if (docEl.webkitRequestFullscreen) {
+        docEl.webkitRequestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (doc.webkitExitFullscreen) {
+        doc.webkitExitFullscreen();
+      }
+    }
   };
 
   return (
@@ -99,18 +131,20 @@ const SplashScreen = () => {
             </span>
           </motion.button>
 
+        
+
           <motion.button
-            onClick={handleShowLeaderboard}
-            className="px-8 py-4 text-2xl sm:text-3xl font-bold italic transition-all duration-200 relative flex items-center justify-center font-sans border-4 border-black bg-white/15 backdrop-blur-[10px] hover:scale-110 active:scale-90"
+            onClick={handleToggleFullscreen}
+            className="px-8 py-4 text-2xl sm:text-3xl font-bold italic transition-all duration-200 relative flex items-center justify-center font-sans border-4 border-black bg-gradient-to-b from-green-400 to-green-600 backdrop-blur-[10px] hover:scale-110 active:scale-90"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
           >
             <span className="absolute text-transparent [-webkit-text-stroke:4px_#000000] z-0">
-              Leaderboard
+              {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
             </span>
             <span className="relative text-white z-[1]">
-              Leaderboard
+              {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
             </span>
           </motion.button>
         </div>

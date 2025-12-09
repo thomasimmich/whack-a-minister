@@ -1,6 +1,6 @@
 import { Container, Graphics, Sprite, Text } from "@pixi/react";
 import * as PIXI from "pixi.js";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import useCarStore from "../store/carStore";
 import { useCharacterStore } from "../store/characterStore";
 import { useGameStore } from "../store/gameStore";
@@ -79,9 +79,10 @@ const CHARACTER_POSITIONS: CharacterPosition[] = [
 interface GameCharacterProps
   extends Omit<Character, "isVisible" | "visibleTime" | "hiddenTime"> {
   onCharacterClick: (character: Character) => void;
-  onCharacterRemoved: () => void;
+  onRemoveSelf: () => void; // NEW: Character calls this to remove itself from array
   speed: number;
   timeLeft: number;
+  hideTime: number; // Timestamp when character should exit
 }
 
 const CHARACTER_IMAGES: CharacterImages = {
@@ -162,6 +163,24 @@ const ScoreText: React.FC<ScoreTextProps> = ({
   const [position, setPosition] = useState({ x: 0, y: -100 });
   const textRef = useRef<PIXI.Text>(null);
   const scoreRoll = useGameStore((state) => state.scoreRoll);
+  const [isMobileLandscape, setIsMobileLandscape] = useState(false);
+
+  useEffect(() => {
+    const updateLayout = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const isMobile = width <= 900;
+      const isLandscape = width > height;
+      setIsMobileLandscape(isMobile && isLandscape);
+    };
+
+    updateLayout();
+    window.addEventListener("resize", updateLayout);
+
+    return () => {
+      window.removeEventListener("resize", updateLayout);
+    };
+  }, []);
 
   useEffect(() => {
     if (isVisible) {
@@ -169,7 +188,11 @@ const ScoreText: React.FC<ScoreTextProps> = ({
       setScale(0);
       setPosition({
         x: (Math.random() - 0.5) * 100, // Random x offset between -50 and 50
-        y: -150 - Math.random() * 100, // Random y offset between -150 and -250
+        // On mobile landscape screens, keep the score text closer to the character
+        // so it stays within the visible game area.
+        y: isMobileLandscape
+          ? -80 - Math.random() * 40 // -80 to -120
+          : -150 - Math.random() * 100, // -150 to -250
       });
 
       // Grow animation
@@ -189,12 +212,12 @@ const ScoreText: React.FC<ScoreTextProps> = ({
       };
       requestAnimationFrame(animate);
     }
-  }, [isVisible]);
+  }, [isVisible, isMobileLandscape]);
 
   const scoreText = score > 0 ? `+${score}` : score.toString();
   const textStyle = new PIXI.TextStyle({
     fontFamily: "Arial",
-    fontSize: 36,
+    fontSize: isMobileLandscape ? 28 : 36,
     fontStyle: "italic",
     fontWeight: "bold",
     fill: ["#ffffff", "#00ff00"], // White to green gradient
@@ -239,13 +262,13 @@ const GameCharacter: React.FC<GameCharacterProps> = ({
   state,
   scale,
   onCharacterClick,
-  onCharacterRemoved,
+  onRemoveSelf,
   speed,
   timeLeft,
+  hideTime,
 }) => {
   const [currentState, setCurrentState] = useState(state);
   const [isExiting, setIsExiting] = useState(false);
-  const [isReturning, setIsReturning] = useState(false);
   const [currentScale, setCurrentScale] = useState(scale);
   const [currentAlpha, setCurrentAlpha] = useState(1);
   const [currentY, setCurrentY] = useState(position.y * window.innerHeight);
@@ -263,6 +286,8 @@ const GameCharacter: React.FC<GameCharacterProps> = ({
   const [characterImages, setCharacterImages] =
     useState<ProcessedCombination | null>(null);
   const scoreRoll = useGameStore((state) => state.scoreRoll);
+  const hasStartedExitRef = useRef(false);
+  const wasClickedRef = useRef(false);
 
   useEffect(() => {
     if (selectedCombination) {
@@ -284,68 +309,16 @@ const GameCharacter: React.FC<GameCharacterProps> = ({
     }
   }, [position, scale]);
 
-  // Calculate visible time based on game state
-  const calculateVisibleTime = () => {
-    const baseVisibleTime = (Math.random() * 0.5 + 3) / Math.sqrt(speed);
-    const timeLeftPercent = timeLeft / 60;
-    // More dramatic scaling: starts longer, ends much shorter
-    return baseVisibleTime * (0.5 + timeLeftPercent * 0.2); // Changed from (0.3 + timeLeftPercent * 0.3)
-  };
-
-  // Entry animation and auto-hide setup
-  useEffect(() => {
-    const startY = position.y * window.innerHeight + ENTRY_OFFSET; // Start below
-    setCurrentY(startY);
-
-    const startTime = Date.now();
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
-      const easedProgress = Ease.inSine(progress);
-
-      setCurrentY(startY - easedProgress * ENTRY_OFFSET); // Move up
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-    requestAnimationFrame(animate);
-
-    // Set up auto-hide timer based on calculated visible time
-    const visibleTime = calculateVisibleTime();
-
-    const autoHideTimer = setTimeout(() => {
-      if (!isExiting) {
-        startExitAnimation();
-      }
-    }, visibleTime * 1000);
-
-    return () => clearTimeout(autoHideTimer);
-  }, []);
-
-  // Vibration effect while visible
-  useEffect(() => {
-    if (!isExiting && currentState === "normal") {
-      let lastTime = Date.now();
-      const vibrate = () => {
-        const now = Date.now();
-        lastTime = now;
-
-        setVibrationOffset(
-          Math.sin(now * VIBRATION_SPEED) * VIBRATION_AMPLITUDE
-        );
-
-        if (!isExiting && currentState === "normal") {
-          requestAnimationFrame(vibrate);
-        }
-      };
-      requestAnimationFrame(vibrate);
+  // Define startExitAnimation function
+  const startExitAnimation = useCallback(() => {
+    if (hasStartedExitRef.current) {
+      console.log(`[CHARACTER ${id}] ⚠️ Exit animation already started, ignoring`);
+      return; // Prevent multiple exit animations
     }
-  }, [isExiting, currentState]);
-
-  const startExitAnimation = () => {
-    if (isExiting) return; // Prevent multiple exit animations
+    
+    hasStartedExitRef.current = true;
     setIsExiting(true);
+    console.log(`[CHARACTER ${id}] 🚪 Starting exit animation`);
 
     const startY = position.y * window.innerHeight;
     const exitStartTime = Date.now();
@@ -363,15 +336,108 @@ const GameCharacter: React.FC<GameCharacterProps> = ({
       } else {
         // Hide score text when character is fully exited
         setShowScore(false);
-        // Ensure the character is removed after animation completes
-        onCharacterRemoved();
+        console.log(`[CHARACTER ${id}] ✅ Exit animation complete, removing self from array`);
+        // NEW: Character removes itself from the array
+        onRemoveSelf();
       }
     };
     requestAnimationFrame(exitAnimate);
-  };
+  }, [position.y, onRemoveSelf, id]);
+
+  // NEW: Check hideTime continuously and exit when time is up
+  useEffect(() => {
+    const checkInterval = setInterval(() => {
+      const now = Date.now();
+      if (now >= hideTime && !hasStartedExitRef.current && !wasClickedRef.current) {
+        const overtime = now - hideTime;
+        console.log(`[CHARACTER ${id}] ⏰ hideTime reached! (overtime: ${overtime}ms) - starting exit`);
+        startExitAnimation();
+      }
+    }, 100); // Check every 100ms
+
+    return () => clearInterval(checkInterval);
+  }, [hideTime, startExitAnimation, id]);
+
+  // Entry animation - RE-ENABLED
+  useEffect(() => {
+    const startY = position.y * window.innerHeight + ENTRY_OFFSET; // Start below
+    setCurrentY(startY);
+
+    const mountTime = Date.now();
+    const timeUntilHide = hideTime - mountTime;
+    console.log(`[CHARACTER ${id}] 🎬 MOUNTED - Type: ${type}, Position: (${position.x.toFixed(2)}, ${position.y.toFixed(2)}), hideTime: ${hideTime}, timeUntilHide: ${(timeUntilHide/1000).toFixed(2)}s`);
+
+    const startTime = Date.now();
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
+      const easedProgress = Ease.inSine(progress);
+
+      setCurrentY(startY - easedProgress * ENTRY_OFFSET); // Move up
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+    requestAnimationFrame(animate);
+
+    return () => {
+      const unmountTime = Date.now();
+      const lifespan = unmountTime - mountTime;
+      console.log(`[CHARACTER ${id}] 🧹 CLEANUP (unmounting) - Lifespan: ${lifespan}ms (${(lifespan/1000).toFixed(2)}s), wasClicked: ${wasClickedRef.current}, isExiting: ${isExiting}`);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount!
+
+  // Log every render to see when/why component re-renders (only occasionally to reduce spam)
+  useEffect(() => {
+    if (Math.random() < 0.05) { // Only 5% of renders
+      const now = Date.now();
+      const timeRemaining = hideTime - now;
+      console.log(`[CHARACTER ${id}] 🔄 RENDER - timeRemaining: ${(timeRemaining/1000).toFixed(2)}s, isExiting: ${isExiting}, currentState: ${currentState}`);
+    }
+  });
+
+  // Vibration effect while visible - RE-ENABLED
+  useEffect(() => {
+    if (!isExiting && currentState === "normal") {
+      let lastTime = Date.now();
+      const vibrate = () => {
+        const now = Date.now();
+        lastTime = now;
+
+        setVibrationOffset(
+          Math.sin(now * VIBRATION_SPEED) * VIBRATION_AMPLITUDE
+        );
+
+        if (!isExiting && currentState === "normal") {
+          requestAnimationFrame(vibrate);
+        }
+      };
+      requestAnimationFrame(vibrate);
+    } else {
+      setVibrationOffset(0);
+    }
+  }, [isExiting, currentState]);
 
   const handleClick = () => {
-    if (currentState === "normal") {
+    if (currentState === "normal" && !wasClickedRef.current) {
+      console.log(`[CHARACTER ${id}] 👆 Clicked! Type: ${type}`);
+      wasClickedRef.current = true;
+      
+      // Notify parent immediately that character was clicked
+      const characterData: Character = {
+        id,
+        type,
+        position,
+        isVisible: true,
+        state: currentState,
+        visibleTime: 0,
+        hiddenTime: 0,
+        scale,
+      };
+      onCharacterClick(characterData);
+
       setCurrentState("whacked");
       setShowPunchCorona(true);
 
@@ -400,8 +466,6 @@ const GameCharacter: React.FC<GameCharacterProps> = ({
       useGameStore.getState().addScore(newScore);
       setShowScore(true);
 
-      // Update the score in the game store
-
       // Hide punch corona after 200ms
       if (punchCoronaTimeoutRef.current) {
         window.clearTimeout(punchCoronaTimeoutRef.current);
@@ -410,46 +474,19 @@ const GameCharacter: React.FC<GameCharacterProps> = ({
         setShowPunchCorona(false);
       }, 200);
 
-      if (isExiting) {
-        // If character was exiting, return to normal position first
-        setIsReturning(true);
-        const startY = currentY;
-        const targetY = position.y * window.innerHeight;
-        const returnStartTime = Date.now();
-
-        const returnAnimate = () => {
-          const returnElapsed = Date.now() - returnStartTime;
-          const returnProgress = Math.min(
-            returnElapsed / ANIMATION_DURATION,
-            1
-          );
-          const returnEasedProgress = Ease.inBack(returnProgress, 0.6);
-
-          setCurrentY(startY + (targetY - startY) * returnEasedProgress);
-
-          if (returnProgress < 1) {
-            requestAnimationFrame(returnAnimate);
-          } else {
-            setIsReturning(false);
-            // Wait a moment before starting exit animation
-            setTimeout(() => {
-              startExitAnimation();
-            }, 10000); // Stay visible for 10 seconds
-          }
-        };
-        requestAnimationFrame(returnAnimate);
-      } else {
-        // If not exiting, start exit animation immediately
-        startExitAnimation();
-      }
+      // Start exit animation immediately when clicked
+      console.log(`[CHARACTER ${id}] 👆 Type ${type} was clicked, starting exit animation`);
+      startExitAnimation();
+    } else if (wasClickedRef.current) {
+      console.log(`[CHARACTER ${id}] ⚠️ Already clicked, ignoring`);
+    } else if (currentState !== "normal") {
+      console.log(`[CHARACTER ${id}] ⚠️ Not in normal state (${currentState}), ignoring click`);
     }
   };
 
   const handleScoreAnimationComplete = () => {
-    // Only hide score if character is not in returning state
-    if (!isReturning) {
-      setShowScore(false);
-    }
+    // Score animation is complete, but we keep it visible until character exits
+    // The score will be hidden when exit animation completes
   };
 
   // Cleanup timeout on unmount
@@ -481,7 +518,6 @@ const GameCharacter: React.FC<GameCharacterProps> = ({
   };
 
   const imagePath = getImagePath();
-  console.log(imagePath);
 
   return (
     <Container x={position.x * window.innerWidth} y={topOfCar}>

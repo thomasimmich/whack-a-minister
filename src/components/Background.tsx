@@ -15,7 +15,7 @@ const NUM_LAYERS = 5;
 const BASE_SCALE_FACTOR = 1.5;
 
 const BASE_OVERLAP = 1.5;
-const BASE_SPEED = 5;
+const BASE_SPEED = 10
 const OVERLAP_SPEED_MULTIPLIER = 0.5;
 
 const Background: React.FC = () => {
