@@ -90,10 +90,10 @@ const GameOverScreen: React.FC = () => {
             transition={{ duration: 0.4, delay: 0.2 }}
           >
             <div className="relative">
-              <span className="absolute inset-0 text-transparent [-webkit-text-stroke:6px_#000000] z-0 text-6xl sm:text-7xl md:text-8xl">
+              <span className="absolute inset-0 text-transparent italic [-webkit-text-stroke:6px_#000000] z-0 text-6xl sm:text-7xl md:text-8xl">
                 {score}
               </span>
-              <span className="relative z-[1] text-6xl sm:text-7xl md:text-8xl font-bold bg-gradient-to-b from-white to-[#00ff00] bg-clip-text text-transparent drop-shadow-[5.2px_3px_8px_rgba(0,0,0,1)]">
+              <span className="relative z-[1] text-6xl sm:text-7xl md:text-8xl font-bold italic bg-gradient-to-b from-white to-[#00ff00] bg-clip-text text-transparent drop-shadow-[5.2px_3px_8px_rgba(0,0,0,1)] select-none">
                 {score}
               </span>
             </div>

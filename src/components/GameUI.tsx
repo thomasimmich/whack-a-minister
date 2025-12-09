@@ -5,7 +5,7 @@ import { useWindowDimensions } from "../hooks/useWindowDimensions";
 import { useGameStore } from "../store/gameStore";
 
 const GameUI: React.FC = () => {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const { score, timeLeft, scoreRoll } = useGameStore();
   const [pulseScale, setPulseScale] = useState(1);
   const [comboIncreaseScale, setComboIncreaseScale] = useState(1);
@@ -14,6 +14,7 @@ const GameUI: React.FC = () => {
   const isMobile = width < 768;
   const fontSize = isMobile ? 24 : 32;
   const margin = isMobile ? 60 : 100;
+  const bottomMargin = isMobile ? 20 : 30;
 
   // Combo increase animation
   useEffect(() => {
@@ -109,34 +110,34 @@ const GameUI: React.FC = () => {
 
   return (
     <Container x={0} y={0}>
-      {/* Score */}
-      <Text
-        text={`Score: ${score}`}
-        style={scoreTextStyle}
-        anchor={0.5}
-        x={margin}
-        y={50}
-      />
-
-      {/* Combo - only show when scoreRoll > 0 */}
+      {/* Combo - only show when scoreRoll > 0, positioned above score */}
       {scoreRoll > 1 && (
         <Text
           text={`Combo: x${scoreRoll}`}
           style={comboTextStyle}
           anchor={0.5}
           x={margin}
-          y={isMobile ? 80 : 100}
+          y={height - bottomMargin - (isMobile ? 40 : 50)}
           scale={pulseScale * comboIncreaseScale}
         />
       )}
 
-      {/* Time - positioned on the right side, same y as score */}
+      {/* Score */}
+      <Text
+        text={`Score: ${score}`}
+        style={scoreTextStyle}
+        anchor={0.5}
+        x={margin}
+        y={height - bottomMargin}
+      />
+
+      {/* Time - positioned on the right side, bottom */}
       <Text
         text={`Time: ${timeLeft}s`}
         style={timeTextStyle}
         anchor={0.5}
         x={width - margin}
-        y={50}
+        y={height - bottomMargin}
         scale={timeLeft <= 10 ? pulseScale : 1}
       />
     </Container>

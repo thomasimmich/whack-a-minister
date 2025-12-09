@@ -312,13 +312,11 @@ const GameCharacter: React.FC<GameCharacterProps> = ({
   // Define startExitAnimation function
   const startExitAnimation = useCallback(() => {
     if (hasStartedExitRef.current) {
-      console.log(`[CHARACTER ${id}] ⚠️ Exit animation already started, ignoring`);
       return; // Prevent multiple exit animations
     }
     
     hasStartedExitRef.current = true;
     setIsExiting(true);
-    console.log(`[CHARACTER ${id}] 🚪 Starting exit animation`);
 
     const startY = position.y * window.innerHeight;
     const exitStartTime = Date.now();
@@ -336,36 +334,40 @@ const GameCharacter: React.FC<GameCharacterProps> = ({
       } else {
         // Hide score text when character is fully exited
         setShowScore(false);
-        console.log(`[CHARACTER ${id}] ✅ Exit animation complete, removing self from array`);
-        // NEW: Character removes itself from the array
+        // Character removes itself from the array
         onRemoveSelf();
       }
     };
     requestAnimationFrame(exitAnimate);
-  }, [position.y, onRemoveSelf, id]);
+  }, [position.y, onRemoveSelf]);
 
-  // NEW: Check hideTime continuously and exit when time is up
+  // Check hideTime and exit when time is up
   useEffect(() => {
-    const checkInterval = setInterval(() => {
-      const now = Date.now();
-      if (now >= hideTime && !hasStartedExitRef.current && !wasClickedRef.current) {
-        const overtime = now - hideTime;
-        console.log(`[CHARACTER ${id}] ⏰ hideTime reached! (overtime: ${overtime}ms) - starting exit`);
+    const now = Date.now();
+    const timeUntilHide = hideTime - now;
+    
+    if (timeUntilHide <= 0) {
+      // Already past hideTime, exit immediately
+      if (!hasStartedExitRef.current && !wasClickedRef.current) {
         startExitAnimation();
       }
-    }, 100); // Check every 100ms
+      return;
+    }
+    
+    // Set timeout to exit at exactly hideTime
+    const timeoutId = window.setTimeout(() => {
+      if (!hasStartedExitRef.current && !wasClickedRef.current) {
+        startExitAnimation();
+      }
+    }, timeUntilHide);
 
-    return () => clearInterval(checkInterval);
-  }, [hideTime, startExitAnimation, id]);
+    return () => clearTimeout(timeoutId);
+  }, [hideTime, startExitAnimation]);
 
-  // Entry animation - RE-ENABLED
+  // Entry animation
   useEffect(() => {
     const startY = position.y * window.innerHeight + ENTRY_OFFSET; // Start below
     setCurrentY(startY);
-
-    const mountTime = Date.now();
-    const timeUntilHide = hideTime - mountTime;
-    console.log(`[CHARACTER ${id}] 🎬 MOUNTED - Type: ${type}, Position: (${position.x.toFixed(2)}, ${position.y.toFixed(2)}), hideTime: ${hideTime}, timeUntilHide: ${(timeUntilHide/1000).toFixed(2)}s`);
 
     const startTime = Date.now();
     const animate = () => {
@@ -380,23 +382,8 @@ const GameCharacter: React.FC<GameCharacterProps> = ({
       }
     };
     requestAnimationFrame(animate);
-
-    return () => {
-      const unmountTime = Date.now();
-      const lifespan = unmountTime - mountTime;
-      console.log(`[CHARACTER ${id}] 🧹 CLEANUP (unmounting) - Lifespan: ${lifespan}ms (${(lifespan/1000).toFixed(2)}s), wasClicked: ${wasClickedRef.current}, isExiting: ${isExiting}`);
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount!
-
-  // Log every render to see when/why component re-renders (only occasionally to reduce spam)
-  useEffect(() => {
-    if (Math.random() < 0.05) { // Only 5% of renders
-      const now = Date.now();
-      const timeRemaining = hideTime - now;
-      console.log(`[CHARACTER ${id}] 🔄 RENDER - timeRemaining: ${(timeRemaining/1000).toFixed(2)}s, isExiting: ${isExiting}, currentState: ${currentState}`);
-    }
-  });
 
   // Vibration effect while visible - RE-ENABLED
   useEffect(() => {
@@ -422,7 +409,6 @@ const GameCharacter: React.FC<GameCharacterProps> = ({
 
   const handleClick = () => {
     if (currentState === "normal" && !wasClickedRef.current) {
-      console.log(`[CHARACTER ${id}] 👆 Clicked! Type: ${type}`);
       wasClickedRef.current = true;
       
       // Notify parent immediately that character was clicked
@@ -475,12 +461,7 @@ const GameCharacter: React.FC<GameCharacterProps> = ({
       }, 200);
 
       // Start exit animation immediately when clicked
-      console.log(`[CHARACTER ${id}] 👆 Type ${type} was clicked, starting exit animation`);
       startExitAnimation();
-    } else if (wasClickedRef.current) {
-      console.log(`[CHARACTER ${id}] ⚠️ Already clicked, ignoring`);
-    } else if (currentState !== "normal") {
-      console.log(`[CHARACTER ${id}] ⚠️ Not in normal state (${currentState}), ignoring click`);
     }
   };
 

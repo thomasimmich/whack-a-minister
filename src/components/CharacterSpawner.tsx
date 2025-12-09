@@ -34,8 +34,6 @@ const CharacterSpawner = () => {
     speed,
   } = useCounterpartSystem(timeLeft, scaleFactor, gameState);
 
-  console.log(`[SPAWNER] 🎨 Rendering ${spawnedCharacters.length} characters`);
-
   return (
     <>
       {spawnedCharacters.map((spawnedChar) => (
@@ -75,8 +73,10 @@ const useCounterpartSystem = (
   // Track which positions are currently occupied
   const occupiedPositionsRef = useRef<Set<string>>(new Set());
 
-  // Calculate speed based on time left - more aggressive scaling
-  const speed = Math.pow(AVAILABLE_TIME / Math.max(timeLeft, 1), 1.3);
+  // Calculate speed based on time left - gentle scaling
+  // Was: 1.3 exponent (too aggressive), 0.8 (still too fast at end)
+  // Now: 0.6 exponent (much gentler progression)
+  const speed = Math.pow(AVAILABLE_TIME / Math.max(timeLeft, 1), 0.6);
 
   // Calculate character type randomly
   const calculateCounterpartTypeRandomly = useCallback((): CharacterType => {
@@ -95,27 +95,25 @@ const useCounterpartSystem = (
 
   // Update turn variables (recalculate durations based on speed)
   const updateTurnVariables = useCallback(() => {
-    // hiddenDuration: random in [20, 60] frames divided by speed
-    // Shorter range for more frequent spawns
-    counterpartHiddenDurationRef.current =
-      (Math.random() * 40 + 20) / speed;
+    // hiddenDuration: Zeit zwischen Spawns
+    // Base: 40-100 frames (0.67-1.67 Sekunden bei 60fps)
+    // Etwas längere Intervalle, um nicht zu viele gleichzeitige Charaktere zu haben
+    const baseHiddenDuration = Math.random() * 60 + 40; // 40-100 frames
+    counterpartHiddenDurationRef.current = baseHiddenDuration / speed;
     counterpartHiddenTimeRef.current = 0;
   }, [speed]);
   
-  // NEW: Function to remove a character from the array
+  // Function to remove a character from the array
   const removeCharacter = useCallback((uniqueId: string) => {
-    console.log(`[SPAWNER] 🗑️ removeCharacter called for ${uniqueId}`);
     setSpawnedCharacters((prev) => {
       const char = prev.find(c => c.uniqueId === uniqueId);
       if (char) {
         // Free up the position
         const posKey = `${char.character.position.x},${char.character.position.y}`;
         occupiedPositionsRef.current.delete(posKey);
-        console.log(`[SPAWNER] 🗑️ Freed position ${posKey}`);
       }
       const updated = prev.filter((c) => c.uniqueId !== uniqueId);
       spawnedCharactersRef.current = updated;
-      console.log(`[SPAWNER] 📊 After removal: ${updated.length} characters remaining`);
       return updated;
     });
   }, []);
@@ -124,7 +122,6 @@ const useCounterpartSystem = (
   useEffect(() => {
     if (gameState !== GameState.IDLE) {
       // Reset when not in game
-      console.log(`[SPAWNER] 🔄 Game state changed to ${gameState}, clearing all characters`);
       setSpawnedCharacters([]);
       spawnedCharactersRef.current = [];
       occupiedPositionsRef.current.clear();
@@ -134,10 +131,9 @@ const useCounterpartSystem = (
     // Initialize timing variables
     updateTurnVariables();
     counterpartHiddenTimeRef.current = 0;
-    console.log(`[SPAWNER] 🎮 Game started, ready to spawn characters`);
   }, [gameState, updateTurnVariables]);
 
-  // NEW: Spawn a new character at a random free position
+  // Spawn a new character at a random free position
   const spawnNewCharacter = useCallback(
     (visibleDuration: number) => {
       // Find available positions
@@ -147,7 +143,6 @@ const useCounterpartSystem = (
       });
 
       if (availablePositions.length === 0) {
-        console.log(`[SPAWNER] ⚠️ No available positions, skipping spawn`);
         return;
       }
 
@@ -162,17 +157,7 @@ const useCounterpartSystem = (
       const visibleTimeMs = (visibleDuration * 1000) / 60;
       const now = Date.now();
       const hideTime = now + visibleTimeMs;
-      const visibleSeconds = visibleTimeMs / 1000;
       const uniqueId = `char-${nextIdRef.current++}`;
-
-      console.log(`[SPAWNER] 🎯 ========== SPAWNING NEW CHARACTER ==========`);
-      console.log(`[SPAWNER] 🎯 Unique ID: ${uniqueId}`);
-      console.log(`[SPAWNER] 🎯 Type: ${characterType}`);
-      console.log(`[SPAWNER] 🎯 Position: (${position.x}, ${position.y}) [${posKey}]`);
-      console.log(`[SPAWNER] 🎯 visibleDuration: ${visibleDuration.toFixed(2)} frames`);
-      console.log(`[SPAWNER] 🎯 visibleSeconds: ${visibleSeconds.toFixed(2)}s ⏱️`);
-      console.log(`[SPAWNER] 🎯 hideTime: ${hideTime} (in ${visibleSeconds.toFixed(2)}s)`);
-      console.log(`[SPAWNER] 🎯 ===============================================`);
 
       const newCharacter: SpawnedCharacter = {
         uniqueId,
@@ -194,14 +179,6 @@ const useCounterpartSystem = (
       setSpawnedCharacters((prev) => {
         const updated = [...prev, newCharacter];
         spawnedCharactersRef.current = updated;
-        console.log(`[SPAWNER] 📊 After spawn: ${updated.length} total characters`, 
-          updated.map(c => ({
-            id: c.uniqueId,
-            type: c.character.type,
-            pos: `(${c.character.position.x}, ${c.character.position.y})`,
-            remaining: `${((c.hideTime - now) / 1000).toFixed(1)}s`
-          }))
-        );
         return updated;
       });
     },
@@ -229,32 +206,20 @@ const useCounterpartSystem = (
       counterpartHiddenTimeRef.current += deltaFrames;
 
       // Update speed and durations if timeLeft changed significantly
-      const currentSpeed = Math.pow(AVAILABLE_TIME / Math.max(timeLeft, 1), 1.3);
+      const currentSpeed = Math.pow(AVAILABLE_TIME / Math.max(timeLeft, 1), 0.6);
       if (Math.abs(currentSpeed - speed) > 0.1) {
         updateTurnVariables();
       }
 
-      // Debug logging every ~1 second
-      if (Math.random() < 0.016) {
-        const chars = spawnedCharactersRef.current;
-        console.log(`[SPAWNER] 🔍 ===== UPDATE CHECK =====`);
-        console.log(`  Time now: ${now}`);
-        console.log(`  Total characters: ${chars.length}`);
-        chars.forEach(char => {
-          const timeRemaining = char.hideTime - now;
-          console.log(`  ✅ ${char.uniqueId}: remaining=${(timeRemaining/1000).toFixed(1)}s, pos=(${char.character.position.x}, ${char.character.position.y})`);
-        });
-        console.log(`[SPAWNER] 🔍 ======================`);
-      }
 
       // Check if we should spawn a new character
       if (counterpartHiddenTimeRef.current >= counterpartHiddenDurationRef.current) {
-        // FIXED DURATION FOR TESTING - NOT divided by speed!
-        // This should make characters visible for 10-15 seconds regardless of game speed
-        const rawDuration = Math.random() * 300 + 600; // 600-900 frames = 10-15 seconds at 60fps
-        const visibleDuration = rawDuration; // DO NOT divide by speed for testing!
-        
-        console.log(`[SPAWNER] 📊 Time to spawn! visibleDuration=${visibleDuration.toFixed(2)} frames (${(visibleDuration/60).toFixed(2)}s)`);
+        // Visible duration: 1-3 seconds, scaled by speed
+        // Base: 60-180 frames (1-3 seconds at 60fps)
+        // With minimum of 30 frames (0.5 seconds) to keep it playable
+        const baseDuration = Math.random() * 120 + 60; // 60-180 frames
+        const scaledDuration = baseDuration / speed;
+        const visibleDuration = Math.max(scaledDuration, 30); // Minimum 0.5 seconds
 
         spawnNewCharacter(visibleDuration);
 
@@ -275,8 +240,7 @@ const useCounterpartSystem = (
     };
   }, [gameState, timeLeft, speed, spawnNewCharacter, updateTurnVariables]);
 
-  const handleCharacterClick = useCallback((character: Character) => {
-    console.log(`[SPAWNER] 👆 Character ${character.id} was clicked - character will handle its own removal`);
+  const handleCharacterClick = useCallback((_character: Character) => {
     // Character will call onRemoveSelf when it's done with exit animation
   }, []);
 
