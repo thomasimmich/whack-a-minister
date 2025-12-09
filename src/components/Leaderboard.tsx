@@ -35,7 +35,7 @@ function Leaderboard() {
     initializeScores,
   } = useScoreStore();
 
-  const { score, resetScore, resetScoreRoll, setTimeLeft, startGame } =
+  const { score, startGame } =
     useGameStore();
   const showAddScoreModalOnLeaderboard = useGameStateStore(
     (state) => state.showAddScoreModalOnLeaderboard
@@ -139,21 +139,21 @@ function Leaderboard() {
         />
       )}
       <div
-        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[66vh] bg-black/20 backdrop-blur-[30px] rounded-3xl border border-white/20 shadow-[0_8px_32px_0_rgba(140,140,140,0.37)] overflow-hidden flex flex-col z-10 transition-opacity duration-500 ${
+        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[80vh] bg-black/20 backdrop-blur-[30px] rounded-3xl border border-white/20 shadow-[0_8px_32px_0_rgba(140,140,140,0.37)] overflow-hidden flex flex-col z-10 transition-opacity duration-500 ${
           showCelebration ? "opacity-0" : "opacity-100"
         } w-[95%] sm:w-[90%] lg:w-[80%] xl:w-[80%] 2xl:w-[50%]`}
       >
-        <div className="p-8 border-b border-white/10 flex justify-between items-center">
+        <div className="p-4 sm:p-8 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex flex-col items-start">
-            <h1 className="text-4xl font-bold text-white drop-shadow-lg">
+            <h1 className="text-2xl sm:text-4xl font-bold text-white drop-shadow-lg">
               Rangliste
             </h1>
-            <div className="text-white/80 text-sm mt-1">
+            <div className="text-white/80 text-xs sm:text-sm mt-1">
               {existingNames.length} Spieler gesamt • {getLastTwoDaysPlayers()}{" "}
               in den letzten 2 Tagen aktiv
             </div>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 w-full sm:w-auto justify-end">
             <button
               onClick={handleChangeCombination}
               className="bg-white/10 backdrop-blur-sm border border-white/20 text-white w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-white/20 hover:scale-105"
@@ -183,20 +183,20 @@ function Leaderboard() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-white/10 [&::-webkit-scrollbar-track]:rounded [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded hover:[&::-webkit-scrollbar-thumb]:bg-white/30">
-          <table className="w-full">
+        <div className="flex-1 overflow-y-auto overflow-x-auto p-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-white/10 [&::-webkit-scrollbar-track]:rounded [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded hover:[&::-webkit-scrollbar-thumb]:bg-white/30">
+          <table className="w-full min-w-[600px] sm:min-w-0">
             <thead>
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
                   Rang
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
                   Name
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
                   Punkte
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
                   Datum
                 </th>
               </tr>
@@ -207,16 +207,16 @@ function Leaderboard() {
                   key={score.id}
                   className="hover:bg-white/10 transition-colors"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-white">
                     {getMedal(index)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm">
                     <span className="font-medium text-white">{score.name}</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-medium text-white">
                     {score.points}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white/90">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm text-white/90">
                     {formatDate(score.date)}
                   </td>
                 </tr>

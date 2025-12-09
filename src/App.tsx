@@ -3,6 +3,7 @@ import GameOverScreen from "./components/game-states/GameOverScreen";
 import SplashScreen from "./components/game-states/SplashScreen";
 import Leaderboard from "./components/Leaderboard";
 import Level from "./components/Level";
+import OrientationLock from "./components/OrientationLock";
 import { GameContainer } from "./components/styled/GameStyles";
 import { useGameStateStore } from "./store";
 import { GameState } from "./types/gameTypes";
@@ -39,6 +40,7 @@ const App = () => {
 
   return (
     <GameContainer>
+      <OrientationLock />
       <Level />
 
       {gameState === GameState.SPLASH && <SplashScreen />}

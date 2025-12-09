@@ -37,8 +37,8 @@ export const AddScoreModal: React.FC<AddScoreModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-black/20 backdrop-blur-[30px] rounded-3xl border border-white/20 p-8 w-[95%] sm:w-[90%] lg:w-[80%] xl:w-[80%] 2xl:w-[50%] max-w-2xl">
-        <h2 className="text-2xl font-bold text-white mb-4">Score hinzufügen</h2>
+      <div className="bg-black/20 backdrop-blur-[30px] rounded-3xl border border-white/20 p-6 sm:p-8 w-[95%] sm:w-[90%] lg:w-[80%] xl:w-[80%] 2xl:w-[50%] max-w-2xl">
+        <h2 className="text-xl sm:text-2xl font-bold text-white mb-4">Score hinzufügen</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label

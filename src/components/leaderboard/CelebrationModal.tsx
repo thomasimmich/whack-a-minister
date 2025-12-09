@@ -32,14 +32,14 @@ export const CelebrationModal = ({ data }: CelebrationModalProps) => {
         }}
       />
       <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-        <div className="bg-white/20 backdrop-blur-md p-8 rounded-2xl shadow-xl border border-white/30 transform transition-all duration-500 scale-100 animate-bounce h-60 flex flex-col justify-center">
-          <div className="text-6xl text-center mb-4">
+        <div className="bg-white/20 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-xl border border-white/30 transform transition-all duration-500 scale-100 animate-bounce h-auto min-h-[15rem] flex flex-col justify-center max-w-[90vw] sm:max-w-lg">
+          <div className="text-5xl sm:text-6xl text-center mb-4">
             {data.rank === 1 ? "🏆" : "🎉"}
           </div>
-          <h2 className="text-3xl font-bold text-white text-center mb-2">
+          <h2 className="text-xl sm:text-3xl font-bold text-white text-center mb-2 px-2">
             {getCelebrationMessage(data.rank, data.total)}
           </h2>
-          <p className="text-white/90 text-center text-lg">
+          <p className="text-white/90 text-center text-base sm:text-lg">
             {data.rank === 1 ? "Du bist der Champion!" : "Mach weiter so!"}
           </p>
         </div>

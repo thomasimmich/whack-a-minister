@@ -1,13 +1,19 @@
 import { Container, Text } from "@pixi/react";
 import * as PIXI from "pixi.js";
 import React, { useEffect, useRef, useState } from "react";
+import { useWindowDimensions } from "../hooks/useWindowDimensions";
 import { useGameStore } from "../store/gameStore";
 
 const GameUI: React.FC = () => {
+  const { width } = useWindowDimensions();
   const { score, timeLeft, scoreRoll } = useGameStore();
   const [pulseScale, setPulseScale] = useState(1);
   const [comboIncreaseScale, setComboIncreaseScale] = useState(1);
   const previousScoreRollRef = useRef(scoreRoll);
+
+  const isMobile = width < 768;
+  const fontSize = isMobile ? 24 : 32;
+  const margin = isMobile ? 60 : 100;
 
   // Combo increase animation
   useEffect(() => {
@@ -50,7 +56,7 @@ const GameUI: React.FC = () => {
   // Score text style
   const scoreTextStyle = new PIXI.TextStyle({
     fontFamily: "Arial",
-    fontSize: 32,
+    fontSize: fontSize,
     fontStyle: "italic",
     fontWeight: "bold",
     fill: ["#ffffff", "#00ff00"], // White to green gradient
@@ -67,7 +73,7 @@ const GameUI: React.FC = () => {
   // Combo text style
   const comboTextStyle = new PIXI.TextStyle({
     fontFamily: "Arial",
-    fontSize: 24,
+    fontSize: isMobile ? 18 : 24,
     fontStyle: "italic",
     fontWeight: "bold",
     fill: ["#ffd700", "#ff8c00", "#ff4500"], // Yellow to orange to red gradient
@@ -84,7 +90,7 @@ const GameUI: React.FC = () => {
   // Time text style
   const timeTextStyle = new PIXI.TextStyle({
     fontFamily: "Arial",
-    fontSize: 32,
+    fontSize: fontSize,
     fontStyle: "italic",
     fontWeight: "bold",
     fill:
@@ -108,7 +114,7 @@ const GameUI: React.FC = () => {
         text={`Score: ${score}`}
         style={scoreTextStyle}
         anchor={0.5}
-        x={100}
+        x={margin}
         y={50}
       />
 
@@ -118,8 +124,8 @@ const GameUI: React.FC = () => {
           text={`Combo: x${scoreRoll}`}
           style={comboTextStyle}
           anchor={0.5}
-          x={100}
-          y={100}
+          x={margin}
+          y={isMobile ? 80 : 100}
           scale={pulseScale * comboIncreaseScale}
         />
       )}
@@ -129,7 +135,7 @@ const GameUI: React.FC = () => {
         text={`Time: ${timeLeft}s`}
         style={timeTextStyle}
         anchor={0.5}
-        x={window.innerWidth - 100}
+        x={width - margin}
         y={50}
         scale={timeLeft <= 10 ? pulseScale : 1}
       />

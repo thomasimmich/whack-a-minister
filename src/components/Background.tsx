@@ -119,10 +119,21 @@ const useBackground = (width: number, height: number) => {
         if (!layer) return;
 
         // Use base speed when game is not in IDLE state (game over, splash, etc.)
-        const speedMultiplier =
+        const rawSpeedMultiplier =
           gameState === GameState.IDLE ? getSpeedMultiplier() : 1;
-        const cappedSpeedMultiplier = Math.min(speedMultiplier, 3);
-        const currentSpeed = BASE_SPEED * (index + 1) * cappedSpeedMultiplier;
+
+        // Soften how much the background speeds up at higher game speeds
+        const cappedSpeedMultiplier = Math.min(rawSpeedMultiplier, 3);
+        const easedSpeedMultiplier =
+          1 + (cappedSpeedMultiplier - 1) * 0.5; // slows down growth towards the end
+
+        // Make the parallax start slower and increase more gently between layers
+        const layerDepth =
+          NUM_LAYERS > 1 ? index / (NUM_LAYERS - 1) : 0; // 0 (back) -> 1 (front)
+        const layerSpeedFactor = 1 + layerDepth * 1; // from 1x to 2x across layers
+
+        const currentSpeed =
+          BASE_SPEED * 0.6 * layerSpeedFactor * easedSpeedMultiplier;
 
         // Calculate dynamic overlap based on speed
         const dynamicOverlap =
