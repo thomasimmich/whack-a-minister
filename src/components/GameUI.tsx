@@ -5,7 +5,7 @@ import { useWindowDimensions } from "../hooks/useWindowDimensions";
 import { useGameStore } from "../store/gameStore";
 
 const GameUI: React.FC = () => {
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   const { score, timeLeft, scoreRoll } = useGameStore();
   const [pulseScale, setPulseScale] = useState(1);
   const [comboIncreaseScale, setComboIncreaseScale] = useState(1);
@@ -14,7 +14,6 @@ const GameUI: React.FC = () => {
   const isMobile = width < 768;
   const fontSize = isMobile ? 24 : 32;
   const margin = isMobile ? 60 : 100;
-  const bottomMargin = isMobile ? 20 : 30;
 
   // Combo increase animation
   useEffect(() => {
@@ -110,34 +109,34 @@ const GameUI: React.FC = () => {
 
   return (
     <Container x={0} y={0}>
-      {/* Combo - only show when scoreRoll > 0, positioned above score */}
-      {scoreRoll > 1 && (
-        <Text
-          text={`Combo: x${scoreRoll}`}
-          style={comboTextStyle}
-          anchor={0.5}
-          x={margin}
-          y={height - bottomMargin - (isMobile ? 40 : 50)}
-          scale={pulseScale * comboIncreaseScale}
-        />
-      )}
-
       {/* Score */}
       <Text
         text={`Score: ${score}`}
         style={scoreTextStyle}
         anchor={0.5}
         x={margin}
-        y={height - bottomMargin}
+        y={50}
       />
 
-      {/* Time - positioned on the right side, bottom */}
+      {/* Combo - only show when scoreRoll > 0 */}
+      {scoreRoll > 1 && (
+        <Text
+          text={`Combo: x${scoreRoll}`}
+          style={comboTextStyle}
+          anchor={0.5}
+          x={margin}
+          y={isMobile ? 80 : 100}
+          scale={pulseScale * comboIncreaseScale}
+        />
+      )}
+
+      {/* Time - positioned on the right side, same y as score */}
       <Text
         text={`Time: ${timeLeft}s`}
         style={timeTextStyle}
         anchor={0.5}
         x={width - margin}
-        y={height - bottomMargin}
+        y={50}
         scale={timeLeft <= 10 ? pulseScale : 1}
       />
     </Container>

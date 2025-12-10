@@ -9,7 +9,6 @@ const SplashScreen = () => {
   const { initializeScores } = useScoreStore();
   const setGameState = useGameStateStore((state) => state.setGameState);
   const [musicStarted, setMusicStarted] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     initializeScores();
@@ -18,30 +17,6 @@ const SplashScreen = () => {
     const soundManager = SoundManager.getInstance();
     soundManager.startBackgroundMusic();
     setMusicStarted(true);
-
-    const handleFullscreenChange = () => {
-      const doc: any = document;
-      setIsFullscreen(
-        !!(
-          document.fullscreenElement ||
-          doc.webkitFullscreenElement ||
-          doc.mozFullScreenElement ||
-          doc.msFullscreenElement
-        )
-      );
-    };
-
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
-    document.addEventListener("mozfullscreenchange", handleFullscreenChange);
-    document.addEventListener("MSFullscreenChange", handleFullscreenChange);
-
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-      document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
-      document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
-      document.removeEventListener("MSFullscreenChange", handleFullscreenChange);
-    };
   }, [initializeScores]);
 
   const handleStartGame = () => {
@@ -62,57 +37,6 @@ const SplashScreen = () => {
       setMusicStarted(true);
     }
     setGameState(GameState.LEADERBOARD);
-  };
-
-  const handleToggleFullscreen = async () => {
-    if (typeof document === "undefined") return;
-
-    const doc: any = document;
-    const docEl: any = document.documentElement;
-
-    try {
-      // Check if already in fullscreen
-      const isInFullscreen = !!(
-        document.fullscreenElement ||
-        doc.webkitFullscreenElement ||
-        doc.mozFullScreenElement ||
-        doc.msFullscreenElement
-      );
-
-      if (!isInFullscreen) {
-        // Request fullscreen with all vendor prefixes
-        if (docEl.requestFullscreen) {
-          await docEl.requestFullscreen();
-        } else if (docEl.webkitRequestFullscreen) {
-          // iOS Safari
-          await docEl.webkitRequestFullscreen();
-        } else if (docEl.webkitEnterFullscreen) {
-          // Older iOS
-          await docEl.webkitEnterFullscreen();
-        } else if (docEl.mozRequestFullScreen) {
-          await docEl.mozRequestFullScreen();
-        } else if (docEl.msRequestFullscreen) {
-          await docEl.msRequestFullscreen();
-        }
-      } else {
-        // Exit fullscreen with all vendor prefixes
-        if (doc.exitFullscreen) {
-          await doc.exitFullscreen();
-        } else if (doc.webkitExitFullscreen) {
-          await doc.webkitExitFullscreen();
-        } else if (doc.mozCancelFullScreen) {
-          await doc.mozCancelFullScreen();
-        } else if (doc.msExitFullscreen) {
-          await doc.msExitFullscreen();
-        }
-      }
-    } catch (error) {
-      console.warn("Fullscreen not supported or failed:", error);
-      // On iOS, if fullscreen API is not supported, we can at least scroll to hide the address bar
-      if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-        window.scrollTo(0, 1);
-      }
-    }
   };
 
   return (
@@ -172,23 +96,6 @@ const SplashScreen = () => {
             </span>
             <span className="relative text-white z-[1]">
               Play
-            </span>
-          </motion.button>
-
-        
-
-          <motion.button
-            onClick={handleToggleFullscreen}
-            className="px-8 py-4 text-2xl sm:text-3xl font-bold italic transition-all duration-200 relative flex items-center justify-center font-sans border-4 border-black bg-gradient-to-b from-green-400 to-green-600 backdrop-blur-[10px] hover:scale-110 active:scale-90"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <span className="absolute text-transparent [-webkit-text-stroke:4px_#000000] z-0">
-              {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-            </span>
-            <span className="relative text-white z-[1]">
-              {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
             </span>
           </motion.button>
         </div>
