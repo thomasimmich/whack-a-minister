@@ -41,4 +41,36 @@ export const GameButton = styled.button`
   &:hover {
     background: #45a049;
   }
+`;
+
+export const ScoreTextContainer = styled.span`
+  position: relative;
+  display: inline-block;
+`;
+
+export const ScoreTextOutline = styled.span`
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  font-style: italic;
+  color: transparent;
+  -webkit-text-stroke: 6px #000000;
+  z-index: 0;
+`;
+
+export const ScoreTextFill = styled.span`
+  position: relative;
+  font-size: inherit;
+  font-weight: bold;
+  font-style: italic;
+  background: linear-gradient(to bottom, #ffffff, #00ff00);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(5.2px 3px 8px rgba(0, 0, 0, 1));
+  z-index: 1;
+  
+  user-select: none;
 `; 

@@ -13,7 +13,7 @@ const GameUI: React.FC = () => {
 
   const isMobile = width < 768;
   const fontSize = isMobile ? 24 : 32;
-  const margin = isMobile ? 60 : 100;
+  const margin = isMobile ? 80 : 120; // Increased to accommodate shadow
 
   // Combo increase animation
   useEffect(() => {
@@ -114,7 +114,7 @@ const GameUI: React.FC = () => {
         text={`Score: ${score}`}
         style={scoreTextStyle}
         anchor={0.5}
-        x={margin}
+        x={margin} // Add 20px "padding" to the right
         y={50}
       />
 

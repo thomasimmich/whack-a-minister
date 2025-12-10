@@ -110,7 +110,7 @@ const ENTRY_OFFSET = 150; // Increased from 100 to 150 for larger characters
 
 const maskConfigs = [
   { width: 800, height: 1000, bottomHeight: 75, rotation: -0.1, yOffset: -20 }, // Position 1: Back
-  { width: 800, height: 1000, bottomHeight: 0, rotation: -0.1, yOffset: -40 }, // Position 2: Almost back
+  { width: 800, height: 1200, bottomHeight: 0, rotation: -0.1, yOffset: -40 }, // Position 2: Almost back
   { width: 800, height: 1000, bottomHeight: 200, rotation: 0.05, yOffset: -15 }, // Position 3: Second from front
   { width: 800, height: 1000, bottomHeight: 230, rotation: 0.1, yOffset: 0 }, // Position 4: Front
 ];
