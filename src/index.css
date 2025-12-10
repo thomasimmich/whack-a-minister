@@ -8,10 +8,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+:root {
+  --vh: 1vh;
+}
+
 body {
   margin: 0;
   padding: 0;
-  min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100);
   width: 100vw;
   overflow: hidden;
 }

@@ -53,7 +53,7 @@ const GameOverScreen: React.FC = () => {
         {/* Left: Title */}
         <div className="flex-1 flex justify-center items-center h-screen">
           <motion.h1
-            className="text-6xl sm:text-7xl md:text-8xl font-bold italic relative font-sans flex flex-col items-center gap-2 text-center"
+            className="text-6xl sm:text-7xl md:text-8xl font-bold italic relative font-sans flex flex-row items-center gap-2 text-center"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -89,7 +89,7 @@ const GameOverScreen: React.FC = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, delay: 0.2 }}
           >
-            <div className="relative">
+            <div className="relative mt-4">
               <span className="absolute inset-0 text-transparent italic [-webkit-text-stroke:6px_#000000] z-0 text-6xl sm:text-7xl md:text-8xl">
                 {score}
               </span>
@@ -103,7 +103,7 @@ const GameOverScreen: React.FC = () => {
           </motion.div>
 
           {/* Buttons - aligned to bottom */}
-          <div className="flex flex-col items-center justify-center gap-4 sm:gap-6 pb-4">
+          <div className="flex mt-20 flex-col items-center justify-center gap-4 sm:gap-6 pb-4">
             <motion.button
               onClick={handlePlayAgain}
               className="px-8 py-4 text-2xl sm:text-3xl font-bold italic transition-all duration-200 relative flex items-center justify-center font-sans border-4 border-black bg-gradient-to-b from-blue-400 to-blue-600 backdrop-blur-[10px] hover:scale-110 active:scale-90"

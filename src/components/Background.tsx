@@ -1,10 +1,8 @@
 import { Container, Sprite } from "@pixi/react";
 import * as PIXI from "pixi.js";
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useWindowDimensions } from "../hooks";
-import { useGameStateStore } from "../store/gameStateStore";
 import { useGameStore } from "../store/gameStore";
-import { GameState } from "../types/gameTypes";
 
 interface Layer {
   sprites: PIXI.Sprite[];
@@ -12,24 +10,18 @@ interface Layer {
 }
 
 const NUM_LAYERS = 5;
-const BASE_SCALE_FACTOR = 1.5;
 
 const BASE_OVERLAP = 1.5;
-const BASE_SPEED = 10
-const OVERLAP_SPEED_MULTIPLIER = 0.5;
+const BASE_SPEED = 10;
 
 const Background: React.FC = () => {
   const { width, height } = useWindowDimensions();
-  const { layersRef, scaledHeight, spriteWidth, overlap } = useBackground(
+  const { layersRef, spriteHeight, imageAspectRatiosRef } = useBackground(
     width,
     height
   );
   const resetScoreRoll = useGameStore((state) => state.resetScoreRoll);
 
-  const initialPositions = useMemo(
-    () => [-width, -overlap, width - overlap],
-    [width, overlap]
-  );
 
   const handleBackgroundClick = (e: PIXI.FederatedPointerEvent) => {
     // Check if click is in character areas (x: 0.15, 0.35, 0.55, 0.75 with y around 0.5)
@@ -62,7 +54,7 @@ const Background: React.FC = () => {
     >
       {Array.from({ length: NUM_LAYERS }).map((_, index) => (
         <React.Fragment key={`layer-${index}`}>
-          {initialPositions.map((xPos, spriteIndex) => (
+          {[0, 1, 2].map((spriteIndex) => (
             <Sprite
               key={`sprite-${index}-${spriteIndex}`}
               ref={(el) => {
@@ -70,18 +62,25 @@ const Background: React.FC = () => {
                   if (!layersRef.current[index]) {
                     layersRef.current[index] = {
                       sprites: [],
-                      positions: initialPositions,
+                      positions: [],
                     };
                   }
                   layersRef.current[index].sprites[spriteIndex] = el;
+                  
+                  // Store aspect ratio when sprite is loaded
+                  if (el.texture && el.texture.width && el.texture.height) {
+                    const aspectRatio = el.texture.width / el.texture.height;
+                    imageAspectRatiosRef.current.set(index, aspectRatio);
+                    // Scale to fill viewport height while maintaining aspect ratio
+                    el.height = spriteHeight;
+                    el.width = spriteHeight * aspectRatio;
+                  }
                 }
               }}
               image={`/assets/images/back${index}.png`}
-              x={xPos}
-              y={height - scaledHeight}
-              width={spriteWidth}
-              height={scaledHeight}
-              anchor={0}
+              y={height}
+              height={spriteHeight}
+              anchor={[0, 1]}
             />
           ))}
         </React.Fragment>
@@ -95,60 +94,71 @@ export default Background;
 const useBackground = (width: number, height: number) => {
   const layersRef = useRef<Layer[]>([]);
   const animationRef = useRef<number>();
-  const { updateGameTime, getSpeedMultiplier } = useGameStore();
-  const gameState = useGameStateStore((state) => state.gameState);
+  const { updateGameTime } = useGameStore();
+  const imageAspectRatiosRef = useRef<Map<number, number>>(new Map());
 
-  const scaleFactor = BASE_SCALE_FACTOR;
-  const scaledHeight = height * scaleFactor;
-  const spriteWidth = width + BASE_OVERLAP;
   const overlap = BASE_OVERLAP;
+  const spriteHeight = height;
 
   useEffect(() => {
-    const initialPositions = [-width, -overlap, width - overlap];
-
-    // Initialize layer positions
-    layersRef.current.forEach((layer) => {
-      if (layer) {
-        layer.positions = initialPositions;
-      }
-    });
-
     const animate = () => {
       updateGameTime();
       layersRef.current.forEach((layer, index) => {
         if (!layer) return;
 
-        // Use base speed when game is not in IDLE state (game over, splash, etc.)
-        const rawSpeedMultiplier =
-          gameState === GameState.IDLE ? getSpeedMultiplier() : 1;
-
-        // Soften how much the background speeds up at higher game speeds
-        const cappedSpeedMultiplier = Math.min(rawSpeedMultiplier, 3);
-        const easedSpeedMultiplier =
-          1 + (cappedSpeedMultiplier - 1) * 0.5; // slows down growth towards the end
+        // Get aspect ratio to calculate sprite width
+        const aspectRatio = imageAspectRatiosRef.current.get(index);
+        const currentSpriteWidth = aspectRatio ? spriteHeight * aspectRatio : width + BASE_OVERLAP;
+        
+        // Initialize positions if not set, based on actual sprite width
+        if (layer.positions.length === 0 || layer.positions[0] === undefined) {
+          layer.positions = [-currentSpriteWidth, -overlap, currentSpriteWidth - overlap];
+        }
 
         // Make the parallax start slower and increase more gently between layers
         const layerDepth =
           NUM_LAYERS > 1 ? index / (NUM_LAYERS - 1) : 0; // 0 (back) -> 1 (front)
         const layerSpeedFactor = 1 + layerDepth * 1; // from 1x to 2x across layers
 
-        const currentSpeed =
-          BASE_SPEED * 0.6 * layerSpeedFactor * easedSpeedMultiplier;
+        // Constant speed - no speed multiplier applied
+        const currentSpeed = BASE_SPEED * 0.6 * layerSpeedFactor;
 
-        // Calculate dynamic overlap based on speed
-        const dynamicOverlap =
-          BASE_OVERLAP + currentSpeed * OVERLAP_SPEED_MULTIPLIER;
-        const spriteWidth = width + dynamicOverlap;
-
-        layer.positions = layer.positions.map((pos) => {
-          const newPos = pos - currentSpeed;
-          return newPos <= -width ? width - dynamicOverlap : newPos;
+        // Update positions with movement
+        const updatedPositions = layer.positions.map((pos) => pos - currentSpeed);
+        
+        // Handle wrap-around: move sprites that went off-screen to the right side
+        updatedPositions.forEach((newPos, spriteIndex) => {
+          if (newPos <= -currentSpriteWidth) {
+            // Find the rightmost sprite position (excluding this one)
+            const otherPositions = updatedPositions.filter((_, i) => i !== spriteIndex);
+            const rightmostPos = otherPositions.length > 0 ? Math.max(...otherPositions) : currentSpriteWidth - overlap;
+            // Place this sprite right after the rightmost sprite, ensuring seamless connection
+            updatedPositions[spriteIndex] = rightmostPos + currentSpriteWidth - overlap;
+          }
         });
+        
+        layer.positions = updatedPositions;
 
         layer.sprites.forEach((sprite, i) => {
-          if (sprite) {
+          if (sprite && sprite.texture) {
             sprite.x = layer.positions[i];
-            sprite.width = spriteWidth;
+            
+            // Get aspect ratio from texture if available
+            const imgAspectRatio = imageAspectRatiosRef.current.get(index);
+            if (imgAspectRatio) {
+              // Scale to fill viewport height while maintaining aspect ratio
+              sprite.height = spriteHeight;
+              sprite.width = spriteHeight * imgAspectRatio;
+            } else {
+              // Fallback: try to get from texture
+              const texture = sprite.texture;
+              if (texture && texture.width && texture.height) {
+                const calculatedAspectRatio = texture.width / texture.height;
+                imageAspectRatiosRef.current.set(index, calculatedAspectRatio);
+                sprite.height = spriteHeight;
+                sprite.width = spriteHeight * calculatedAspectRatio;
+              }
+            }
           }
         });
       });
@@ -163,14 +173,12 @@ const useBackground = (width: number, height: number) => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [width, height, updateGameTime, getSpeedMultiplier, gameState]);
+  }, [width, height, updateGameTime, spriteHeight, imageAspectRatiosRef]);
 
   return {
     layersRef,
     animationRef,
-    scaleFactor,
-    scaledHeight,
-    spriteWidth,
-    overlap,
+    spriteHeight,
+    imageAspectRatiosRef,
   };
 };
