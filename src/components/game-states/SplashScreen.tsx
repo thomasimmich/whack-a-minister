@@ -20,13 +20,27 @@ const SplashScreen = () => {
     setMusicStarted(true);
 
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+      const doc: any = document;
+      setIsFullscreen(
+        !!(
+          document.fullscreenElement ||
+          doc.webkitFullscreenElement ||
+          doc.mozFullScreenElement ||
+          doc.msFullscreenElement
+        )
+      );
     };
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+    document.addEventListener("MSFullscreenChange", handleFullscreenChange);
 
     return () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
+      document.removeEventListener("mozfullscreenchange", handleFullscreenChange);
+      document.removeEventListener("MSFullscreenChange", handleFullscreenChange);
     };
   }, [initializeScores]);
 
@@ -50,23 +64,53 @@ const SplashScreen = () => {
     setGameState(GameState.LEADERBOARD);
   };
 
-  const handleToggleFullscreen = () => {
+  const handleToggleFullscreen = async () => {
     if (typeof document === "undefined") return;
 
     const doc: any = document;
     const docEl: any = document.documentElement;
 
-    if (!document.fullscreenElement && !doc.webkitFullscreenElement) {
-      if (docEl.requestFullscreen) {
-        docEl.requestFullscreen();
-      } else if (docEl.webkitRequestFullscreen) {
-        docEl.webkitRequestFullscreen();
+    try {
+      // Check if already in fullscreen
+      const isInFullscreen = !!(
+        document.fullscreenElement ||
+        doc.webkitFullscreenElement ||
+        doc.mozFullScreenElement ||
+        doc.msFullscreenElement
+      );
+
+      if (!isInFullscreen) {
+        // Request fullscreen with all vendor prefixes
+        if (docEl.requestFullscreen) {
+          await docEl.requestFullscreen();
+        } else if (docEl.webkitRequestFullscreen) {
+          // iOS Safari
+          await docEl.webkitRequestFullscreen();
+        } else if (docEl.webkitEnterFullscreen) {
+          // Older iOS
+          await docEl.webkitEnterFullscreen();
+        } else if (docEl.mozRequestFullScreen) {
+          await docEl.mozRequestFullScreen();
+        } else if (docEl.msRequestFullscreen) {
+          await docEl.msRequestFullscreen();
+        }
+      } else {
+        // Exit fullscreen with all vendor prefixes
+        if (doc.exitFullscreen) {
+          await doc.exitFullscreen();
+        } else if (doc.webkitExitFullscreen) {
+          await doc.webkitExitFullscreen();
+        } else if (doc.mozCancelFullScreen) {
+          await doc.mozCancelFullScreen();
+        } else if (doc.msExitFullscreen) {
+          await doc.msExitFullscreen();
+        }
       }
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (doc.webkitExitFullscreen) {
-        doc.webkitExitFullscreen();
+    } catch (error) {
+      console.warn("Fullscreen not supported or failed:", error);
+      // On iOS, if fullscreen API is not supported, we can at least scroll to hide the address bar
+      if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+        window.scrollTo(0, 1);
       }
     }
   };
