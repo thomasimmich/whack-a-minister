@@ -1,80 +1,73 @@
-# Whack-a-Minister Game
+# React + TypeScript + Vite
 
-A humorous "Whack-a-Mole" style game built with React and PixiJS, where players need to hit the right politicians while avoiding hitting environmental activists.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Features
+Currently, two official plugins are available:
 
-- Interactive gameplay with a custom hammer cursor
-- Animated car and characters
-- Sound effects and background music
-- Score tracking and timer
-- Responsive design
-- Multiple game states (Loading, Splash, Playing, Game Over)
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Prerequisites
+## React Compiler
 
-- Node.js (v14 or higher)
-- npm (v6 or higher)
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Installation
+## Expanding the ESLint configuration
 
-1. Clone the repository
-2. Install dependencies:
-```bash
-npm install
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
+
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
-## Running the Game
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-To start the development server:
-```bash
-npm run dev
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-
-The game will be available at `http://localhost:5173`
-
-## How to Play
-
-1. Click "Start Game" to begin
-2. Use your mouse to control the hammer cursor
-3. Click on the ministers to score points (+10 points)
-4. Avoid clicking on Greta (-30 points)
-5. Collect time bonuses to extend your play time (+10 seconds)
-6. Try to get the highest score before time runs out!
-
-## Game Controls
-
-- Left Mouse Button: Hit with hammer
-- Mute Button: Toggle sound effects and music
-
-## Game States
-
-- Loading: Initial loading screen
-- Splash: Start screen with game title and start button
-- Playing: Main gameplay
-- Game Over: Final score screen with replay option
-
-## Technologies Used
-
-- React
-- TypeScript
-- PixiJS
-- Styled Components
-- Web Audio API
-
-## Asset Credits
-
-All game assets (images and sounds) are located in the `src/assets` directory:
-- `/images`: Contains all game graphics
-- `/sounds`: Contains all game audio files
-
-## Development
-
-To build the game for production:
-```bash
-npm run build
-```
-
-## License
-
-This project is licensed under the MIT License.
